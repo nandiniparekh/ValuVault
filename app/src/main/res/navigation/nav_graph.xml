@@ -25,4 +25,16 @@
             android:id="@+id/action_SecondFragment_to_FirstFragment"
             app:destination="@id/FirstFragment" />
     </fragment>
+
+    <fragment
+        android:id="@+id/nav_items"
+        android:name="com.example.cmput301groupproject.FirstFragment"
+        android:label="Items"
+        tools:layout="@layout/fragment_first" />
+
+    <fragment
+        android:id="@+id/nav_profile"
+        android:name="com.example.cmput301groupproject.SecondFragment"
+        android:label="Profile"
+        tools:layout="@layout/fragment_second" />
 </navigation>
