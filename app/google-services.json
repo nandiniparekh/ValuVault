@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "649017567103",
+    "project_id": "cmput301groupproject-bc4c5",
+    "storage_bucket": "cmput301groupproject-bc4c5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:649017567103:android:541734af5b7e4ed8815c4a",
+        "android_client_info": {
+          "package_name": "com.example.cmput301groupproject"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC9uk7HdhHkQNiRAxvSdIjs5PYxVXpoDSI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
