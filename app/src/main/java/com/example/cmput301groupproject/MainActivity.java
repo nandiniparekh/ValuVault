@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -17,7 +16,7 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.example.cmput301groupproject.databinding.ActivityMainBinding;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -41,16 +40,16 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+//        setContentView(R.layout.activity_main);
 
-        setContentView(R.layout.activity_main);
-//        binding = ActivityMainBinding.inflate(getLayoutInflater());
-//        setContentView(binding.getRoot());
-//
-//        //setSupportActionBar(binding.bottomNavigation);
-//
-//        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
-//        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
-//        NavigationUI.setupWithNavController(bottomNavigationView, navController);
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+        //setSupportActionBar(binding.bottomNavigation);
+
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
+        NavigationUI.setupWithNavController(bottomNavigationView, navController);
 
         db = FirebaseFirestore.getInstance();
 
@@ -59,16 +58,16 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
         // Other code omitted
 
         itemAdapter = new CustomItemList(this, dataList);
-        itemList = findViewById(R.id.item_list);
-        itemList.setAdapter(itemAdapter);
-
-        final FloatingActionButton editItemsButton = findViewById(R.id.edit_items_b);
-        editItemsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                new ItemFragment().show(getSupportFragmentManager(), "EDIT_ITEM");
-            }
-        });
+//        itemList = findViewById(R.id.item_list);
+//        itemList.setAdapter(itemAdapter);
+//
+//        final FloatingActionButton editItemsButton = findViewById(R.id.edit_items_b);
+//        editItemsButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                new ItemFragment().show(getSupportFragmentManager(), "EDIT_ITEM");
+//            }
+//        });
 
         itemsRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
