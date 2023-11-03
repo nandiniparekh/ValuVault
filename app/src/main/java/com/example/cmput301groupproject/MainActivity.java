@@ -58,9 +58,11 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
         // Other code omitted
 
         itemAdapter = new CustomItemList(this, dataList);
+
+        // itemList and editItemsButton commented out to make navgraph work. Uncomment to use with setContentView(R.layout.activity_main);
 //        itemList = findViewById(R.id.item_list);
 //        itemList.setAdapter(itemAdapter);
-//
+
 //        final FloatingActionButton editItemsButton = findViewById(R.id.edit_items_b);
 //        editItemsButton.setOnClickListener(new View.OnClickListener() {
 //            @Override
