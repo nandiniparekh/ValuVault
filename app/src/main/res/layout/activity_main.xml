@@ -16,7 +16,7 @@ tools:context=".MainActivity">
     ></ListView>
 
 <com.google.android.material.floatingactionbutton.FloatingActionButton
-    android:id="@+id/edit_items_b"
+    android:id="@+id/add_item_b"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_gravity="bottom|end"

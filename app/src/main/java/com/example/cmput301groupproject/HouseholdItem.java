@@ -1,9 +1,10 @@
 package com.example.cmput301groupproject;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HouseholdItem {
+public class HouseholdItem implements Serializable {
     private String dateOfPurchase;
     private String description;
     private String make;

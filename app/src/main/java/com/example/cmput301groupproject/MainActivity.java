@@ -3,6 +3,7 @@ package com.example.cmput301groupproject;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -44,11 +45,21 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
         itemList = findViewById(R.id.item_list);
         itemList.setAdapter(itemAdapter);
 
-        final FloatingActionButton editItemsButton = findViewById(R.id.edit_items_b);
-        editItemsButton.setOnClickListener(new View.OnClickListener() {
+        // Allows editing or removal of clicked expenses
+        itemList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                HouseholdItem selectedItem = dataList.get(i);
+
+                ItemFragment.newInstance(selectedItem).show(getSupportFragmentManager(), "EDIT_ITEM");
+            }
+        });
+
+        final FloatingActionButton addItemButton = findViewById(R.id.add_item_b);
+        addItemButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new ItemFragment().show(getSupportFragmentManager(), "EDIT_ITEM");
+                new ItemFragment().show(getSupportFragmentManager(), "ADD_ITEM");
             }
         });
 
@@ -63,8 +74,8 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
                 if (querySnapshots != null) {
                     dataList.clear();
                     for (QueryDocumentSnapshot doc: querySnapshots) {
+                        String description = doc.getId();
                         String dateOfPurchaseString = doc.getString("PurchaseDate");
-                        String description = doc.getString("Description");
                         String make = doc.getString("Make");
                         String model = doc.getString("Model");
                         String serialNumber = doc.getString("SerialNumber");
@@ -83,13 +94,14 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
     }
 
     @Override
-    public void onOKPressed(HouseholdItem item) {
+    public void onHouseholdItemAdded(HouseholdItem item) {
         HashMap<String, String> data = new HashMap<>();
         data.put("Make", item.getMake());
         data.put("Model", item.getModel());
         data.put("Estimated Value", item.getEstimatedValue());
         data.put("Comment", item.getComment());
         data.put("Serial Number", item.getSerialNumber());
+        data.put("Purchase Date", item.getDateOfPurchase());
         itemsRef.document(item.getDescription()).set(data);
 
         itemsRef
@@ -101,6 +113,13 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
                         Log.d("Firestore", "DocumentSnapshot successfully written!");
                     }
                 });
+    }
+
+    public void onHouseholdItemEdited(HouseholdItem editedItem) {
+
+    }
+
+    public void onHouseholdItemRemoved(HouseholdItem removedItem) {
 
     }
 }
