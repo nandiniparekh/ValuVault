@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 
 import androidx.annotation.Nullable;
@@ -20,8 +21,9 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements ItemFragment.OnFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements ItemFragment.OnFragmentInteractionListener,SortFragment.SortListener {
     private ArrayList<HouseholdItem> dataList;
     private ListView itemList;
     private ArrayAdapter<HouseholdItem> itemAdapter;
@@ -52,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
             }
         });
 
+
         itemsRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot querySnapshots,
@@ -76,11 +79,39 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
                         dataList.add(new HouseholdItem(dateOfPurchaseString, description, make, model, serialNumber, estimatedValue, comment));
                     }
                     itemAdapter.notifyDataSetChanged();
+
+                    // *********** this part below works ************
+                    //SortFragment SortFragment = new SortFragment();
+                    //SortFragment.receiveDataList(dataList);
+
                 }
             }
         });
 
+        // Find the button
+        Button btnSort = findViewById(R.id.btn_sort);
+
+        // Set OnClickListener for the sort button
+        btnSort.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d("Button", "Sort Button Clicked");
+
+                // *************** but this part doesn't ******************
+
+                // Call the SortFragment to sort the list when the button is clicked
+                SortFragment sortFragment = new SortFragment();
+                sortFragment.setSortListener(MainActivity.this); // Setting the listener to the activity
+                sortFragment.receiveDataList(dataList);
+            }
+        });
+
+
+
+
     }
+
+
 
     @Override
     public void onOKPressed(HouseholdItem item) {
@@ -103,4 +134,19 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
                 });
 
     }
+    // this method to receive the sorted list from the SortFragment
+    @Override
+    public void onSortDataList(List<HouseholdItem> sortedList) {
+        if (sortedList != null && !sortedList.isEmpty()) {
+            dataList.clear();
+            dataList.addAll(sortedList);
+            itemAdapter.notifyDataSetChanged();
+            Log.d("Doggy", "Sorted dataList: " + dataList.size() + " items");
+
+
+        } else {
+            Log.e("MainActivity", "Received empty or null sorted list from SortFragment.");
+        }
+    }
+
 }
