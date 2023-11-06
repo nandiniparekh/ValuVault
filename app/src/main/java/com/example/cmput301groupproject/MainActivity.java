@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -24,9 +25,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity implements ItemFragment.OnFragmentInteractionListener {
+    private Button selectButton;
+    private Button tagButton;
+    private Button sortButton;
+    private Button filterButton;
     private ListView itemList;
     private FloatingActionButton addItemButton;
-    private TextView totalEstimatedValue;
     private ArrayList<HouseholdItem> dataList;
     private ArrayAdapter<HouseholdItem> itemAdapter;
     private FirebaseFirestore db;
@@ -65,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
             }
         });
 
-        final FloatingActionButton addItemButton = findViewById(R.id.add_item_b);
+        addItemButton = findViewById(R.id.add_item_b);
         addItemButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -101,6 +105,40 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
                     // Calculate the total estimated value of the items and set it to the TextView
                     setTotalEstimatedValue(dataList);
                 }
+            }
+        });
+
+        selectButton = findViewById(R.id.selectButton);
+        tagButton = findViewById(R.id.tagButton);
+        sortButton = findViewById(R.id.sortButton);
+        filterButton = findViewById(R.id.filterButton);
+
+        selectButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Add logic for the select button here
+                // For example: show a dialog, start an activity, or perform any other action
+            }
+        });
+
+        tagButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Go to tags. Probably source inspiration from "Kendrick" branch
+            }
+        });
+
+        sortButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Implement Marzia's stuff
+            }
+        });
+
+        filterButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Implement Nandini's stuff
             }
         });
 
