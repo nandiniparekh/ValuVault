@@ -67,7 +67,7 @@ public class ItemFragment extends DialogFragment {
             make.setText(passedHouseholdItem.getMake());
             model.setText(passedHouseholdItem.getModel());
             serialNumber.setText(passedHouseholdItem.getSerialNumber());
-            estimatedValue.setText(String.valueOf(passedHouseholdItem.getEstimatedValue()));
+            estimatedValue.setText(passedHouseholdItem.getEstimatedValue());
             comment.setText(passedHouseholdItem.getComment());
         }
 

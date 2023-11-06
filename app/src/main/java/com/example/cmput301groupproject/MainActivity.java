@@ -58,6 +58,13 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
             }
         });
 
+        itemList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                return false;
+            }
+        });
+
         final FloatingActionButton addItemButton = findViewById(R.id.add_item_b);
         addItemButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,14 +72,6 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
                 new ItemFragment().show(getSupportFragmentManager(), "ADD_ITEM");
             }
         });
-
-        totalEstimatedValue = findViewById(R.id.total_item_value);
-
-        // Your logic for populating the ListView goes here
-
-        // Calculate the total estimated value of the items and set it to the TextView
-        double totalValue = calculateTotalEstimatedValue(dataList); // Define your own method
-        totalEstimatedValue.setText("Total Estimated Value: $" + totalValue);
 
         itemsRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
@@ -86,11 +85,11 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
                     dataList.clear();
                     for (QueryDocumentSnapshot doc: querySnapshots) {
                         String description = doc.getId();
-                        String dateOfPurchaseString = doc.getString("PurchaseDate");
+                        String dateOfPurchaseString = doc.getString("Purchase Date");
                         String make = doc.getString("Make");
                         String model = doc.getString("Model");
-                        String serialNumber = doc.getString("SerialNumber");
-                        String estimatedValue = doc.getString("EstimatedValue");
+                        String serialNumber = doc.getString("Serial Number");
+                        String estimatedValue = doc.getString("Estimated Value");
                         String comment = doc.getString("Comment");
 
                         Log.d("Firestore", String.format("Item(%s, %s, %s, %s, %s, %s, %s) fetched",
@@ -98,10 +97,20 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
                         dataList.add(new HouseholdItem(dateOfPurchaseString, description, make, model, serialNumber, estimatedValue, comment));
                     }
                     itemAdapter.notifyDataSetChanged();
+
+                    // Calculate the total estimated value of the items and set it to the TextView
+                    setTotalEstimatedValue(dataList);
                 }
             }
         });
 
+    }
+
+    // Method to set the total estimated value
+    private void setTotalEstimatedValue(ArrayList<HouseholdItem> items) {
+        double totalValue = calculateTotalEstimatedValue(items);
+        TextView totalEstimatedValue = findViewById(R.id.total_item_value);
+        totalEstimatedValue.setText("Total Estimated Value: $" + totalValue);
     }
 
     // Calculate the total estimated value of all items in the list
@@ -110,11 +119,13 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
 
         for (HouseholdItem item : items) {
             String estimatedValueString = item.getEstimatedValue(); // Assuming estimatedValue is a string
-            try {
-                double estimatedValue = Double.parseDouble(estimatedValueString);
-                totalValue += estimatedValue;
-            } catch (NumberFormatException e) {
-                e.printStackTrace();
+            if (estimatedValueString != null && !estimatedValueString.trim().isEmpty()) {
+                try {
+                    double estimatedValue = Double.parseDouble(estimatedValueString);
+                    totalValue += estimatedValue;
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
+                }
             }
         }
 
@@ -144,10 +155,29 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
     }
 
     public void onHouseholdItemEdited(HouseholdItem editedItem) {
+        HashMap<String, String> data = new HashMap<>();
+        data.put("Make", editedItem.getMake());
+        data.put("Model", editedItem.getModel());
+        data.put("Estimated Value", editedItem.getEstimatedValue());
+        data.put("Comment", editedItem.getComment());
+        data.put("Serial Number", editedItem.getSerialNumber());
+        data.put("Purchase Date", editedItem.getDateOfPurchase());
+        itemsRef.document(editedItem.getDescription()).set(data);
 
+        itemsRef
+                .document(editedItem.getDescription())
+                .set(data)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d("Firestore", "DocumentSnapshot successfully written!");
+                    }
+                });
     }
 
     public void onHouseholdItemRemoved(HouseholdItem removedItem) {
-
+        itemAdapter.remove(removedItem);
+        itemsRef.document(removedItem.getDescription()).delete();
+        itemAdapter.notifyDataSetChanged();
     }
 }
