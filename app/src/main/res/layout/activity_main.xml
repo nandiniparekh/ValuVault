@@ -26,4 +26,13 @@ tools:context=".MainActivity">
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toTopOf="parent"
     app:srcCompat="@android:drawable/bottom_bar" />
+
+<TextView
+    android:id="@+id/total_item_value"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="bottom|center_horizontal"
+    android:layout_marginTop="16dp"
+    android:text="Total Estimated Value: $0"
+    android:textSize="18sp" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

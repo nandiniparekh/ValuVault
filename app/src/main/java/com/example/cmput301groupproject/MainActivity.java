@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,8 +24,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity implements ItemFragment.OnFragmentInteractionListener {
-    private ArrayList<HouseholdItem> dataList;
     private ListView itemList;
+    private FloatingActionButton addItemButton;
+    private TextView totalEstimatedValue;
+    private ArrayList<HouseholdItem> dataList;
     private ArrayAdapter<HouseholdItem> itemAdapter;
     private FirebaseFirestore db;
     private CollectionReference itemsRef;
@@ -36,7 +39,7 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
 
         db = FirebaseFirestore.getInstance();
 
-        itemsRef = db.collection("items");
+        itemsRef = db.collection("Kendrick_items");
         dataList = new ArrayList<>();
         // Other code omitted
 
@@ -62,6 +65,14 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
                 new ItemFragment().show(getSupportFragmentManager(), "ADD_ITEM");
             }
         });
+
+        totalEstimatedValue = findViewById(R.id.total_item_value);
+
+        // Your logic for populating the ListView goes here
+
+        // Calculate the total estimated value of the items and set it to the TextView
+        double totalValue = calculateTotalEstimatedValue(dataList); // Define your own method
+        totalEstimatedValue.setText("Total Estimated Value: $" + totalValue);
 
         itemsRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
@@ -91,6 +102,23 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
             }
         });
 
+    }
+
+    // Calculate the total estimated value of all items in the list
+    private double calculateTotalEstimatedValue(ArrayList<HouseholdItem> items) {
+        double totalValue = 0.0;
+
+        for (HouseholdItem item : items) {
+            String estimatedValueString = item.getEstimatedValue(); // Assuming estimatedValue is a string
+            try {
+                double estimatedValue = Double.parseDouble(estimatedValueString);
+                totalValue += estimatedValue;
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return totalValue;
     }
 
     @Override
