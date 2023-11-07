@@ -12,6 +12,7 @@ public class HouseholdItem implements Serializable {
     private String serialNumber;
     private String estimatedValue;
     private String comment;
+    private String firestoreId;
 
     private List<String> tags;
 
@@ -81,6 +82,14 @@ public class HouseholdItem implements Serializable {
 
     public void setComment(String comment) {
         this.comment = comment;
+    }
+
+    public String getFirestoreId() {
+        return firestoreId;
+    }
+
+    public void setFirestoreId(String firestoreId) {
+        this.firestoreId = firestoreId;
     }
 
     public void addTag(String tag) {

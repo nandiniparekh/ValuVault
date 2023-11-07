@@ -9,12 +9,15 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -43,7 +46,7 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
 
         db = FirebaseFirestore.getInstance();
 
-        itemsRef = db.collection("Kendrick_items");
+        itemsRef = db.collection("ID_items");
         dataList = new ArrayList<>();
         // Other code omitted
 
@@ -88,7 +91,8 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
                 if (querySnapshots != null) {
                     dataList.clear();
                     for (QueryDocumentSnapshot doc: querySnapshots) {
-                        String description = doc.getId();
+                        String firestoreId = doc.getId(); // Retrieve the auto-generated Firestore ID
+                        String description = doc.getString("Description");
                         String dateOfPurchaseString = doc.getString("Purchase Date");
                         String make = doc.getString("Make");
                         String model = doc.getString("Model");
@@ -98,7 +102,9 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
 
                         Log.d("Firestore", String.format("Item(%s, %s, %s, %s, %s, %s, %s) fetched",
                                 dateOfPurchaseString, description, make, model, serialNumber, estimatedValue, comment));
-                        dataList.add(new HouseholdItem(dateOfPurchaseString, description, make, model, serialNumber, estimatedValue, comment));
+                        HouseholdItem savedItem = new HouseholdItem(dateOfPurchaseString, description, make, model, serialNumber, estimatedValue, comment);
+                        savedItem.setFirestoreId(firestoreId);
+                        dataList.add(savedItem);
                     }
                     itemAdapter.notifyDataSetChanged();
 
@@ -116,8 +122,7 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
         selectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Add logic for the select button here
-                // For example: show a dialog, start an activity, or perform any other action
+                // Maybe switch ListView or just spawn ListFragment
             }
         });
 
@@ -173,42 +178,44 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
     @Override
     public void onHouseholdItemAdded(HouseholdItem item) {
         HashMap<String, String> data = new HashMap<>();
+        data.put("Description", item.getDescription());
         data.put("Make", item.getMake());
         data.put("Model", item.getModel());
         data.put("Estimated Value", item.getEstimatedValue());
         data.put("Comment", item.getComment());
         data.put("Serial Number", item.getSerialNumber());
         data.put("Purchase Date", item.getDateOfPurchase());
-        itemsRef.document(item.getDescription()).set(data);
-
-        itemsRef
-                .document(item.getDescription())
-                .set(data)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
+        itemsRef.add(data)
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d("Firestore", "DocumentSnapshot successfully written!");
+                    public void onSuccess(DocumentReference documentReference) {
+                        String documentId = documentReference.getId(); // Store this auto-generated ID for future use
+                        Log.d("Firestore", "DocumentSnapshot written with ID: " + documentId);
                     }
                 });
     }
 
     public void onHouseholdItemEdited(HouseholdItem editedItem) {
-        HashMap<String, String> data = new HashMap<>();
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("Description", editedItem.getDescription());
         data.put("Make", editedItem.getMake());
         data.put("Model", editedItem.getModel());
         data.put("Estimated Value", editedItem.getEstimatedValue());
         data.put("Comment", editedItem.getComment());
         data.put("Serial Number", editedItem.getSerialNumber());
         data.put("Purchase Date", editedItem.getDateOfPurchase());
-        itemsRef.document(editedItem.getDescription()).set(data);
-
-        itemsRef
-                .document(editedItem.getDescription())
-                .set(data)
+        itemsRef.document(editedItem.getFirestoreId())
+                .update(data)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d("Firestore", "DocumentSnapshot successfully written!");
+                        Log.d("Firestore", "DocumentSnapshot successfully updated!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w("Firestore", "Error updating document", e);
                     }
                 });
     }
