@@ -26,12 +26,15 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements ItemFragment.OnFragmentInteractionListener {
     private Button selectButton;
     private Button tagButton;
     private Button sortButton;
     private Button filterButton;
+
+
     private ListView itemList;
     private FloatingActionButton addItemButton;
     private ArrayList<HouseholdItem> dataList;
@@ -80,6 +83,7 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
             }
         });
 
+
         itemsRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot querySnapshots,
@@ -107,6 +111,7 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
                         dataList.add(savedItem);
                     }
                     itemAdapter.notifyDataSetChanged();
+
 
                     // Calculate the total estimated value of the items and set it to the TextView
                     setTotalEstimatedValue(dataList);
@@ -173,7 +178,10 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
         }
 
         return totalValue;
+
     }
+
+
 
     @Override
     public void onHouseholdItemAdded(HouseholdItem item) {
@@ -225,4 +233,19 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
         itemsRef.document(removedItem.getDescription()).delete();
         itemAdapter.notifyDataSetChanged();
     }
+    // this method to receive the sorted list from the SortFragment
+    @Override
+    public void onSortDataList(List<HouseholdItem> sortedList) {
+        if (sortedList != null && !sortedList.isEmpty()) {
+            dataList.clear();
+            dataList.addAll(sortedList);
+            itemAdapter.notifyDataSetChanged();
+            Log.d("Doggy", "Sorted dataList: " + dataList.size() + " items");
+
+
+        } else {
+            Log.e("MainActivity", "Received empty or null sorted list from SortFragment.");
+        }
+    }
+
 }
