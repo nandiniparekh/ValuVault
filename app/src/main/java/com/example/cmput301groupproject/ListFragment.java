@@ -5,20 +5,22 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
+import androidx.fragment.app.DialogFragment;
 
 import java.util.ArrayList;
 
-public class ListFragment extends Fragment {
+public class ListFragment extends DialogFragment {
     private Button backSelectButton;
     private Button applyTagsButton;
     private Button deleteSelectedItemsButton;
-    private ListView itemList;
-    private ArrayList<HouseholdItem> passedItemList;
+    private ListView selectItemList;
+    private ArrayList<HouseholdItem> passedDataList;
+    private ArrayAdapter<HouseholdItem> listAdapter;
     private ArrayList<HouseholdItem> selectedItems;
     private ArrayList<String> selectedTags;
     private OnFragmentInteractionListener listListener;
@@ -43,11 +45,26 @@ public class ListFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.edit_list_fragment, container, false);
 
+        selectItemList = view.findViewById(R.id.select_item_list);
+        passedDataList = new ArrayList<>();
+
+        Bundle args = getArguments();
+        if (args != null) {
+            passedDataList = (ArrayList<HouseholdItem>) args.getSerializable("items");
+        }
+
         // Find the buttons in the layout
-        Button applyTagsButton = view.findViewById(R.id.applyTagsButton);
-        Button deleteSelectedItemsButton = view.findViewById(R.id.deleteSelectedItemsButton);
+        backSelectButton = view.findViewById((R.id.backSelectButton));
+        applyTagsButton = view.findViewById(R.id.applyTagsButton);
+        deleteSelectedItemsButton = view.findViewById(R.id.deleteSelectedItemsButton);
 
         // Set click listeners for the buttons
+        backSelectButton.setOnClickListener((new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Exit fragment
+            }
+        }));
         applyTagsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -67,8 +84,8 @@ public class ListFragment extends Fragment {
 
 
 
-    public static ItemFragment newInstance(ArrayList<HouseholdItem> items) {
-        ItemFragment fragment = new ItemFragment();
+    public static ListFragment newInstance(ArrayList<HouseholdItem> items) {
+        ListFragment fragment = new ListFragment();
 
         Bundle args = new Bundle();
         args.putSerializable("items", items);

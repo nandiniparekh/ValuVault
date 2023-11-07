@@ -8,15 +8,6 @@
     android:fitsSystemWindows="true"
     tools:context=".MainActivity">
 
-    <ListView
-        android:id="@+id/select_item_list"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/bottomButtonLayout"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/topButtonLayout" />
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/topButtonLayout"
         android:layout_width="match_parent"
@@ -67,6 +58,14 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <ListView
+        android:id="@+id/select_item_list"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/bottomButtonLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/topButtonLayout" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/bottomButtonLayout"

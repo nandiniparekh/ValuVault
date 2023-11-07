@@ -28,15 +28,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements ItemFragment.OnFragmentInteractionListener, ListFragment.OnFragmentInteractionListener{
+public class MainActivity extends AppCompatActivity implements ItemFragment.OnFragmentInteractionListener, ListFragment.OnFragmentInteractionListener, SortFragment.SortListener{
     private Button selectButton;
     private Button tagButton;
     private Button sortButton;
     private Button filterButton;
-
-
     private ListView itemList;
     private FloatingActionButton addItemButton;
+
     private ArrayList<HouseholdItem> dataList;
     private ArrayAdapter<HouseholdItem> itemAdapter;
     private FirebaseFirestore db;
@@ -126,6 +125,7 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
             @Override
             public void onClick(View v) {
                 // Maybe switch ListView or just spawn ListFragment
+                ListFragment.newInstance(dataList).show(getSupportFragmentManager(), "SELECT_ITEMS");
             }
         });
 
