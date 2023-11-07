@@ -26,12 +26,15 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements ItemFragment.OnFragmentInteractionListener, ListFragment.OnFragmentInteractionListener{
     private Button selectButton;
     private Button tagButton;
     private Button sortButton;
     private Button filterButton;
+
+
     private ListView itemList;
     private FloatingActionButton addItemButton;
     private ArrayList<HouseholdItem> dataList;
@@ -239,4 +242,19 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
             onHouseholdItemRemoved(removedItem);
         }
     }
+    // this method to receive the sorted list from the SortFragment
+    @Override
+    public void onSortDataList(List<HouseholdItem> sortedList) {
+        if (sortedList != null && !sortedList.isEmpty()) {
+            dataList.clear();
+            dataList.addAll(sortedList);
+            itemAdapter.notifyDataSetChanged();
+            Log.d("Doggy", "Sorted dataList: " + dataList.size() + " items");
+
+
+        } else {
+            Log.e("MainActivity", "Received empty or null sorted list from SortFragment.");
+        }
+    }
+
 }
