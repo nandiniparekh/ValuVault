@@ -27,7 +27,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class MainActivity extends AppCompatActivity implements ItemFragment.OnFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements ItemFragment.OnFragmentInteractionListener, ListFragment.OnFragmentInteractionListener{
     private Button selectButton;
     private Button tagButton;
     private Button sortButton;
@@ -224,5 +224,19 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
         itemAdapter.remove(removedItem);
         itemsRef.document(removedItem.getDescription()).delete();
         itemAdapter.notifyDataSetChanged();
+    }
+
+    // Method to handle adding tags and performing an action
+    public void onTagsApplied(ArrayList<HouseholdItem> taggedItems, ArrayList<String> tags) {
+        // Apply tags
+
+    }
+
+    // Method to handle deleting selected items and performing an action
+    public void onListItemsRemoved(ArrayList<HouseholdItem> removedItems) {
+        // Delete selected items
+        for(HouseholdItem removedItem :removedItems){
+            onHouseholdItemRemoved(removedItem);
+        }
     }
 }

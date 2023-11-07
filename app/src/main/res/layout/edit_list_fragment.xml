@@ -35,7 +35,7 @@
             android:layout_marginBottom="3dp"
             android:text="Back"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/tagButton"
+            app:layout_constraintEnd_toStartOf="@+id/applyTagsButton"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
