@@ -33,11 +33,16 @@ public class CustomItemList extends ArrayAdapter<HouseholdItem> {
         }
 
         HouseholdItem item = items.get(position);
-        TextView itemMake = view.findViewById(R.id.item_make);
-        TextView itemDescription = view.findViewById(R.id.item_description);
 
-        itemMake.setText(item.getMake());
+        TextView itemPurchaseDate = view.findViewById(R.id.item_date);
+        TextView itemDescription = view.findViewById(R.id.item_description);
+        TextView itemMake = view.findViewById(R.id.item_make);
+        TextView itemEstimatedValue = view.findViewById(R.id.item_value);
+
+        itemPurchaseDate.setText(item.getDateOfPurchase());
         itemDescription.setText(item.getDescription());
+        itemMake.setText(item.getMake());
+        itemEstimatedValue.setText(item.getEstimatedValue());
         return view;
     }
 }

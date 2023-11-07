@@ -1,71 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <androidx.constraintlayout.widget.ConstraintLayout
-
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-
     tools:context=".MainActivity">
 
     <ListView
-        android:id="@+id/item_list"
+        android:id="@+id/select_item_list"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@+id/bottomButtonLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/topButtonLayout" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/topButtonLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/select_item_list"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <Button
-            android:id="@+id/selectButton"
+            android:id="@+id/backSelectButton"
             android:layout_width="93dp"
             android:layout_height="67dp"
             android:layout_margin="3dp"
-            android:text="Select Items"
+            android:layout_marginEnd="63dp"
+            android:layout_marginBottom="3dp"
+            android:text="Back"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/tagButton"
+            app:layout_constraintEnd_toStartOf="@+id/tagButton"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <Button
-            android:id="@+id/tagButton"
+            android:id="@+id/applyTagsButton"
             android:layout_width="93dp"
             android:layout_height="67dp"
             android:layout_margin="3dp"
-            android:text="View Tags"
+            android:layout_marginStart="33dp"
+            android:layout_marginEnd="33dp"
+            android:layout_marginBottom="3dp"
+            android:text="Apply Tags"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/sortButton"
-            app:layout_constraintStart_toEndOf="@id/selectButton"
+            app:layout_constraintEnd_toStartOf="@+id/deleteSelectedItemsButton"
+            app:layout_constraintStart_toEndOf="@+id/backSelectButton"
             app:layout_constraintTop_toTopOf="parent" />
 
         <Button
-            android:id="@+id/sortButton"
+            android:id="@+id/deleteSelectedItemsButton"
             android:layout_width="93dp"
             android:layout_height="67dp"
             android:layout_margin="3dp"
-            android:text="Sort"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/filterButton"
-            app:layout_constraintStart_toEndOf="@id/tagButton"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <Button
-            android:id="@+id/filterButton"
-            android:layout_width="93dp"
-            android:layout_height="67dp"
-            android:layout_margin="3dp"
-            android:text="Filter"
+            android:layout_marginStart="63dp"
+            android:text="Delete"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/sortButton"
+            app:layout_constraintStart_toEndOf="@+id/applyTagsButton"
             app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -74,33 +71,9 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/bottomButtonLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="75dp"
         app:layout_constraintBottom_toBottomOf="parent">
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/add_item_b"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:layout_gravity="end|bottom"
-            android:clickable="true"
-            android:focusable="true"
-            app:srcCompat="@android:drawable/ic_input_add"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
-
-        <TextView
-            android:id="@+id/total_item_value"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="Total Estimated Value: $0"
-            android:textSize="18sp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-

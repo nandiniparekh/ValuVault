@@ -3,16 +3,21 @@ package com.example.cmput301groupproject;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -23,9 +28,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements ItemFragment.OnFragmentInteractionListener,SortFragment.SortListener {
-    private ArrayList<HouseholdItem> dataList;
+public class MainActivity extends AppCompatActivity implements ItemFragment.OnFragmentInteractionListener {
+    private Button selectButton;
+    private Button tagButton;
+    private Button sortButton;
+    private Button filterButton;
+
+
     private ListView itemList;
+    private FloatingActionButton addItemButton;
+    private ArrayList<HouseholdItem> dataList;
     private ArrayAdapter<HouseholdItem> itemAdapter;
     private FirebaseFirestore db;
     private CollectionReference itemsRef;
@@ -37,7 +49,7 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
 
         db = FirebaseFirestore.getInstance();
 
-        itemsRef = db.collection("items");
+        itemsRef = db.collection("ID_items");
         dataList = new ArrayList<>();
         // Other code omitted
 
@@ -46,11 +58,28 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
         itemList = findViewById(R.id.item_list);
         itemList.setAdapter(itemAdapter);
 
-        final FloatingActionButton editItemsButton = findViewById(R.id.edit_items_b);
-        editItemsButton.setOnClickListener(new View.OnClickListener() {
+        // Allows editing or removal of clicked expenses
+        itemList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                HouseholdItem selectedItem = dataList.get(i);
+
+                ItemFragment.newInstance(selectedItem).show(getSupportFragmentManager(), "EDIT_ITEM");
+            }
+        });
+
+        itemList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                return false;
+            }
+        });
+
+        addItemButton = findViewById(R.id.add_item_b);
+        addItemButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new ItemFragment().show(getSupportFragmentManager(), "EDIT_ITEM");
+                new ItemFragment().show(getSupportFragmentManager(), "ADD_ITEM");
             }
         });
 
@@ -66,73 +95,143 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
                 if (querySnapshots != null) {
                     dataList.clear();
                     for (QueryDocumentSnapshot doc: querySnapshots) {
-                        String dateOfPurchaseString = doc.getString("PurchaseDate");
+                        String firestoreId = doc.getId(); // Retrieve the auto-generated Firestore ID
                         String description = doc.getString("Description");
+                        String dateOfPurchaseString = doc.getString("Purchase Date");
                         String make = doc.getString("Make");
                         String model = doc.getString("Model");
-                        String serialNumber = doc.getString("SerialNumber");
-                        String estimatedValue = doc.getString("EstimatedValue");
+                        String serialNumber = doc.getString("Serial Number");
+                        String estimatedValue = doc.getString("Estimated Value");
                         String comment = doc.getString("Comment");
 
                         Log.d("Firestore", String.format("Item(%s, %s, %s, %s, %s, %s, %s) fetched",
                                 dateOfPurchaseString, description, make, model, serialNumber, estimatedValue, comment));
-                        dataList.add(new HouseholdItem(dateOfPurchaseString, description, make, model, serialNumber, estimatedValue, comment));
+                        HouseholdItem savedItem = new HouseholdItem(dateOfPurchaseString, description, make, model, serialNumber, estimatedValue, comment);
+                        savedItem.setFirestoreId(firestoreId);
+                        dataList.add(savedItem);
                     }
                     itemAdapter.notifyDataSetChanged();
 
-                    // *********** this part below works ************
-                    //SortFragment SortFragment = new SortFragment();
-                    //SortFragment.receiveDataList(dataList);
 
+                    // Calculate the total estimated value of the items and set it to the TextView
+                    setTotalEstimatedValue(dataList);
                 }
             }
         });
 
-        // Find the button
-        Button btnSort = findViewById(R.id.btn_sort);
+        selectButton = findViewById(R.id.selectButton);
+        tagButton = findViewById(R.id.tagButton);
+        sortButton = findViewById(R.id.sortButton);
+        filterButton = findViewById(R.id.filterButton);
 
-        // Set OnClickListener for the sort button
-        btnSort.setOnClickListener(new View.OnClickListener() {
+        selectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("Button", "Sort Button Clicked");
-
-                // *************** but this part doesn't ******************
-
-                // Call the SortFragment to sort the list when the button is clicked
-                SortFragment sortFragment = new SortFragment();
-                sortFragment.setSortListener(MainActivity.this); // Setting the listener to the activity
-                sortFragment.receiveDataList(dataList);
+                // Maybe switch ListView or just spawn ListFragment
             }
         });
 
+        tagButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Go to tags. Probably source inspiration from "Kendrick" branch
+            }
+        });
 
+        sortButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Implement Marzia's stuff
+            }
+        });
 
+        filterButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Implement Nandini's stuff
+            }
+        });
+
+    }
+
+    // Method to set the total estimated value
+    private void setTotalEstimatedValue(ArrayList<HouseholdItem> items) {
+        double totalValue = calculateTotalEstimatedValue(items);
+        TextView totalEstimatedValue = findViewById(R.id.total_item_value);
+        totalEstimatedValue.setText("Total Estimated Value: $" + totalValue);
+    }
+
+    // Calculate the total estimated value of all items in the list
+    private double calculateTotalEstimatedValue(ArrayList<HouseholdItem> items) {
+        double totalValue = 0.0;
+
+        for (HouseholdItem item : items) {
+            String estimatedValueString = item.getEstimatedValue(); // Assuming estimatedValue is a string
+            if (estimatedValueString != null && !estimatedValueString.trim().isEmpty()) {
+                try {
+                    double estimatedValue = Double.parseDouble(estimatedValueString);
+                    totalValue += estimatedValue;
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return totalValue;
 
     }
 
 
 
     @Override
-    public void onOKPressed(HouseholdItem item) {
+    public void onHouseholdItemAdded(HouseholdItem item) {
         HashMap<String, String> data = new HashMap<>();
+        data.put("Description", item.getDescription());
         data.put("Make", item.getMake());
         data.put("Model", item.getModel());
         data.put("Estimated Value", item.getEstimatedValue());
         data.put("Comment", item.getComment());
         data.put("Serial Number", item.getSerialNumber());
-        itemsRef.document(item.getDescription()).set(data);
+        data.put("Purchase Date", item.getDateOfPurchase());
+        itemsRef.add(data)
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+                        String documentId = documentReference.getId(); // Store this auto-generated ID for future use
+                        Log.d("Firestore", "DocumentSnapshot written with ID: " + documentId);
+                    }
+                });
+    }
 
-        itemsRef
-                .document(item.getDescription())
-                .set(data)
+    public void onHouseholdItemEdited(HouseholdItem editedItem) {
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("Description", editedItem.getDescription());
+        data.put("Make", editedItem.getMake());
+        data.put("Model", editedItem.getModel());
+        data.put("Estimated Value", editedItem.getEstimatedValue());
+        data.put("Comment", editedItem.getComment());
+        data.put("Serial Number", editedItem.getSerialNumber());
+        data.put("Purchase Date", editedItem.getDateOfPurchase());
+        itemsRef.document(editedItem.getFirestoreId())
+                .update(data)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d("Firestore", "DocumentSnapshot successfully written!");
+                        Log.d("Firestore", "DocumentSnapshot successfully updated!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w("Firestore", "Error updating document", e);
                     }
                 });
+    }
 
+    public void onHouseholdItemRemoved(HouseholdItem removedItem) {
+        itemAdapter.remove(removedItem);
+        itemsRef.document(removedItem.getDescription()).delete();
+        itemAdapter.notifyDataSetChanged();
     }
     // this method to receive the sorted list from the SortFragment
     @Override
