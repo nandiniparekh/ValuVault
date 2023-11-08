@@ -9,6 +9,9 @@ import android.widget.EditText;
 
 import androidx.fragment.app.Fragment;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+
 public class FiltersFragment extends Fragment {
     private EditText makeFilterText;
     private EditText descriptionKeyword;
@@ -39,16 +42,14 @@ public class FiltersFragment extends Fragment {
             if (!make.isEmpty()) {
 
             } else {
-                // Handle empty input
+
             }
         });
 
         filterByDescButton.setOnClickListener(v -> {
             String keyword = descriptionKeyword.getText().toString();
             if (!keyword.isEmpty()) {
-                // Call filterByKeyword method here
             } else {
-                // Handle empty input
             }
         });
 
@@ -56,9 +57,7 @@ public class FiltersFragment extends Fragment {
             String start = startDateText.getText().toString();
             String end = endDateText.getText().toString();
             if (isValidDate(start) && isValidDate(end)) {
-                // Call filterByDate method here
             } else {
-                // Handle invalid date input
             }
         });
 
