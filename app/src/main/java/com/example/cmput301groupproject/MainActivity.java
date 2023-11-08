@@ -13,6 +13,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import androidx.appcompat.app.AlertDialog;
+
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -26,9 +28,8 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements ItemFragment.OnFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements ItemFragment.OnFragmentInteractionListener, SortFragment.SortListener {
     private Button selectButton;
     private Button tagButton;
     private Button sortButton;
@@ -138,11 +139,72 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
             }
         });
 
-        sortButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Implement Marzia's stuff
-            }
+
+
+        final int[] lastCheckedItem = {-1}; // Initialize to -1 (no item selected initially)
+
+        // handle the button to open the alert dialog with the single item selection
+        sortButton.setOnClickListener(v -> {
+            // AlertDialog builder instance to build the alert dialog
+            AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
+            alertDialog.setTitle("Sort by:");
+            // form of list so that user can select the item from
+            final String[] listItems = new String[]{"Date","Description", "Make","Estimated Value"};
+
+            final View customLayout = getLayoutInflater().inflate(R.layout.dialog_custom_sort, null);
+
+
+            alertDialog.setSingleChoiceItems(listItems, lastCheckedItem[0], (dialog, which) -> {
+                if (lastCheckedItem[0] == which) {
+                    // Clicking the same item again deselects it
+                    ((AlertDialog) dialog).getListView().setItemChecked(which, false);
+                    lastCheckedItem[0] = -1; // Reset the last checked item index
+                }
+                else {
+                    lastCheckedItem[0] = which; // Update the last checked item index
+                }
+
+            });
+            alertDialog.setView(customLayout);
+            AlertDialog customAlertDialog = alertDialog.create();
+
+            // Handle button clicks for Ascending and Descending within the AlertDialog
+            Button btnAscending = customLayout.findViewById(R.id.btnAscending);
+            Button btnDescending = customLayout.findViewById(R.id.btnDescending);
+            btnAscending.setOnClickListener(view -> {
+                // Handle Ascending button click
+
+                if (lastCheckedItem[0] != -1) {
+                    int selectedSortCriteria = lastCheckedItem[0];
+
+                    SortFragment sortFragment = new SortFragment();
+                    sortFragment.setSortListener(sortedList -> {
+                        dataList = sortedList;
+                        itemAdapter.notifyDataSetChanged();
+                    });
+                    // Pass the selected data list and sorting criteria
+                    sortFragment.receiveDataList(dataList, selectedSortCriteria, SortFragment.ASCENDING);
+                }
+                customAlertDialog.dismiss();
+            });
+            btnDescending.setOnClickListener(view -> {
+                // Handle Descending button click
+                if (lastCheckedItem[0] != -1) {
+                    int selectedSortCriteria = lastCheckedItem[0];
+
+                    SortFragment sortFragment = new SortFragment();
+                    sortFragment.setSortListener(sortedList -> {
+                        dataList = sortedList;
+                        itemAdapter.notifyDataSetChanged();
+                    });
+                    // Pass the selected data list and sorting criteria
+                    sortFragment.receiveDataList(dataList, selectedSortCriteria, SortFragment.DESCENDING);
+                }
+                customAlertDialog.dismiss();
+            });
+
+            customAlertDialog.show();
+
         });
 
         filterButton.setOnClickListener(new View.OnClickListener() {
@@ -153,6 +215,15 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
         });
 
     }
+    // the SortListener method in MainActivity to receive the sorted list
+    @Override
+    public void onSortDataList(ArrayList<HouseholdItem> sortedList) {
+        // Handle the sorted list received from SortFragment
+        // Update data list and refresh the adapter
+        dataList = sortedList;
+        itemAdapter.notifyDataSetChanged();
+    }
+
 
     // Method to set the total estimated value
     private void setTotalEstimatedValue(ArrayList<HouseholdItem> items) {
@@ -234,18 +305,6 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
         itemAdapter.notifyDataSetChanged();
     }
     // this method to receive the sorted list from the SortFragment
-    @Override
-    public void onSortDataList(List<HouseholdItem> sortedList) {
-        if (sortedList != null && !sortedList.isEmpty()) {
-            dataList.clear();
-            dataList.addAll(sortedList);
-            itemAdapter.notifyDataSetChanged();
-            Log.d("Doggy", "Sorted dataList: " + dataList.size() + " items");
 
-
-        } else {
-            Log.e("MainActivity", "Received empty or null sorted list from SortFragment.");
-        }
-    }
 
 }
