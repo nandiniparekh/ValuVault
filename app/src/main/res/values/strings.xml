@@ -45,4 +45,10 @@
     </string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="attach_photo_s">Attach photo(s)</string>
+    <string name="load_from_gallery">Load from Gallery</string>
+    <string name="gallery">Gallery</string>
+    <string name="load_images">Load Image</string>
+    <string name="load_image">Load Images</string>
+    <string name="choose_photos">Choose Photos</string>
 </resources>
