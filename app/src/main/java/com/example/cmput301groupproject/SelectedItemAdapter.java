@@ -18,12 +18,20 @@ import java.util.ArrayList;
 public class SelectedItemAdapter extends ArrayAdapter<HouseholdItem> {
     private final Context context;
     private ArrayList<HouseholdItem> items;
-    private boolean[] checkedPositions;
+    private OnItemCheckedChangeListener onItemCheckedChangeListener;
+
+    public interface OnItemCheckedChangeListener {
+        void onItemCheckedChange(int position, boolean isChecked);
+    }
+
+    public void setOnItemCheckedChangeListener(OnItemCheckedChangeListener listener) {
+        this.onItemCheckedChangeListener = listener;
+    }
 
     public SelectedItemAdapter(Context context, ArrayList<HouseholdItem> items) {
         super(context, 0, items);
-        this.items = items;
         this.context = context;
+        this.items = items;
     }
 
     @NonNull
@@ -50,15 +58,13 @@ public class SelectedItemAdapter extends ArrayAdapter<HouseholdItem> {
 
         CheckBox checkBox = view.findViewById(R.id.checkbox);
 
-        // Set checked status of checkbox based on the checkedPositions array
-        checkBox.setChecked(checkedPositions[position]);
-
         // Add listener to handle checkbox selection
         checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                checkedPositions[position] = isChecked;
-                // Handle the logic for the checked item here if needed
+                if (onItemCheckedChangeListener != null) {
+                    onItemCheckedChangeListener.onItemCheckedChange(position, isChecked);
+                }
             }
         });
 
