@@ -1,9 +1,10 @@
 package com.example.cmput301groupproject;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HouseholdItem {
+public class HouseholdItem implements Serializable {
     private String dateOfPurchase;
     private String description;
     private String make;
@@ -11,6 +12,7 @@ public class HouseholdItem {
     private String serialNumber;
     private String estimatedValue;
     private String comment;
+    private String firestoreId;
 
     private List<String> tags;
 
@@ -80,6 +82,14 @@ public class HouseholdItem {
 
     public void setComment(String comment) {
         this.comment = comment;
+    }
+
+    public String getFirestoreId() {
+        return firestoreId;
+    }
+
+    public void setFirestoreId(String firestoreId) {
+        this.firestoreId = firestoreId;
     }
 
     public void addTag(String tag) {
