@@ -1,5 +1,6 @@
 package com.example.cmput301groupproject;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -28,7 +29,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements ItemFragment.OnFragmentInteractionListener, ListFragment.OnFragmentInteractionListener, SortFragment.SortListener{
+public class MainActivity extends AppCompatActivity implements ItemFragment.OnFragmentInteractionListener, SortFragment.SortListener{
     private Button selectButton;
     private Button tagButton;
     private Button sortButton;
@@ -121,11 +122,20 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
         sortButton = findViewById(R.id.sortButton);
         filterButton = findViewById(R.id.filterButton);
 
+//        selectButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                // Maybe switch ListView or just spawn ListFragment
+//                ListFragment.newInstance(dataList).show(getSupportFragmentManager(), "SELECT_ITEMS");
+//            }
+//        });
         selectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Maybe switch ListView or just spawn ListFragment
-                ListFragment.newInstance(dataList).show(getSupportFragmentManager(), "SELECT_ITEMS");
+                // Send dataList to ListActivity
+                Intent intent = new Intent(MainActivity.this, ListActivity.class);
+                intent.putExtra("dataList", dataList);
+                startActivity(intent);
             }
         });
 
@@ -150,6 +160,8 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
             }
         });
 
+        // New code for receiving intents from ListActivity
+        handleIntentsFromListActivity(getIntent());
     }
 
     // Method to set the total estimated value
@@ -225,7 +237,7 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
 
     public void onHouseholdItemRemoved(HouseholdItem removedItem) {
         itemAdapter.remove(removedItem);
-        itemsRef.document(removedItem.getDescription()).delete();
+        itemsRef.document(removedItem.getFirestoreId()).delete();
         itemAdapter.notifyDataSetChanged();
     }
 
@@ -242,6 +254,35 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
             onHouseholdItemRemoved(removedItem);
         }
     }
+
+    private void handleIntentsFromListActivity(Intent intent) {
+        if (intent != null) {
+            String command = intent.getStringExtra("command");
+            if (command != null) {
+                switch (command) {
+                    case "applyTags":
+                        ArrayList<HouseholdItem> selectedItems = (ArrayList<HouseholdItem>) intent.getSerializableExtra("selectedItems");
+                        ArrayList<String> selectedTags = (ArrayList<String>) intent.getSerializableExtra("selectedTags");
+                        if (selectedItems != null && selectedTags != null) {
+                            // Handle selected items and tags
+                            onTagsApplied(selectedItems, selectedTags);
+                        }
+                        break;
+                    case "deleteItems":
+                        ArrayList<HouseholdItem> removedItems = (ArrayList<HouseholdItem>) intent.getSerializableExtra("selectedItems");
+                        if (removedItems != null) {
+                            // Handle removed items
+                            onListItemsRemoved(removedItems);
+                        }
+                        break;
+                    default:
+                        // Handle unknown command
+                        break;
+                }
+            }
+        }
+    }
+
     // this method to receive the sorted list from the SortFragment
     @Override
     public void onSortDataList(List<HouseholdItem> sortedList) {
