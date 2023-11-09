@@ -56,7 +56,7 @@ public class PhotoPickerFragment extends Fragment {
                                     Uri imageUri = data.getClipData().getItemAt(i).getUri();
                                     selectedImages.add(imageUri);
                                 }
-                               adapter.notifyDataSetChanged();
+                                adapter.notifyDataSetChanged();
                             }
                         }
                     }
@@ -75,13 +75,13 @@ public class PhotoPickerFragment extends Fragment {
     }
 
     // Create a method to handle the result
-        private void handleImagePickerResult(List<Uri> uris) {
-            if (uris != null) {
-                selectedImages.clear();
-                selectedImages.addAll(uris);
-                adapter.notifyDataSetChanged();
-            }
+    private void handleImagePickerResult(List<Uri> uris) {
+        if (uris != null) {
+            selectedImages.clear();
+            selectedImages.addAll(uris);
+            adapter.notifyDataSetChanged();
         }
+    }
 
 
 

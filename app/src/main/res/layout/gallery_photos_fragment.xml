@@ -21,6 +21,6 @@
         android:layout_height="wrap_content"
         app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
         app:spanCount="3"
-        android:orientation="horizontal"/>
+        android:orientation="vertical"/>
 
 </LinearLayout>

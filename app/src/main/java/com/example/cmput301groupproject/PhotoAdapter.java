@@ -5,13 +5,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+
 import androidx.recyclerview.widget.RecyclerView;
-import java.util.ArrayList;
+
+import com.bumptech.glide.Glide;
+
+import java.util.List;
+
+// ...
 
 public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHolder> {
-    private ArrayList<Uri> imageUris;
+    private List<Uri> imageUris;
 
-    public PhotoAdapter(ArrayList<Uri> imageUris) {
+    public PhotoAdapter(List<Uri> imageUris) {
         this.imageUris = imageUris;
     }
 
@@ -24,8 +30,9 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
     @Override
     public void onBindViewHolder(PhotoViewHolder holder, int position) {
         Uri imageUri = imageUris.get(position);
-        // Load and display the image directly into the ImageView.
-        holder.imageView.setImageURI(imageUri);
+        Glide.with(holder.imageView.getContext())
+                .load(imageUri)
+                .into(holder.imageView);
     }
 
     @Override
