@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_horizontal">
+
+        <Button
+            android:id="@+id/btnAscending"
+            android:layout_width="80dp"
+            android:layout_height="50dp"
+            android:padding="0dp"
+            android:text="Ascending"
+            android:textSize="14sp"
+            android:layout_marginEnd="16dp"
+            android:background="@android:color/transparent"
+            android:textColor="#673AB7"
+            />
+
+        <Button
+            android:id="@+id/btnDescending"
+            android:layout_width="80dp"
+            android:layout_height="50dp"
+            android:padding="0dp"
+            android:text="Descending"
+            android:textSize="14sp"
+            android:background="@android:color/transparent"
+            android:textColor="#673AB7"
+
+           />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

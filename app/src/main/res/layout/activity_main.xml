@@ -57,6 +57,7 @@
             app:layout_constraintStart_toEndOf="@id/tagButton"
             app:layout_constraintTop_toTopOf="parent" />
 
+
         <Button
             android:id="@+id/filterButton"
             android:layout_width="93dp"
