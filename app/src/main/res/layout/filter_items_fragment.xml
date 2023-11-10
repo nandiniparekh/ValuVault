@@ -18,12 +18,12 @@
     <Button
         android:id="@+id/filterbymake_button"
         android:layout_width="wrap_content"
-        android:layout_heixght="wrap_content"
         android:layout_below="@id/makeFilter_text"
         android:text="Filter by make"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/makeFilter_text" />
+        app:layout_constraintTop_toBottomOf="@+id/makeFilter_text"
+        android:layout_height="wrap_content"/>
 
     <EditText
         android:id="@+id/description_keyword"

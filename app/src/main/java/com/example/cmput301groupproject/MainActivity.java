@@ -121,6 +121,7 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
         sortButton = findViewById(R.id.sortButton);
         filterButton = findViewById(R.id.filterButton);
 
+
         selectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -143,10 +144,11 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
             }
         });
 
+
         filterButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Implement Nandini's stuff
+                FiltersFragment.newInstance(dataList).show(getSupportFragmentManager(), "FILTER_ITEMS");
             }
         });
 
@@ -221,6 +223,8 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
                         Log.w("Firestore", "Error updating document", e);
                     }
                 });
+
+
     }
 
     public void onHouseholdItemRemoved(HouseholdItem removedItem) {

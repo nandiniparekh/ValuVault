@@ -7,12 +7,13 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
-import androidx.fragment.app.Fragment;
+import androidx.fragment.app.DialogFragment;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 
-public class FiltersFragment extends Fragment {
+public class FiltersFragment extends DialogFragment {
     private EditText makeFilterText;
     private EditText descriptionKeyword;
     private EditText startDateText;
@@ -20,6 +21,11 @@ public class FiltersFragment extends Fragment {
     private Button filterByMakeButton;
     private Button filterByDescButton;
     private Button filterByDateRangeButton;
+
+
+    static ArrayList<HouseholdItem> unfilteredItems = new ArrayList<HouseholdItem>();
+
+    private ArrayList<HouseholdItem> filteredItems = new ArrayList<HouseholdItem>();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -34,35 +40,42 @@ public class FiltersFragment extends Fragment {
         filterByDescButton = view.findViewById(R.id.filterByDesc_button);
         filterByDateRangeButton = view.findViewById(R.id.dateFilter_button);
 
-
+        FilterItems filterItems = new FilterItems();
+        filterItems.setItemsList(unfilteredItems);
 
         filterByMakeButton.setOnClickListener(v -> {
             String make = makeFilterText.getText().toString();
-            FilterItems fi = new FilterItems();
             if (!make.isEmpty()) {
-
+                filterItems.filterByMake(make);
             } else {
-
             }
+            dismiss();
         });
 
         filterByDescButton.setOnClickListener(v -> {
             String keyword = descriptionKeyword.getText().toString();
             if (!keyword.isEmpty()) {
+                filterItems.filterByKeyword(keyword);
             } else {
             }
+            dismiss();
         });
 
         filterByDateRangeButton.setOnClickListener(v -> {
             String start = startDateText.getText().toString();
             String end = endDateText.getText().toString();
             if (isValidDate(start) && isValidDate(end)) {
+                filterItems.filterByDate(start, end);
             } else {
             }
+            dismiss();
         });
+
+        filteredItems = filterItems.getFilteredItems();
 
         return view;
     }
+
 
     private boolean isValidDate(String dateStr) {
         try {
@@ -72,5 +85,19 @@ public class FiltersFragment extends Fragment {
             return false;
         }
     }
+
+    public static FiltersFragment newInstance(ArrayList<HouseholdItem> items) {
+        FiltersFragment fragment = new FiltersFragment();
+
+        Bundle args = new Bundle();
+        args.putSerializable("items", items);
+
+        unfilteredItems = items;
+
+        fragment.setArguments(args);
+        return fragment;
+    }
+
 }
+
 
