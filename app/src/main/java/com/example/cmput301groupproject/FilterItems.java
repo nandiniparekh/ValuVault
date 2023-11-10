@@ -1,6 +1,7 @@
 package com.example.cmput301groupproject;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class FilterItems {
@@ -15,12 +16,18 @@ public class FilterItems {
 
     public void filterByDate(String start, String end) {
         filteredItems.clear();
-        LocalDate startDate = LocalDate.parse(start);
-        LocalDate endDate = LocalDate.parse(end);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+        LocalDate startDate = LocalDate.parse(start, formatter);
+        LocalDate endDate = LocalDate.parse(end, formatter);
         for (HouseholdItem item : itemsList) {
-            LocalDate purchaseDate = LocalDate.parse(item.getDateOfPurchase());
-            if (purchaseDate.compareTo(startDate) >= 0 && purchaseDate.compareTo(endDate) <= 0) {
-                filteredItems.add(item);
+            try {
+                LocalDate purchaseDate = LocalDate.parse(item.getDateOfPurchase(), formatter);
+                if (purchaseDate.compareTo(startDate) >= 0 && purchaseDate.compareTo(endDate) <= 0) {
+                    filteredItems.add(item);
+                }
+            }
+            catch (Exception e) {
+               return;
             }
         }
     }
@@ -28,7 +35,7 @@ public class FilterItems {
     public void filterByMake(String make) {
         filteredItems.clear();
         for (HouseholdItem item : itemsList) {
-            if (item.getMake() == make) {
+            if (item.getMake().equalsIgnoreCase(make)) {
                 filteredItems.add(item);
             }
         }

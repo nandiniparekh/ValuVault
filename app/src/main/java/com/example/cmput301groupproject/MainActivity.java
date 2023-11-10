@@ -8,6 +8,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -28,7 +29,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements ItemFragment.OnFragmentInteractionListener, ListFragment.OnFragmentInteractionListener, SortFragment.SortListener{
+public class MainActivity extends AppCompatActivity implements ItemFragment.OnFragmentInteractionListener, ListFragment.OnFragmentInteractionListener, SortFragment.SortListener, FiltersFragment.FiltersFragmentListener{
     private Button selectButton;
     private Button tagButton;
     private Button sortButton;
@@ -40,6 +41,8 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
     private ArrayAdapter<HouseholdItem> itemAdapter;
     private FirebaseFirestore db;
     private CollectionReference itemsRef;
+    private ArrayList<HouseholdItem> unfilteredList;
+    private int filterCount = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -148,6 +151,7 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
         filterButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                filterCount++;
                 FiltersFragment.newInstance(dataList).show(getSupportFragmentManager(), "FILTER_ITEMS");
             }
         });
@@ -223,8 +227,6 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
                         Log.w("Firestore", "Error updating document", e);
                     }
                 });
-
-
     }
 
     public void onHouseholdItemRemoved(HouseholdItem removedItem) {
@@ -261,4 +263,32 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
         }
     }
 
+    @Override
+    public void onFilterList(ArrayList<HouseholdItem> filteredDataList) {
+        if (filterCount < 2) {
+            unfilteredList = (ArrayList<HouseholdItem>) dataList.clone();
+        }
+        if (filteredDataList.isEmpty()) {
+            Toast.makeText(MainActivity.this, "No records found with the selected filters", Toast.LENGTH_SHORT).show();
+        }
+        if (filteredDataList != null && !filteredDataList.isEmpty()) {
+            dataList.clear();
+            dataList.addAll(filteredDataList);
+            itemAdapter.notifyDataSetChanged();
+            Log.d("Filtering", "Filtered list displayed");
+        } else {
+            Log.e("Filtering", "Problem with the list");
+        }
+    }
+
+    @Override
+    public void onRemoveFilters(boolean isUnfiltered) {
+        if (isUnfiltered && !unfilteredList.equals(dataList)) {
+            dataList.clear();
+            dataList.addAll(unfilteredList);
+            itemAdapter.notifyDataSetChanged();
+        } else {
+            Log.e("Removing filters", "Problem with removing filters");
+        }
+    }
 }
