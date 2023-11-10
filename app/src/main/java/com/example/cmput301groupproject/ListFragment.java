@@ -1,17 +1,15 @@
 package com.example.cmput301groupproject;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
 import java.util.ArrayList;
@@ -20,12 +18,15 @@ public class ListFragment extends DialogFragment {
     private Button backSelectButton;
     private Button applyTagsButton;
     private Button deleteSelectedItemsButton;
-    private ListView itemList;
-    private ArrayList<HouseholdItem> passedItemList;
-    private OnFragmentInteractionListener listener;
+    private ListView selectItemList;
+    private ArrayList<HouseholdItem> passedDataList;
+    private ArrayAdapter<HouseholdItem> listAdapter;
+    private ArrayList<HouseholdItem> selectedItems;
+    private ArrayList<String> selectedTags;
+    private OnFragmentInteractionListener listListener;
 
     public interface OnFragmentInteractionListener {
-        void onTagsAdded(HouseholdItem newItem);
+        void onTagsApplied(ArrayList<HouseholdItem> taggedItems, ArrayList<String> tags);
         void onListItemsRemoved(ArrayList<HouseholdItem> removedItems);
     }
 
@@ -33,85 +34,62 @@ public class ListFragment extends DialogFragment {
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         if (context instanceof OnFragmentInteractionListener) {
-            listener = (OnFragmentInteractionListener) context;
+            listListener = (OnFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context + "OnFragmentInteractionListener is not implemented");
         }
     }
 
-    @NonNull
     @Override
-    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        View view = LayoutInflater.from(getActivity()).inflate(R.layout.edit_list_fragment, null);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.edit_list_fragment, container, false);
 
-        itemList = view.findViewById(R.id.select_item_list);
+        selectItemList = view.findViewById(R.id.select_item_list);
+        passedDataList = new ArrayList<>();
 
         Bundle args = getArguments();
         if (args != null) {
-//            titleDesc = "Edit Item";
-//            passedHouseholdItem = (HouseholdItem) args.getSerializable("item");
-//            purchaseDate.setText(passedHouseholdItem.getDateOfPurchase());
-//            description.setText(passedHouseholdItem.getDescription());
-//            make.setText(passedHouseholdItem.getMake());
-//            model.setText(passedHouseholdItem.getModel());
-//            serialNumber.setText(passedHouseholdItem.getSerialNumber());
-//            estimatedValue.setText(passedHouseholdItem.getEstimatedValue());
-//            comment.setText(passedHouseholdItem.getComment());
+            passedDataList = (ArrayList<HouseholdItem>) args.getSerializable("items");
         }
 
+        // Find the buttons in the layout
+        backSelectButton = view.findViewById((R.id.backSelectButton));
+        applyTagsButton = view.findViewById(R.id.applyTagsButton);
+        deleteSelectedItemsButton = view.findViewById(R.id.deleteSelectedItemsButton);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        // Set click listeners for the buttons
+        backSelectButton.setOnClickListener((new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Exit fragment
+            }
+        }));
+        applyTagsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listListener.onTagsApplied(selectedItems, selectedTags);
+            }
+        });
 
-        builder.setView(view)
-                .setTitle("Choose action for selected items")
-                .setNegativeButton("Cancel", null)
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        // Get input values and update the item object
-//                        String desc = description.getText().toString();
-//                        String mk = make.getText().toString();
-//                        String mdl = model.getText().toString();
-//                        String serial = serialNumber.getText().toString();
-//                        String estValue = estimatedValue.getText().toString();
-//                        String cmt = comment.getText().toString();
-//                        String date = purchaseDate.getText().toString();
-//                        // ...
-//                        if (passedHouseholdItem != null) {
-//                            passedHouseholdItem.setDescription(desc);
-//                            passedHouseholdItem.setMake(mk);
-//                            passedHouseholdItem.setModel(mdl);
-//                            passedHouseholdItem.setSerialNumber(serial);
-//                            passedHouseholdItem.setEstimatedValue(estValue);
-//                            passedHouseholdItem.setComment(cmt);
-//                            passedHouseholdItem.setDateOfPurchase(date);
-//
-//                            listener.onHouseholdItemEdited(passedHouseholdItem);
-//                        } else {
-//                            // Add a new item
-//                            listener.onHouseholdItemAdded(new HouseholdItem(date, desc, mk, mdl, serial, estValue, cmt));
-//                        }
-                    }
-                });
+        deleteSelectedItemsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listListener.onListItemsRemoved(selectedItems);
+            }
+        });
 
-//        if (titleDesc.equals("Edit Item")) {
-//            // Removes the passed expense object from the main listview
-//            builder.setNeutralButton("Remove", new DialogInterface.OnClickListener() {
-//                @Override
-//                public void onClick(DialogInterface dialogInterface, int i) {
-//                    listener.onHouseholdItemRemoved(passedHouseholdItem);
-//                }
-//            });
-//        }
-
-        return builder.create();
+        return view;
     }
 
-    public static ItemFragment newInstance(HouseholdItem item) {
-        Bundle args = new Bundle();
-        args.putSerializable("item", item);
 
-        ItemFragment fragment = new ItemFragment();
+
+    public static ListFragment newInstance(ArrayList<HouseholdItem> items) {
+        ListFragment fragment = new ListFragment();
+
+        Bundle args = new Bundle();
+        args.putSerializable("items", items);
+
         fragment.setArguments(args);
         return fragment;
     }
