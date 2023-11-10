@@ -6,4 +6,9 @@
     </style>
 
     <style name="Theme.CMPUT301GroupProject" parent="Base.Theme.CMPUT301GroupProject" />
+
+    <style name="ThemeOverlay.CMPUT301GroupProject.FullscreenContainer" parent="">
+        <item name="fullscreenBackgroundColor">@color/light_blue_600</item>
+        <item name="fullscreenTextColor">@color/light_blue_A200</item>
+    </style>
 </resources>
