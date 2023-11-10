@@ -6,7 +6,6 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,11 +18,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-
-
-import java.util.List;
-
-public class ItemFragment extends DialogFragment implements PhotoPickerFragment.OnUriListSelectedListener {
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -58,11 +52,6 @@ public class ItemFragment extends DialogFragment {
     private HouseholdItem passedHouseholdItem;
     private OnFragmentInteractionListener listener;
 
-
-    @Override
-    public void onUriListSelected(List<Uri> selectedUris) {
-
-    }
 
     public interface OnFragmentInteractionListener {
         void onHouseholdItemAdded(HouseholdItem newItem);

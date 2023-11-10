@@ -3,7 +3,6 @@ package com.example.cmput301groupproject;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -34,12 +33,6 @@ public class PhotoPickerFragment extends Fragment {
     private List<Uri> selectedImages = new ArrayList<>();
 
     private List<Bitmap> selectedBitmapImage = new ArrayList<>();
-    private OnUriListSelectedListener uriListListener;
-
-    public interface OnUriListSelectedListener {
-        void onUriListSelected(List<Uri> selectedUris);
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,9 +63,6 @@ public class PhotoPickerFragment extends Fragment {
 
                                 }
                                 adapter.notifyDataSetChanged();
-                                if (uriListListener != null) {
-                                    uriListListener.onUriListSelected(selectedImages);
-                                }
                             }
                         }
                     }
@@ -98,17 +88,6 @@ public class PhotoPickerFragment extends Fragment {
             adapter.notifyDataSetChanged();
         }
     }
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        try {
-            uriListListener = (OnUriListSelectedListener) getParentFragment();
-        } catch (ClassCastException e) {
-            throw new ClassCastException(getParentFragment().toString() + " must implement OnUriListSelectedListener");
-        }
-    }
-
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.gallery_photos_fragment, container, false);

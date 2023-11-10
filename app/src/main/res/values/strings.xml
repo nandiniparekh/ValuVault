@@ -45,7 +45,7 @@
     </string>
 
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+
     <string name="attach_photo_s">Attach photo(s)</string>
     <string name="load_from_gallery">Load from Gallery</string>
     <string name="gallery">Gallery</string>
