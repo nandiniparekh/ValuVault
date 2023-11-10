@@ -9,6 +9,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -30,12 +31,10 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-
 /**
  * The MainActivity class represents the main activity of the application
  */
-public class MainActivity extends AppCompatActivity implements ItemFragment.OnFragmentInteractionListener, SortFragment.SortListener{
-
+public class MainActivity extends AppCompatActivity implements ItemFragment.OnFragmentInteractionListener, ListFragment.OnFragmentInteractionListener, SortFragment.SortListener, FiltersFragment.FiltersFragmentListener{
     private Button selectButton;
     private Button tagButton;
     private Button sortButton;
@@ -47,6 +46,8 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
     private ArrayAdapter<HouseholdItem> itemAdapter;
     private FirebaseFirestore db;
     private CollectionReference itemsRef;
+    private ArrayList<HouseholdItem> unfilteredList;
+    private int filterCount = 0;
 
     /**
      * Initializes the main activity, sets the layout, and defines interactions
@@ -94,52 +95,45 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
             }
         });
 
-        itemsRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot querySnapshots,
-                                @Nullable FirebaseFirestoreException error) {
-                if (error != null) {
-                    Log.e("Firestore", error.toString());
-                    return;
-                }
-                if (querySnapshots != null) {
-                    dataList.clear();
-                    for (QueryDocumentSnapshot doc: querySnapshots) {
-                        String firestoreId = doc.getId(); // Retrieve the auto-generated Firestore ID
-                        String description = doc.getString("Description");
-                        String dateOfPurchaseString = doc.getString("Purchase Date");
-                        String make = doc.getString("Make");
-                        String model = doc.getString("Model");
-                        String serialNumber = doc.getString("Serial Number");
-                        String estimatedValue = doc.getString("Estimated Value");
-                        String comment = doc.getString("Comment");
-
-                        Log.d("Firestore", String.format("Item(%s, %s, %s, %s, %s, %s, %s) fetched",
-                                dateOfPurchaseString, description, make, model, serialNumber, estimatedValue, comment));
-                        HouseholdItem savedItem = new HouseholdItem(dateOfPurchaseString, description, make, model, serialNumber, estimatedValue, comment);
-                        savedItem.setFirestoreId(firestoreId);
-                        dataList.add(savedItem);
+            itemsRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+                @Override
+                public void onEvent(@Nullable QuerySnapshot querySnapshots,
+                                    @Nullable FirebaseFirestoreException error) {
+                    if (error != null) {
+                        Log.e("Firestore", error.toString());
+                        return;
                     }
-                    itemAdapter.notifyDataSetChanged();
+                    if (querySnapshots != null) {
+                        dataList.clear();
+                        for (QueryDocumentSnapshot doc: querySnapshots) {
+                            String firestoreId = doc.getId(); // Retrieve the auto-generated Firestore ID
+                            String description = doc.getString("Description");
+                            String dateOfPurchaseString = doc.getString("Purchase Date");
+                            String make = doc.getString("Make");
+                            String model = doc.getString("Model");
+                            String serialNumber = doc.getString("Serial Number");
+                            String estimatedValue = doc.getString("Estimated Value");
+                            String comment = doc.getString("Comment");
 
-                    // Calculate the total estimated value of the items and set it to the TextView
-                    setTotalEstimatedValue(dataList);
+                            Log.d("Firestore", String.format("Item(%s, %s, %s, %s, %s, %s, %s) fetched",
+                                    dateOfPurchaseString, description, make, model, serialNumber, estimatedValue, comment));
+                            HouseholdItem savedItem = new HouseholdItem(dateOfPurchaseString, description, make, model, serialNumber, estimatedValue, comment);
+                            savedItem.setFirestoreId(firestoreId);
+                            dataList.add(savedItem);
+                        }
+                        itemAdapter.notifyDataSetChanged();
+
+                        // Calculate the total estimated value of the items and set it to the TextView
+                        setTotalEstimatedValue(dataList);
+                    }
                 }
-            }
-        });
+            });
 
         selectButton = findViewById(R.id.selectButton);
         tagButton = findViewById(R.id.tagButton);
         sortButton = findViewById(R.id.sortButton);
         filterButton = findViewById(R.id.filterButton);
 
-//        selectButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                // Maybe switch ListView or just spawn ListFragment
-//                ListFragment.newInstance(dataList).show(getSupportFragmentManager(), "SELECT_ITEMS");
-//            }
-//        });
         selectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -150,6 +144,7 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
             }
         });
 
+      
         tagButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -225,10 +220,12 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
 
         });
 
+
         filterButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Implement Nandini's stuff
+                filterCount++;
+                FiltersFragment.newInstance(dataList).show(getSupportFragmentManager(), "FILTER_ITEMS");
             }
         });
 
@@ -403,7 +400,32 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
         }
     }
 
-    // this method to receive the sorted list from the SortFragment
+    @Override
+    public void onFilterList(ArrayList<HouseholdItem> filteredDataList) {
+        if (filterCount < 2) {
+            unfilteredList = (ArrayList<HouseholdItem>) dataList.clone();
+        }
+        if (filteredDataList.isEmpty()) {
+            Toast.makeText(MainActivity.this, "No records found with the selected filters", Toast.LENGTH_SHORT).show();
+        }
+        if (filteredDataList != null && !filteredDataList.isEmpty()) {
+            dataList.clear();
+            dataList.addAll(filteredDataList);
+            itemAdapter.notifyDataSetChanged();
+            Log.d("Filtering", "Filtered list displayed");
+        } else {
+            Log.e("Filtering", "Problem with the list");
+        }
+    }
 
-
+    @Override
+    public void onRemoveFilters(boolean isUnfiltered) {
+        if (isUnfiltered && !unfilteredList.equals(dataList)) {
+            dataList.clear();
+            dataList.addAll(unfilteredList);
+            itemAdapter.notifyDataSetChanged();
+        } else {
+            Log.e("Removing filters", "Problem with removing filters");
+        }
+    }
 }

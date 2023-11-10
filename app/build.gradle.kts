@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.cmput301groupproject"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 33
         versionCode = 1
         versionName = "1.0"
@@ -40,6 +40,7 @@ dependencies {
     implementation("androidx.navigation:navigation-fragment:2.7.3")
     implementation("androidx.navigation:navigation-ui:2.7.3")
     implementation("com.google.firebase:firebase-firestore:24.9.1")
+    implementation("com.google.android.gms:play-services-code-scanner:16.1.0")
     implementation("com.google.android.gms:play-services-tasks:18.0.2")
     implementation("androidx.test.espresso:espresso-intents:3.5.1")
     testImplementation("junit:junit:4.13.2")
