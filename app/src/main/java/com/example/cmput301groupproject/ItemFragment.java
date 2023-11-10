@@ -19,7 +19,6 @@ import androidx.fragment.app.DialogFragment;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -46,7 +45,8 @@ public class ItemFragment extends DialogFragment {
     private EditText comment;
     private EditText purchaseDate;
     private FirebaseFirestore db;
-    private CollectionReference itemsRef;
+
+    // Setting the configuration for BarcodeScanner as UPC-A format and enabling autozoom features
     private GmsBarcodeScannerOptions options = new GmsBarcodeScannerOptions.Builder()
             .setBarcodeFormats(
                     Barcode.FORMAT_UPC_A)
@@ -54,7 +54,7 @@ public class ItemFragment extends DialogFragment {
             .build();
     private HouseholdItem passedHouseholdItem;
     private OnFragmentInteractionListener listener;
-
+    private GmsBarcodeScanner scanner;
 
     public interface OnFragmentInteractionListener {
         void onHouseholdItemAdded(HouseholdItem newItem);
@@ -77,6 +77,7 @@ public class ItemFragment extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+        db = FirebaseFirestore.getInstance();
         View view = LayoutInflater.from(getActivity()).inflate(R.layout.edit_item_fragment, null);
 
         description = view.findViewById(R.id.description_edit_text);
@@ -231,15 +232,29 @@ public class ItemFragment extends DialogFragment {
         }
     }
 
-    private void startScanner(){
-        GmsBarcodeScanner scanner = GmsBarcodeScanning.getClient(getContext(),options);
-
-        // The task failed with an exception
+    /**
+     * This method initiates the barcode scanning process using Google Code Scanner. When a barcode
+     * is scanned, the firestore database is queried for returning the associated product description
+     * inside the "description" EditText when adding/editing items. In the future, it will also
+     * include other information about the item.
+     *
+     * This method uses the GmsBarcodeScanning.getClient method to obtain an instance of the GmsBarcode
+     * Scanner while configuring the barcode format to be UPC-A. It then starts the process of scanning
+     * and sets up listeners in events of a successful scan and a cancelled scan. Upon success, it
+     * retrieves information from the firestore collection and updates the "description" EditText.
+     */
+    protected void startScanner(){
+        // Initialize barcode scanner
+        scanner = GmsBarcodeScanning.getClient(getContext(),options);
+        // Start scanning
         scanner
                 .startScan()
                 .addOnSuccessListener(
                         barcode -> {
+                            // Get the raw value of barcode scanned
                             String scannedBarcode = barcode.getRawValue();
+
+                            // Query firestore for information regarding associated product
                             DocumentReference docRef = db.collection("Items_Barcode_info").document(scannedBarcode);
                             docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
@@ -247,12 +262,17 @@ public class ItemFragment extends DialogFragment {
                                     if (task.isSuccessful()) {
                                         DocumentSnapshot document = task.getResult();
                                         if (document.exists()) {
+
+                                            // Logging and updating description
                                             Log.d(TAG, "DocumentSnapshot data: " + document.getData());
                                             description.setText((String)document.get("Product Description"));
                                         } else {
+                                            // Logging if no such item in database
                                             Log.d(TAG, "No such item exists in the database");
                                         }
                                     } else {
+
+                                        //Logging failure message
                                         Log.d(TAG, "get failed with ", task.getException());
                                     }
                                 }
@@ -261,11 +281,9 @@ public class ItemFragment extends DialogFragment {
                 .addOnCanceledListener(
                         () -> {
                             // The task has been cancelled
-                        })
-                .addOnFailureListener(
-                        Throwable::getMessage);
-
+                        });
     }
+
     public static ItemFragment newInstance(HouseholdItem item) {
         Bundle args = new Bundle();
         args.putSerializable("item", item);
