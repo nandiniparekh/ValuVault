@@ -38,7 +38,6 @@ public class ItemFragment extends DialogFragment {
     private EditText estimatedValue;
     private EditText comment;
     private EditText purchaseDate;
-    private Button scanBarcodeButton;
     private FirebaseFirestore db;
     private CollectionReference itemsRef;
     private GmsBarcodeScannerOptions options = new GmsBarcodeScannerOptions.Builder()
@@ -81,7 +80,7 @@ public class ItemFragment extends DialogFragment {
         comment = view.findViewById(R.id.comment_edit_text);
         purchaseDate = view.findViewById(R.id.purchase_date_edit_text);
 
-        scanBarcodeButton = view.findViewById(R.id.scan_barcode_button);
+        Button scanBarcodeButton = view.findViewById(R.id.scan_barcode_button);
         scanBarcodeButton.setOnClickListener(view1 -> startScanner());
         scanBarcodeButton = view.findViewById(R.id.scan_barcode_button);
         scanBarcodeButton.setOnClickListener(view1 -> startScanner());
