@@ -29,6 +29,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * The MainActivity class represents the main activity of the application
+ */
 public class MainActivity extends AppCompatActivity implements ItemFragment.OnFragmentInteractionListener, SortFragment.SortListener{
     private Button selectButton;
     private Button tagButton;
@@ -42,6 +45,11 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
     private FirebaseFirestore db;
     private CollectionReference itemsRef;
 
+    /**
+     * Initializes the main activity, sets the layout, and defines interactions
+     *
+     * @param savedInstanceState The saved instance state bundle
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
 
         db = FirebaseFirestore.getInstance();
 
-        itemsRef = db.collection("ID_items");
+        itemsRef = db.collection("Kendrick_items");
         dataList = new ArrayList<>();
         // Other code omitted
 
@@ -164,14 +172,23 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
         handleIntentsFromListActivity(getIntent());
     }
 
-    // Method to set the total estimated value
+    /**
+     * Sets the total estimated value of household items
+     *
+     * @param items The list of HouseholdItem objects
+     */
     private void setTotalEstimatedValue(ArrayList<HouseholdItem> items) {
         double totalValue = calculateTotalEstimatedValue(items);
         TextView totalEstimatedValue = findViewById(R.id.total_item_value);
         totalEstimatedValue.setText("Total Estimated Value: $" + totalValue);
     }
 
-    // Calculate the total estimated value of all items in the list
+    /**
+     * Calculates the total estimated value of all items in the list
+     *
+     * @param items The list of HouseholdItem objects
+     * @return The total estimated value as a double
+     */
     private double calculateTotalEstimatedValue(ArrayList<HouseholdItem> items) {
         double totalValue = 0.0;
 
@@ -190,6 +207,11 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
         return totalValue;
     }
 
+    /**
+     * Adds a new HouseholdItem to the database
+     *
+     * @param item The HouseholdItem object to be added
+     */
     @Override
     public void onHouseholdItemAdded(HouseholdItem item) {
         HashMap<String, String> data = new HashMap<>();
@@ -210,6 +232,11 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
                 });
     }
 
+    /**
+     * Edits a HouseholdItem in the database
+     *
+     * @param editedItem The edited HouseholdItem object
+     */
     public void onHouseholdItemEdited(HouseholdItem editedItem) {
         HashMap<String, Object> data = new HashMap<>();
         data.put("Description", editedItem.getDescription());
@@ -235,19 +262,34 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
                 });
     }
 
+    /**
+     * Removes a HouseholdItem from the database
+     *
+     * @param removedItem The HouseholdItem object to be removed
+     */
     public void onHouseholdItemRemoved(HouseholdItem removedItem) {
         itemAdapter.remove(removedItem);
         itemsRef.document(removedItem.getFirestoreId()).delete();
         itemAdapter.notifyDataSetChanged();
     }
 
+    /**
+     * Adds tags to selected items
+     *
+     * @param taggedItems The list of HouseholdItem objects to have tags applied
+     * @param tags        The list of tags to be applied
+     */
     // Method to handle adding tags and performing an action
     public void onTagsApplied(ArrayList<HouseholdItem> taggedItems, ArrayList<String> tags) {
         // Apply tags
 
     }
 
-    // Method to handle deleting selected items and performing an action
+    /**
+     * Deletes selected items from database
+     *
+     * @param removedItems The list of HouseholdItem objects to be removed
+     */
     public void onListItemsRemoved(ArrayList<HouseholdItem> removedItems) {
         // Delete selected items
         for(HouseholdItem removedItem :removedItems){
@@ -255,6 +297,11 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
         }
     }
 
+    /**
+     * Handles incoming intents from other activities
+     *
+     * @param intent The incoming intent
+     */
     private void handleIntentsFromListActivity(Intent intent) {
         if (intent != null) {
             String command = intent.getStringExtra("command");

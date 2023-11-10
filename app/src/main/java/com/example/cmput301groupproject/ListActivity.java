@@ -3,8 +3,6 @@ package com.example.cmput301groupproject;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 
@@ -18,7 +16,7 @@ public class ListActivity extends AppCompatActivity {
     private Button deleteSelectedItemsButton;
     private ListView selectItemList;
     private ArrayList<HouseholdItem> passedDataList;
-    private ArrayAdapter<HouseholdItem> listAdapter;
+    private SelectedItemAdapter  listAdapter;
     private ArrayList<HouseholdItem> selectedItems;
     private ArrayList<String> selectedTags;
     @Override
@@ -42,24 +40,25 @@ public class ListActivity extends AppCompatActivity {
         applyTagsButton = findViewById(R.id.applyTagsButton);
         deleteSelectedItemsButton = findViewById(R.id.deleteSelectedItemsButton);
 
-        listAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_multiple_choice, passedDataList);
+//        listAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_multiple_choice, passedDataList);
+        listAdapter = new SelectedItemAdapter(this, passedDataList);
+//        listAdapter = new CustomItemList(this, passedDataList);
 
         selectItemList.setAdapter(listAdapter);
 
-        // Set up item click listener for selecting and deselecting items
-        selectItemList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        // Set up checkbox click listener for selecting and deselecting items
+        listAdapter.setOnItemCheckedChangeListener(new SelectedItemAdapter.OnItemCheckedChangeListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            public void onItemCheckedChange(int position, boolean isChecked) {
                 HouseholdItem selectedItem = passedDataList.get(position);
-                if (selectedItems.contains(selectedItem)) {
-                    selectedItems.remove(selectedItem);
-                } else {
+                if (isChecked && !selectedItems.contains(selectedItem)) {
                     selectedItems.add(selectedItem);
+                } else if (!isChecked && selectedItems.contains(selectedItem)) {
+                    selectedItems.remove(selectedItem);
                 }
-
-                listAdapter.notifyDataSetChanged(); // Notify the adapter of the data set changes
             }
         });
+
 
         backSelectButton.setOnClickListener(new View.OnClickListener() {
             @Override

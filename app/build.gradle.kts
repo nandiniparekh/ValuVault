@@ -41,7 +41,10 @@ dependencies {
     implementation("androidx.navigation:navigation-ui:2.7.3")
     implementation("com.google.firebase:firebase-firestore:24.9.1")
     implementation("com.google.android.gms:play-services-tasks:18.0.2")
+    implementation("androidx.test.espresso:espresso-intents:3.5.1")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    compileOnly(files("${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"))
+
 }
