@@ -1,14 +1,17 @@
 package com.example.cmput301groupproject;
 
 
+import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.intent.Intents.intended;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static org.hamcrest.CoreMatchers.anything;
 
 import androidx.test.espresso.action.ViewActions;
 import androidx.test.espresso.intent.Intents;
@@ -37,7 +40,7 @@ public class ListActivityTest {
         // Click the add item button
         onView(withId(R.id.add_item_b)).perform(click());
         // Type in the required fields for the new item
-        onView(withId(R.id.purchase_date_edit_text)).perform(ViewActions.typeText("2023-11-09"));
+        onView(withId(R.id.purchase_date_edit_text)).perform(ViewActions.typeText("2023/11/09"));
         onView(withId(R.id.description_edit_text)).perform(ViewActions.typeText("Test description"));
         onView(withId(R.id.make_edit_text)).perform(ViewActions.typeText("Test make"));
         onView(withId(R.id.model_edit_text)).perform(ViewActions.typeText("Test model"));
@@ -53,13 +56,19 @@ public class ListActivityTest {
         // Release Intents after the test
         Intents.release();
         // Assuming dataList is not empty, perform a click on the first item in the list
-        onView(withId(R.id.item_list)).perform(click());
+        // Assuming dataList is not empty, perform a click on the first item in the list
+        onData(anything())
+                .inAdapterView(withId(R.id.item_list))
+                .atPosition(0)
+                .perform(click());
+        // Verify if the delete option is displayed
+        onView(withText("Remove")).check(matches(isDisplayed()));
         // Click on the delete option
         onView(withText("Remove")).perform(click());
     }
 
     @Test
-    public void testActivitySwitch() {
+    public void testA_ActivitySwitch() {
         // Click the select items button to launch the ListActivity
         onView(withId(R.id.selectButton)).perform(click());
 
@@ -68,17 +77,16 @@ public class ListActivityTest {
     }
 
     @Test
-    public void testCityNameConsistency() {
+    public void testB_ItemDescriptionConsistency() {
         // Click the select items button to launch the ListActivity
         onView(withId(R.id.selectButton)).perform(click());
 
-        // Check if the description name in ListActivity matches the expected city name
-//        onView(withId(R.id.city_name_textView))
-//                .check(matches(withText(cityName)));
+        // Check if the description name in ListActivity matches the expected household name
+        onView(withText("Test description")).check(matches(isDisplayed()));
     }
 
     @Test
-    public void testBackButton() {
+    public void testC_BackButton() {
         // Click the select items button to launch the ListActivity
         onView(withId(R.id.selectButton)).perform(click());
 
@@ -90,5 +98,27 @@ public class ListActivityTest {
 
         // Check if the MainActivity is displayed after pressing the back button
         onView(ViewMatchers.withId(R.id.item_list)).check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void testD_DeleteButton() {
+        // Click the select items button to launch the ListActivity
+        onView(withId(R.id.selectButton)).perform(click());
+
+        // Wait for the view to load
+        onView(ViewMatchers.withId(R.id.select_item_list)).check(matches(isDisplayed()));
+
+        // Assuming dataList is not empty, perform a click on the first checkbox in the list
+        onData(anything())
+                .inAdapterView(withId(R.id.select_item_list))
+                .atPosition(0)
+                .onChildView(withId(R.id.checkbox))
+                .perform(click());
+
+        // Simulate pressing the delete button
+        onView(withId(R.id.deleteSelectedItemsButton)).perform(click());
+
+        // Check if the item is displayed after pressing the back button
+        onView(withText("Test description")).check(doesNotExist());
     }
 }

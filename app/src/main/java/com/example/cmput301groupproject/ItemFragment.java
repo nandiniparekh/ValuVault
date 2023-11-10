@@ -123,7 +123,7 @@ public class ItemFragment extends DialogFragment {
                         String date = purchaseDate.getText().toString();
 
                         // Validate input fields
-                        if (desc.isEmpty() || mk.isEmpty() || mdl.isEmpty() || serial.isEmpty() || estValue.isEmpty() || cmt.isEmpty() || date.isEmpty()) {
+                        if (desc.isEmpty() || mk.isEmpty() || mdl.isEmpty() || estValue.isEmpty() || cmt.isEmpty() || date.isEmpty()) {
                             // Show an error message or toast indicating that all fields are required
                             new AlertDialog.Builder(getContext())
                                     .setTitle("Error")
