@@ -28,6 +28,13 @@ import com.google.mlkit.vision.codescanner.GmsBarcodeScanner;
 import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions;
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning;
 
+import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+
 
 public class ItemFragment extends DialogFragment {
     private String titleDesc = "Add Item";
@@ -114,7 +121,61 @@ public class ItemFragment extends DialogFragment {
                         String estValue = estimatedValue.getText().toString();
                         String cmt = comment.getText().toString();
                         String date = purchaseDate.getText().toString();
-                        // ...
+
+                        // Validate input fields
+                        if (desc.isEmpty() || mk.isEmpty() || mdl.isEmpty() || serial.isEmpty() || estValue.isEmpty() || cmt.isEmpty() || date.isEmpty()) {
+                            // Show an error message or toast indicating that all fields are required
+                            new AlertDialog.Builder(getContext())
+                                    .setTitle("Error")
+                                    .setMessage("All fields are required")
+                                    .setPositiveButton(android.R.string.ok, null)
+                                    .setIcon(android.R.drawable.ic_dialog_alert)
+                                    .show();
+                            return;
+                        }
+
+                        // Validate Estimated Value
+                        try {
+                            // Try to convert the estimated value to double
+                            double estimatedValueDouble = Double.parseDouble(estValue);
+                            // Check if the conversion is successful
+                            if (estimatedValueDouble < 0) {
+                                // Show an error message or toast for invalid estimated value
+                                new AlertDialog.Builder(getContext())
+                                        .setTitle("Error")
+                                        .setMessage("Estimated value must be a non-negative number")
+                                        .setPositiveButton(android.R.string.ok, null)
+                                        .setIcon(android.R.drawable.ic_dialog_alert)
+                                        .show();
+                                return;
+                            }
+                            // Round estimated value to 2 decimal places
+                            DecimalFormat df = new DecimalFormat("#.##");
+                            estValue = df.format(estimatedValueDouble);
+
+                        } catch (NumberFormatException e) {
+                            // Show an error message or toast for invalid estimated value
+                            new AlertDialog.Builder(getContext())
+                                    .setTitle("Error")
+                                    .setMessage("Invalid estimated value format")
+                                    .setPositiveButton(android.R.string.ok, null)
+                                    .setIcon(android.R.drawable.ic_dialog_alert)
+                                    .show();
+                            return;
+                        }
+
+                        // Validate Date Format
+                        if (!isValidDate(date)) {
+                            // Show an error message or toast for invalid date format
+                            new AlertDialog.Builder(getContext())
+                                    .setTitle("Error")
+                                    .setMessage("Invalid date entry (yyyy/MM/dd), year between 1000-2100")
+                                    .setPositiveButton(android.R.string.ok, null)
+                                    .setIcon(android.R.drawable.ic_dialog_alert)
+                                    .show();
+                            return;
+                        }
+
                         if (passedHouseholdItem != null) {
                             passedHouseholdItem.setDescription(desc);
                             passedHouseholdItem.setMake(mk);
@@ -143,6 +204,31 @@ public class ItemFragment extends DialogFragment {
         }
 
         return builder.create();
+    }
+
+    // Helper method to check if the date is in the format "yyyy/MM/dd"
+    public static boolean isValidDate(String dateStr) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault());
+        sdf.setLenient(false);
+
+        try {
+            Date date = sdf.parse(dateStr);
+
+            // Check for reasonable year, month, and day entries
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+
+            int year = calendar.get(Calendar.YEAR);
+            int month = calendar.get(Calendar.MONTH) + 1; // Months are zero-based
+            int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+            return year >= 1000 && year <= 2100 &&
+                    month >= 1 && month <= 12 &&
+                    day >= 1 && day <= calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+
+        } catch (ParseException e) {
+            return false;
+        }
     }
 
     private void startScanner(){
