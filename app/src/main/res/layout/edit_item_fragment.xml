@@ -69,4 +69,8 @@
         android:id="@+id/scan_barcode_button"
         android:layout_gravity="bottom|center_horizontal"/>
 
+
+
 </LinearLayout>
+
+

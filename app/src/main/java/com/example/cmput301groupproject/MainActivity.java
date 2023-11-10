@@ -35,6 +35,8 @@ import java.util.HashMap;
  * The MainActivity class represents the main activity of the application
  */
 public class MainActivity extends AppCompatActivity implements ItemFragment.OnFragmentInteractionListener, SortFragment.SortListener, FiltersFragment.FiltersFragmentListener{
+
+    Button nextBtn;
     private Button selectButton;
     private Button tagButton;
     private Button sortButton;
@@ -58,6 +60,18 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //To upload an image into FireBase
+        nextBtn = findViewById(R.id.button2);
+        nextBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragmentContainerView, new UploadFragment())
+                        .addToBackStack(null)
+                        .commit();
+            }
+        });
 
         db = FirebaseFirestore.getInstance();
 

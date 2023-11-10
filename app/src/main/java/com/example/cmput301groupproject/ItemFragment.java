@@ -37,6 +37,7 @@ import java.util.Locale;
 
 
 public class ItemFragment extends DialogFragment {
+
     private String titleDesc = "Add Item";
     private EditText description;
     private EditText make;
