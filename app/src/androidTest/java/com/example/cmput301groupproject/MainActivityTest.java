@@ -64,6 +64,19 @@ public class MainActivityTest {
         onView(withText("Test description")).check(doesNotExist());
     }
 
+    @Test
+    public void testD_ScanButton_from_AddItem() {
+        //Assuming we are on main activity we try to test navigation to scanner
+        // Click on add item
+        onView(withId(R.id.add_item_b)).perform(click());
+        // Click on Scan Button
+        onView(withId(R.id.scan_barcode_button)).perform(click());
+    }
+
+}
+
+
+
 //    @Test
 //    public void testD_ListView() {
 //        // Click the add item button
@@ -86,5 +99,5 @@ public class MainActivityTest {
 //                .onChildView(withId(R.id.description_edit_text))
 //                .check(matches(withText("Test description")));
 //    }
-}
+
 
