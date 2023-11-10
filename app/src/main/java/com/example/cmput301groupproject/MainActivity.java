@@ -34,7 +34,7 @@ import java.util.HashMap;
 /**
  * The MainActivity class represents the main activity of the application
  */
-public class MainActivity extends AppCompatActivity implements ItemFragment.OnFragmentInteractionListener, ListFragment.OnFragmentInteractionListener, SortFragment.SortListener, FiltersFragment.FiltersFragmentListener{
+public class MainActivity extends AppCompatActivity implements ItemFragment.OnFragmentInteractionListener, SortFragment.SortListener, FiltersFragment.FiltersFragmentListener{
     private Button selectButton;
     private Button tagButton;
     private Button sortButton;
@@ -61,9 +61,8 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
 
         db = FirebaseFirestore.getInstance();
 
-        itemsRef = db.collection("Kendrick_items");
+        itemsRef = db.collection("Mid_check");
         dataList = new ArrayList<>();
-        // Other code omitted
 
         itemAdapter = new CustomItemList(this, dataList);
 
@@ -412,6 +411,7 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
             dataList.clear();
             dataList.addAll(filteredDataList);
             itemAdapter.notifyDataSetChanged();
+            setTotalEstimatedValue(dataList);
             Log.d("Filtering", "Filtered list displayed");
         } else {
             Log.e("Filtering", "Problem with the list");
@@ -424,6 +424,7 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
             dataList.clear();
             dataList.addAll(unfilteredList);
             itemAdapter.notifyDataSetChanged();
+            setTotalEstimatedValue(dataList);
         } else {
             Log.e("Removing filters", "Problem with removing filters");
         }
