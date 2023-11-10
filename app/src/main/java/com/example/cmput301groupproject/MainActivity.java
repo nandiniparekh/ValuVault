@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
 
         db = FirebaseFirestore.getInstance();
 
-        itemsRef = db.collection("ID_items");
+        itemsRef = db.collection("Kendrick_items");
         dataList = new ArrayList<>();
         // Other code omitted
 
