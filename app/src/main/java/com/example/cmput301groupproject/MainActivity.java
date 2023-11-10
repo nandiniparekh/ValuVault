@@ -220,10 +220,11 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
         });
 
 
-        filterButton.setOnClickListener(new View.OnClickListener() {
+        filterButton.setOnClickListener(new View.OnClickListener() {    //filter items button listener
             @Override
             public void onClick(View v) {
                 filterCount++;
+                //creates a new instance of the filters fragment.
                 FiltersFragment.newInstance(dataList).show(getSupportFragmentManager(), "FILTER_ITEMS");
             }
         });
