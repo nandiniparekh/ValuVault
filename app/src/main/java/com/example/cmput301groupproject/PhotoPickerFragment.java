@@ -3,7 +3,9 @@ package com.example.cmput301groupproject;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -30,6 +32,14 @@ public class PhotoPickerFragment extends Fragment {
     private RecyclerView recyclerView;
     private PhotoAdapter adapter;
     private List<Uri> selectedImages = new ArrayList<>();
+
+    private List<Bitmap> selectedBitmapImage = new ArrayList<>();
+    private OnUriListSelectedListener uriListListener;
+
+    public interface OnUriListSelectedListener {
+        void onUriListSelected(List<Uri> selectedUris);
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,12 +61,18 @@ public class PhotoPickerFragment extends Fragment {
                             int count;
                             if (data.getClipData() != null) {
                                 count = data.getClipData().getItemCount();
+
+//                                clears the array everytime you select new images
                                 selectedImages.clear();
                                 for (int i = 0; i < count; i++) {
                                     Uri imageUri = data.getClipData().getItemAt(i).getUri();
                                     selectedImages.add(imageUri);
+
                                 }
                                 adapter.notifyDataSetChanged();
+                                if (uriListListener != null) {
+                                    uriListListener.onUriListSelected(selectedImages);
+                                }
                             }
                         }
                     }
@@ -82,7 +98,15 @@ public class PhotoPickerFragment extends Fragment {
             adapter.notifyDataSetChanged();
         }
     }
-
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        try {
+            uriListListener = (OnUriListSelectedListener) getParentFragment();
+        } catch (ClassCastException e) {
+            throw new ClassCastException(getParentFragment().toString() + " must implement OnUriListSelectedListener");
+        }
+    }
 
 
     @Override
@@ -95,10 +119,21 @@ public class PhotoPickerFragment extends Fragment {
         recyclerView.setAdapter(adapter);
 
         Button choosePhotoButton = rootView.findViewById(R.id.choosePhotoButton);
+
+        Button takePhotoButton = rootView.findViewById(R.id.camera_button);
+
+
         choosePhotoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 openGallery();
+            }
+        });
+
+        takePhotoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Dasom's code
             }
         });
 

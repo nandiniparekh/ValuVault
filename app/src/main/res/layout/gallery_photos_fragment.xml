@@ -9,18 +9,32 @@
     android:orientation="vertical">
 
     <!-- fragment_photo_picker.xml -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
     <Button
         android:id="@+id/choosePhotoButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/choose_photos" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/photoRecyclerView"
-        android:layout_width="match_parent"
+    <Button
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-        app:spanCount="3"
-        android:orientation="vertical"/>
+        android:id="@+id/camera_button"
+        android:text="Take Picture" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/photoRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+            app:spanCount="3"
+            android:orientation="vertical"/>
+    </LinearLayout>
 
 </LinearLayout>

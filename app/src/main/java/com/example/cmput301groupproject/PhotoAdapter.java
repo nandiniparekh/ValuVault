@@ -12,8 +12,6 @@ import com.bumptech.glide.Glide;
 
 import java.util.List;
 
-// ...
-
 public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHolder> {
     private List<Uri> imageUris;
 
