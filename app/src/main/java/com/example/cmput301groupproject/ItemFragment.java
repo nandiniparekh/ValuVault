@@ -1,11 +1,14 @@
 package com.example.cmput301groupproject;
 
+import static android.content.ContentValues.TAG;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -17,9 +20,25 @@ import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+
 import java.util.List;
 
 public class ItemFragment extends DialogFragment implements PhotoPickerFragment.OnUriListSelectedListener {
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.mlkit.vision.barcode.common.Barcode;
+import com.google.mlkit.vision.codescanner.GmsBarcodeScanner;
+import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions;
+import com.google.mlkit.vision.codescanner.GmsBarcodeScanning;
+
+
+public class ItemFragment extends DialogFragment {
+
     private String titleDesc = "Add Item";
     private EditText description;
     private EditText make;
@@ -27,13 +46,18 @@ public class ItemFragment extends DialogFragment implements PhotoPickerFragment.
     private EditText serialNumber;
     private EditText estimatedValue;
     private EditText comment;
-
     private Button loadButton;
-
     private EditText purchaseDate;
-
+    private FirebaseFirestore db;
+    private CollectionReference itemsRef;
+    private GmsBarcodeScannerOptions options = new GmsBarcodeScannerOptions.Builder()
+            .setBarcodeFormats(
+                    Barcode.FORMAT_UPC_A)
+            .enableAutoZoom()
+            .build();
     private HouseholdItem passedHouseholdItem;
     private OnFragmentInteractionListener listener;
+
 
     @Override
     public void onUriListSelected(List<Uri> selectedUris) {
@@ -91,6 +115,10 @@ public class ItemFragment extends DialogFragment implements PhotoPickerFragment.
         });
 
 
+        Button scanBarcodeButton = view.findViewById(R.id.scan_barcode_button);
+        scanBarcodeButton.setOnClickListener(view1 -> startScanner());
+        scanBarcodeButton = view.findViewById(R.id.scan_barcode_button);
+        scanBarcodeButton.setOnClickListener(view1 -> startScanner());
         Bundle args = getArguments();
         if (args != null) {
             titleDesc = "Edit Item";
@@ -152,6 +180,41 @@ public class ItemFragment extends DialogFragment implements PhotoPickerFragment.
         return builder.create();
     }
 
+    private void startScanner(){
+        GmsBarcodeScanner scanner = GmsBarcodeScanning.getClient(getContext(),options);
+
+        // The task failed with an exception
+        scanner
+                .startScan()
+                .addOnSuccessListener(
+                        barcode -> {
+                            String scannedBarcode = barcode.getRawValue();
+                            DocumentReference docRef = db.collection("Items_Barcode_info").document(scannedBarcode);
+                            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        DocumentSnapshot document = task.getResult();
+                                        if (document.exists()) {
+                                            Log.d(TAG, "DocumentSnapshot data: " + document.getData());
+                                            description.setText((String)document.get("Product Description"));
+                                        } else {
+                                            Log.d(TAG, "No such item exists in the database");
+                                        }
+                                    } else {
+                                        Log.d(TAG, "get failed with ", task.getException());
+                                    }
+                                }
+                            });
+                        })
+                .addOnCanceledListener(
+                        () -> {
+                            // The task has been cancelled
+                        })
+                .addOnFailureListener(
+                        Throwable::getMessage);
+
+    }
     public static ItemFragment newInstance(HouseholdItem item) {
         Bundle args = new Bundle();
         args.putSerializable("item", item);

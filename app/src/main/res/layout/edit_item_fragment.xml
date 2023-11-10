@@ -60,6 +60,12 @@
         android:hint="Purchase Date"
         android:id="@+id/purchase_date_edit_text"
         android:inputType="text" />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Scan Barcode"
+        android:id="@+id/scan_barcode_button"
+        android:layout_gravity="bottom|center_horizontal"/>
 
     <Button
         android:id="@+id/load_button"
