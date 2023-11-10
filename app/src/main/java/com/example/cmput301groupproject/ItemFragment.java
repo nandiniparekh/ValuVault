@@ -6,7 +6,6 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,13 +16,6 @@ import android.widget.EditText;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-
-
-import java.util.List;
-
-public class ItemFragment extends DialogFragment implements PhotoPickerFragment.OnUriListSelectedListener {
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -38,7 +30,6 @@ import com.google.mlkit.vision.codescanner.GmsBarcodeScanning;
 
 
 public class ItemFragment extends DialogFragment {
-
     private String titleDesc = "Add Item";
     private EditText description;
     private EditText make;
@@ -46,7 +37,6 @@ public class ItemFragment extends DialogFragment {
     private EditText serialNumber;
     private EditText estimatedValue;
     private EditText comment;
-    private Button loadButton;
     private EditText purchaseDate;
     private FirebaseFirestore db;
     private CollectionReference itemsRef;
@@ -58,11 +48,6 @@ public class ItemFragment extends DialogFragment {
     private HouseholdItem passedHouseholdItem;
     private OnFragmentInteractionListener listener;
 
-
-    @Override
-    public void onUriListSelected(List<Uri> selectedUris) {
-
-    }
 
     public interface OnFragmentInteractionListener {
         void onHouseholdItemAdded(HouseholdItem newItem);
@@ -82,7 +67,6 @@ public class ItemFragment extends DialogFragment {
         }
     }
 
-
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
@@ -95,25 +79,6 @@ public class ItemFragment extends DialogFragment {
         estimatedValue = view.findViewById(R.id.estimated_value_edit_text);
         comment = view.findViewById(R.id.comment_edit_text);
         purchaseDate = view.findViewById(R.id.purchase_date_edit_text);
-        loadButton = view.findViewById(R.id.load_button);
-
-        loadButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FragmentManager fragmentManager = getChildFragmentManager(); // Use getChildFragmentManager() for nested fragments
-                FragmentTransaction transaction = fragmentManager.beginTransaction();
-
-                // Create an instance of the fragment to load
-                PhotoPickerFragment photoPickerFragment = new PhotoPickerFragment();
-
-
-                // Replace the content of the fragmentContainer with the new fragment
-                transaction.replace(R.id.galleryFragmentContainer, photoPickerFragment);
-                transaction.addToBackStack(null); // Optional: Add the transaction to the back stack for navigation
-                transaction.commit();
-            }
-        });
-
 
         Button scanBarcodeButton = view.findViewById(R.id.scan_barcode_button);
         scanBarcodeButton.setOnClickListener(view1 -> startScanner());
