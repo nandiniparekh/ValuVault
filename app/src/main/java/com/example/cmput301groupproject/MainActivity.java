@@ -1,5 +1,6 @@
 package com.example.cmput301groupproject;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -14,6 +15,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import androidx.appcompat.app.AlertDialog;
+
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -27,8 +30,10 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
+/**
+ * The MainActivity class represents the main activity of the application
+ */
 public class MainActivity extends AppCompatActivity implements ItemFragment.OnFragmentInteractionListener, ListFragment.OnFragmentInteractionListener, SortFragment.SortListener, FiltersFragment.FiltersFragmentListener{
     private Button selectButton;
     private Button tagButton;
@@ -44,6 +49,11 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
     private ArrayList<HouseholdItem> unfilteredList;
     private int filterCount = 0;
 
+    /**
+     * Initializes the main activity, sets the layout, and defines interactions
+     *
+     * @param savedInstanceState The saved instance state bundle
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,7 +61,7 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
 
         db = FirebaseFirestore.getInstance();
 
-        itemsRef = db.collection("ID_items");
+        itemsRef = db.collection("Kendrick_items");
         dataList = new ArrayList<>();
         // Other code omitted
 
@@ -85,54 +95,56 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
             }
         });
 
-        itemsRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot querySnapshots,
-                                @Nullable FirebaseFirestoreException error) {
-                if (error != null) {
-                    Log.e("Firestore", error.toString());
-                    return;
-                }
-                if (querySnapshots != null) {
-                    dataList.clear();
-                    for (QueryDocumentSnapshot doc: querySnapshots) {
-                        String firestoreId = doc.getId(); // Retrieve the auto-generated Firestore ID
-                        String description = doc.getString("Description");
-                        String dateOfPurchaseString = doc.getString("Purchase Date");
-                        String make = doc.getString("Make");
-                        String model = doc.getString("Model");
-                        String serialNumber = doc.getString("Serial Number");
-                        String estimatedValue = doc.getString("Estimated Value");
-                        String comment = doc.getString("Comment");
-
-                        Log.d("Firestore", String.format("Item(%s, %s, %s, %s, %s, %s, %s) fetched",
-                                dateOfPurchaseString, description, make, model, serialNumber, estimatedValue, comment));
-                        HouseholdItem savedItem = new HouseholdItem(dateOfPurchaseString, description, make, model, serialNumber, estimatedValue, comment);
-                        savedItem.setFirestoreId(firestoreId);
-                        dataList.add(savedItem);
+            itemsRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+                @Override
+                public void onEvent(@Nullable QuerySnapshot querySnapshots,
+                                    @Nullable FirebaseFirestoreException error) {
+                    if (error != null) {
+                        Log.e("Firestore", error.toString());
+                        return;
                     }
-                    itemAdapter.notifyDataSetChanged();
+                    if (querySnapshots != null) {
+                        dataList.clear();
+                        for (QueryDocumentSnapshot doc: querySnapshots) {
+                            String firestoreId = doc.getId(); // Retrieve the auto-generated Firestore ID
+                            String description = doc.getString("Description");
+                            String dateOfPurchaseString = doc.getString("Purchase Date");
+                            String make = doc.getString("Make");
+                            String model = doc.getString("Model");
+                            String serialNumber = doc.getString("Serial Number");
+                            String estimatedValue = doc.getString("Estimated Value");
+                            String comment = doc.getString("Comment");
 
-                    // Calculate the total estimated value of the items and set it to the TextView
-                    setTotalEstimatedValue(dataList);
+                            Log.d("Firestore", String.format("Item(%s, %s, %s, %s, %s, %s, %s) fetched",
+                                    dateOfPurchaseString, description, make, model, serialNumber, estimatedValue, comment));
+                            HouseholdItem savedItem = new HouseholdItem(dateOfPurchaseString, description, make, model, serialNumber, estimatedValue, comment);
+                            savedItem.setFirestoreId(firestoreId);
+                            dataList.add(savedItem);
+                        }
+                        itemAdapter.notifyDataSetChanged();
+
+                        // Calculate the total estimated value of the items and set it to the TextView
+                        setTotalEstimatedValue(dataList);
+                    }
                 }
-            }
-        });
+            });
 
         selectButton = findViewById(R.id.selectButton);
         tagButton = findViewById(R.id.tagButton);
         sortButton = findViewById(R.id.sortButton);
         filterButton = findViewById(R.id.filterButton);
 
-
         selectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Maybe switch ListView or just spawn ListFragment
-                ListFragment.newInstance(dataList).show(getSupportFragmentManager(), "SELECT_ITEMS");
+                // Send dataList to ListActivity
+                Intent intent = new Intent(MainActivity.this, ListActivity.class);
+                intent.putExtra("dataList", dataList);
+                startActivity(intent);
             }
         });
 
+      
         tagButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -140,11 +152,72 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
             }
         });
 
-        sortButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Implement Marzia's stuff
-            }
+
+
+        final int[] lastCheckedItem = {-1}; // Initialize to -1 (no item selected initially)
+
+        // handle the button to open the alert dialog with the single item selection
+        sortButton.setOnClickListener(v -> {
+            // AlertDialog builder instance to build the alert dialog
+            AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
+            alertDialog.setTitle("Sort by:");
+            // form of list so that user can select the item from
+            final String[] listItems = new String[]{"Date","Description", "Make","Estimated Value"};
+
+            final View customLayout = getLayoutInflater().inflate(R.layout.dialog_custom_sort, null);
+
+
+            alertDialog.setSingleChoiceItems(listItems, lastCheckedItem[0], (dialog, which) -> {
+                if (lastCheckedItem[0] == which) {
+                    // Clicking the same item again deselects it
+                    ((AlertDialog) dialog).getListView().setItemChecked(which, false);
+                    lastCheckedItem[0] = -1; // Reset the last checked item index
+                }
+                else {
+                    lastCheckedItem[0] = which; // Update the last checked item index
+                }
+
+            });
+            alertDialog.setView(customLayout);
+            AlertDialog customAlertDialog = alertDialog.create();
+
+            // Handle button clicks for Ascending and Descending within the AlertDialog
+            Button btnAscending = customLayout.findViewById(R.id.btnAscending);
+            Button btnDescending = customLayout.findViewById(R.id.btnDescending);
+            btnAscending.setOnClickListener(view -> {
+                // Handle Ascending button click
+
+                if (lastCheckedItem[0] != -1) {
+                    int selectedSortCriteria = lastCheckedItem[0];
+
+                    SortFragment sortFragment = new SortFragment();
+                    sortFragment.setSortListener(sortedList -> {
+                        dataList = sortedList;
+                        itemAdapter.notifyDataSetChanged();
+                    });
+                    // Pass the selected data list and sorting criteria
+                    sortFragment.receiveDataList(dataList, selectedSortCriteria, SortFragment.ASCENDING);
+                }
+                customAlertDialog.dismiss();
+            });
+            btnDescending.setOnClickListener(view -> {
+                // Handle Descending button click
+                if (lastCheckedItem[0] != -1) {
+                    int selectedSortCriteria = lastCheckedItem[0];
+
+                    SortFragment sortFragment = new SortFragment();
+                    sortFragment.setSortListener(sortedList -> {
+                        dataList = sortedList;
+                        itemAdapter.notifyDataSetChanged();
+                    });
+                    // Pass the selected data list and sorting criteria
+                    sortFragment.receiveDataList(dataList, selectedSortCriteria, SortFragment.DESCENDING);
+                }
+                customAlertDialog.dismiss();
+            });
+
+            customAlertDialog.show();
+
         });
 
 
@@ -156,16 +229,36 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
             }
         });
 
+        // New code for receiving intents from ListActivity
+        handleIntentsFromListActivity(getIntent());
+    }
+    // the SortListener method in MainActivity to receive the sorted list
+    @Override
+    public void onSortDataList(ArrayList<HouseholdItem> sortedList) {
+        // Handle the sorted list received from SortFragment
+        // Update data list and refresh the adapter
+        dataList = sortedList;
+        itemAdapter.notifyDataSetChanged();
     }
 
-    // Method to set the total estimated value
+
+    /**
+     * Sets the total estimated value of household items
+     *
+     * @param items The list of HouseholdItem objects
+     */
     private void setTotalEstimatedValue(ArrayList<HouseholdItem> items) {
         double totalValue = calculateTotalEstimatedValue(items);
         TextView totalEstimatedValue = findViewById(R.id.total_item_value);
         totalEstimatedValue.setText("Total Estimated Value: $" + totalValue);
     }
 
-    // Calculate the total estimated value of all items in the list
+    /**
+     * Calculates the total estimated value of all items in the list
+     *
+     * @param items The list of HouseholdItem objects
+     * @return The total estimated value as a double
+     */
     private double calculateTotalEstimatedValue(ArrayList<HouseholdItem> items) {
         double totalValue = 0.0;
 
@@ -184,6 +277,11 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
         return totalValue;
     }
 
+    /**
+     * Adds a new HouseholdItem to the database
+     *
+     * @param item The HouseholdItem object to be added
+     */
     @Override
     public void onHouseholdItemAdded(HouseholdItem item) {
         HashMap<String, String> data = new HashMap<>();
@@ -204,6 +302,11 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
                 });
     }
 
+    /**
+     * Edits a HouseholdItem in the database
+     *
+     * @param editedItem The edited HouseholdItem object
+     */
     public void onHouseholdItemEdited(HouseholdItem editedItem) {
         HashMap<String, Object> data = new HashMap<>();
         data.put("Description", editedItem.getDescription());
@@ -229,37 +332,71 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
                 });
     }
 
+    /**
+     * Removes a HouseholdItem from the database
+     *
+     * @param removedItem The HouseholdItem object to be removed
+     */
     public void onHouseholdItemRemoved(HouseholdItem removedItem) {
         itemAdapter.remove(removedItem);
-        itemsRef.document(removedItem.getDescription()).delete();
+        itemsRef.document(removedItem.getFirestoreId()).delete();
         itemAdapter.notifyDataSetChanged();
     }
 
+    /**
+     * Adds tags to selected items
+     *
+     * @param taggedItems The list of HouseholdItem objects to have tags applied
+     * @param tags        The list of tags to be applied
+     */
     // Method to handle adding tags and performing an action
     public void onTagsApplied(ArrayList<HouseholdItem> taggedItems, ArrayList<String> tags) {
         // Apply tags
 
     }
 
-    // Method to handle deleting selected items and performing an action
+    /**
+     * Deletes selected items from database
+     *
+     * @param removedItems The list of HouseholdItem objects to be removed
+     */
     public void onListItemsRemoved(ArrayList<HouseholdItem> removedItems) {
         // Delete selected items
         for(HouseholdItem removedItem :removedItems){
             onHouseholdItemRemoved(removedItem);
         }
     }
-    // this method to receive the sorted list from the SortFragment
-    @Override
-    public void onSortDataList(List<HouseholdItem> sortedList) {
-        if (sortedList != null && !sortedList.isEmpty()) {
-            dataList.clear();
-            dataList.addAll(sortedList);
-            itemAdapter.notifyDataSetChanged();
-            Log.d("Doggy", "Sorted dataList: " + dataList.size() + " items");
 
-
-        } else {
-            Log.e("MainActivity", "Received empty or null sorted list from SortFragment.");
+    /**
+     * Handles incoming intents from other activities
+     *
+     * @param intent The incoming intent
+     */
+    private void handleIntentsFromListActivity(Intent intent) {
+        if (intent != null) {
+            String command = intent.getStringExtra("command");
+            if (command != null) {
+                switch (command) {
+                    case "applyTags":
+                        ArrayList<HouseholdItem> selectedItems = (ArrayList<HouseholdItem>) intent.getSerializableExtra("selectedItems");
+                        ArrayList<String> selectedTags = (ArrayList<String>) intent.getSerializableExtra("selectedTags");
+                        if (selectedItems != null && selectedTags != null) {
+                            // Handle selected items and tags
+                            onTagsApplied(selectedItems, selectedTags);
+                        }
+                        break;
+                    case "deleteItems":
+                        ArrayList<HouseholdItem> removedItems = (ArrayList<HouseholdItem>) intent.getSerializableExtra("selectedItems");
+                        if (removedItems != null) {
+                            // Handle removed items
+                            onListItemsRemoved(removedItems);
+                        }
+                        break;
+                    default:
+                        // Handle unknown command
+                        break;
+                }
+            }
         }
     }
 

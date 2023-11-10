@@ -1,16 +1,28 @@
 package com.example.cmput301groupproject;
 
-import android.util.Log;
-
 import androidx.fragment.app.Fragment;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.List;
+import java.util.Date;
+import java.util.Locale;
 
 public class SortFragment extends Fragment {
+
+    public static final int SORT_BY_DATE = 0;
+    public static final int SORT_BY_DESCRIPTION = 1;
+    public static final int SORT_BY_MAKE = 2;
+    public static final int SORT_BY_VAL = 3;
+
+    public static final int ASCENDING = 0;
+    public static final int DESCENDING = 1;
+    private int sortCriteria;
+    private int sortOrder;
     public interface SortListener {
-        void onSortDataList(List<HouseholdItem> sortedList);
+        void onSortDataList(ArrayList<HouseholdItem> sortedList);
     }
     private SortListener sortListener;
 
@@ -18,34 +30,108 @@ public class SortFragment extends Fragment {
         // Required empty public constructor
     }
 
+
     public void setSortListener(SortListener listener) {
         this.sortListener = listener;
     }
 
-    public void receiveDataList(List<HouseholdItem> dataList) {
-        Log.d("SortFragment", "Received dataList for sorting: " + dataList.size() + " items");
+    public void receiveDataList(ArrayList<HouseholdItem> dataList, int sortCriteria,int sortOrder) {
+        // Set the sorting criteria and order
+        this.sortCriteria = sortCriteria;
+        this.sortOrder = sortOrder;
 
-        if (dataList != null && !dataList.isEmpty()) {
-            // If dataList is not empty, sort the dataList
-            sortDataListComment(dataList);
-            if (sortListener != null) {
-                sortListener.onSortDataList(dataList);
-            }
-
-        } else {
-            // Log a warning if dataList is empty or null
-            Log.w("SortFragment", "DataList is empty or null. Unable to perform sorting.");
-
+        // Apply sorting based on the selected criteria
+        switch (sortCriteria) {
+            case SORT_BY_DATE:
+                sortDataListDate(dataList);
+                break;
+            case SORT_BY_DESCRIPTION:
+                sortDataListDescription(dataList);
+                break;
+            case SORT_BY_MAKE:
+                sortDataListMake(dataList);
+                break;
+            case SORT_BY_VAL:
+                sortDataListVal(dataList);
+                break;
         }
+
+        if (sortListener != null) {
+            sortListener.onSortDataList(dataList);
+        }
+
     }
-    private void sortDataListComment(List<HouseholdItem> dataList) {
+
+
+    private void sortDataListDescription(ArrayList<HouseholdItem> dataList) {
         Collections.sort(dataList, new Comparator<HouseholdItem>() {
             @Override
             public int compare(HouseholdItem item1, HouseholdItem item2) {
-                // Compare items based on comments in alphabetical order (case-insensitive)
-                return item1.getComment().compareToIgnoreCase(item2.getComment());
+                // Compare items based on Description in alphabetical order (case-insensitive)
+
+                return item1.getDescription().compareToIgnoreCase(item2.getDescription());
+            }
+
+        });
+        if (sortOrder == DESCENDING) {
+            Collections.reverse(dataList);
+        }
+    }
+    private void sortDataListDate(ArrayList<HouseholdItem> dataList) {
+        Collections.sort(dataList, new Comparator<HouseholdItem>() {
+            @Override
+            public int compare(HouseholdItem item1, HouseholdItem item2) {
+                // Parse the date strings to Date objects for comparison
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd", Locale.US);
+                try {
+                    Date date1 = dateFormat.parse(item1.getDateOfPurchase());
+                    Date date2 = dateFormat.parse(item2.getDateOfPurchase());
+
+
+                    if (date1 != null && date2 != null) {
+                        // sort by ascending order, so oldest date first
+                        return date1.compareTo(date2);
+                        // For descending order, use date2.compareTo(date1)
+                    }
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+
+                return 0;
+
             }
         });
+        if (sortOrder == DESCENDING) {
+            Collections.reverse(dataList);
+        }
+    }
+    private void sortDataListMake(ArrayList<HouseholdItem> dataList) {
+        Collections.sort(dataList, new Comparator<HouseholdItem>() {
+            @Override
+            public int compare(HouseholdItem item1, HouseholdItem item2) {
+                // Compare items based on make and sort in ascending order
+                return item1.getMake().compareToIgnoreCase(item2.getMake());
+            }
+        });
+        if (sortOrder == DESCENDING) {
+            Collections.reverse(dataList);
+        }
+    }
+    private void sortDataListVal(ArrayList<HouseholdItem> dataList) {
+        Collections.sort(dataList, new Comparator<HouseholdItem>() {
+            @Override
+            public int compare(HouseholdItem item1, HouseholdItem item2) {
+                // Convert estimated values from string to double for comparison
+                double value1 = Double.parseDouble(item1.getEstimatedValue());
+                double value2 = Double.parseDouble(item2.getEstimatedValue());
+
+                // Compare the parsed values for sorting in ascending order
+                return Double.compare(value1, value2);
+            }
+        });
+        if (sortOrder == DESCENDING) {
+            Collections.reverse(dataList);
+        }
     }
 
 }
