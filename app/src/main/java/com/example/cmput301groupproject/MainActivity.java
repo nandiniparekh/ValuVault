@@ -61,7 +61,15 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
 
         db = FirebaseFirestore.getInstance();
 
-        itemsRef = db.collection("Mid_check");
+        // Retrieve the collection path from the intent if it exists
+        String userCollectionPath = getIntent().getStringExtra("userDoc");
+
+        // Only update the collection path if it's not already set
+        if (userCollectionPath != null && itemsRef == null) {
+            // Use the retrieved collection path to set up the Firestore collection reference
+            itemsRef = db.collection(userCollectionPath);
+        }
+
         dataList = new ArrayList<>();
 
         itemAdapter = new CustomItemList(this, dataList);
@@ -230,7 +238,7 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
         });
 
         // New code for receiving intents from ListActivity
-        handleIntentsFromListActivity(getIntent());
+        handleIntentsFromExternalActivity(getIntent());
     }
     // the SortListener method in MainActivity to receive the sorted list
     @Override
@@ -372,7 +380,7 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
      *
      * @param intent The incoming intent
      */
-    private void handleIntentsFromListActivity(Intent intent) {
+    private void handleIntentsFromExternalActivity(Intent intent) {
         if (intent != null) {
             String command = intent.getStringExtra("command");
             if (command != null) {
