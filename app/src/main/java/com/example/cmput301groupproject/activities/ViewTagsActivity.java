@@ -122,6 +122,8 @@ public class ViewTagsActivity extends AppCompatActivity implements AddTagsFragme
 
                 // Clear the selected tags list
                 selectedTags.clear();
+
+                tagsAdapter.clearAllCheckedItems();
             }
 
             @Override
