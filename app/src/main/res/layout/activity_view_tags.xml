@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <Button
+        android:id="@+id/btnBackToMain"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="Back to Main" />
+
+    <Button
+        android:id="@+id/btnAddTags"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_toEndOf="@+id/btnBackToMain"
+        android:text="Add Tags" />
+
+    <Button
+        android:id="@+id/btnDeleteTags"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Delete Selected Tags"
+        android:layout_marginTop="16dp"
+        android:layout_toEndOf="@+id/btnAddTags"
+        android:layout_marginStart="16dp"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewTags"
+        android:layout_width="match_parent"
+        android:layout_height="581dp"
+        android:layout_below="@id/btnAddTags"
+        android:layout_marginTop="16dp" />
+
+</RelativeLayout>

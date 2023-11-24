@@ -1,4 +1,4 @@
-package com.example.cmput301groupproject;
+package com.example.cmput301groupproject.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,6 +8,10 @@ import android.widget.ListView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.cmput301groupproject.HouseholdItem;
+import com.example.cmput301groupproject.R;
+import com.example.cmput301groupproject.adapters.SelectedItemAdapter;
+
 import java.util.ArrayList;
 
 public class ListActivity extends AppCompatActivity {
@@ -16,7 +20,7 @@ public class ListActivity extends AppCompatActivity {
     private Button deleteSelectedItemsButton;
     private ListView selectItemList;
     private ArrayList<HouseholdItem> passedDataList;
-    private SelectedItemAdapter  listAdapter;
+    private SelectedItemAdapter listAdapter;
     private ArrayList<HouseholdItem> selectedItems;
     private ArrayList<String> selectedTags;
     @Override

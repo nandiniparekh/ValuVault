@@ -1,4 +1,4 @@
-package com.example.cmput301groupproject;
+package com.example.cmput301groupproject.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -17,6 +17,12 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import androidx.appcompat.app.AlertDialog;
 
+import com.example.cmput301groupproject.fragments.FiltersFragment;
+import com.example.cmput301groupproject.HouseholdItem;
+import com.example.cmput301groupproject.fragments.ItemFragment;
+import com.example.cmput301groupproject.R;
+import com.example.cmput301groupproject.fragments.SortFragment;
+import com.example.cmput301groupproject.adapters.CustomItemList;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -34,7 +40,7 @@ import java.util.HashMap;
 /**
  * The MainActivity class represents the main activity of the application
  */
-public class MainActivity extends AppCompatActivity implements ItemFragment.OnFragmentInteractionListener, SortFragment.SortListener, FiltersFragment.FiltersFragmentListener{
+public class MainActivity extends AppCompatActivity implements ItemFragment.OnFragmentInteractionListener, SortFragment.SortListener, FiltersFragment.FiltersFragmentListener {
     private Button selectButton;
     private Button tagButton;
     private Button sortButton;
@@ -151,11 +157,14 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
             }
         });
 
-      
+
         tagButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Go to tags. Probably source inspiration from "Kendrick" branch
+                // Send userCollectionPath to ViewTagsActivity
+                Intent viewTagsIntent = new Intent(MainActivity.this, ViewTagsActivity.class);
+                viewTagsIntent.putExtra("userID", userCollectionPath);
+                startActivity(viewTagsIntent);
             }
         });
 

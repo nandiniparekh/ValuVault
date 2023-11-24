@@ -9,7 +9,7 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
 
-    tools:context=".MainActivity">
+    tools:context=".activities.MainActivity">
 
     <ListView
         android:id="@+id/item_list"

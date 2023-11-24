@@ -14,6 +14,8 @@ import static org.hamcrest.CoreMatchers.anything;
 import androidx.test.espresso.action.ViewActions;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 
+import com.example.cmput301groupproject.activities.MainActivity;
+
 import org.junit.FixMethodOrder;
 import org.junit.Rule;
 import org.junit.Test;

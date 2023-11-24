@@ -1,4 +1,4 @@
-package com.example.cmput301groupproject;
+package com.example.cmput301groupproject.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -10,6 +10,10 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.fragment.app.DialogFragment;
+
+import com.example.cmput301groupproject.FilterItems;
+import com.example.cmput301groupproject.HouseholdItem;
+import com.example.cmput301groupproject.R;
 
 import java.util.ArrayList;
 
