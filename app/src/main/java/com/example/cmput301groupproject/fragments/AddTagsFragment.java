@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 
 import androidx.annotation.NonNull;
@@ -23,21 +22,22 @@ public class AddTagsFragment extends DialogFragment {
     private static final String ARG_TAG_LIST = "tagList";
 
     private ArrayList<String> tagList;
+    private EditText editTextTag;
 
-    private OnFragmentInteractionListener TagsListener;
+    private TagsOnFragmentInteractionListener tagsListener;
 
-    public interface OnFragmentInteractionListener {
+    public interface TagsOnFragmentInteractionListener {
         void onTagAdded(String newTag);
-        void onTagRemoved(String removedTag);
+        //void onTagRemoved(String removedTag);
     }
 
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            TagsListener = (OnFragmentInteractionListener) context;
+        if (context instanceof TagsOnFragmentInteractionListener) {
+            tagsListener = (TagsOnFragmentInteractionListener) context;
         } else {
-            throw new RuntimeException(context + "Tags OnFragmentInteractionListener is not implemented");
+            throw new RuntimeException(context + "TagsOnFragmentInteractionListener is not implemented");
         }
     }
 
@@ -49,39 +49,22 @@ public class AddTagsFragment extends DialogFragment {
         return fragment;
     }
 
+
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         if (getArguments() != null) {
             tagList = getArguments().getStringArrayList(ARG_TAG_LIST);
         }
+        else{
+            tagList = new ArrayList<>();
+        }
 
-        LayoutInflater inflater = requireActivity().getLayoutInflater();
-        View view = inflater.inflate(R.layout.tags_fragment, null);
+        View view = LayoutInflater.from(getActivity()).inflate(R.layout.add_tags_fragment, null);
 
-        final EditText editTextTag = view.findViewById(R.id.editTextTag);
-        Button addButton = view.findViewById(R.id.btnAddTag);
-        Button cancelButton = view.findViewById(R.id.btnCancel);
+        editTextTag = view.findViewById(R.id.editTextTag);
 
-        addButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String newTag = editTextTag.getText().toString().trim();
-                if (!newTag.isEmpty()) {
-                    tagList.add(newTag);
-                    TagsListener.onTagAdded(newTag);
-                }
-            }
-        });
-
-        cancelButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dismiss(); // Cancel operation and close the dialog
-            }
-        });
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 
         builder.setView(view)
                 .setTitle("Add Tag")
@@ -91,8 +74,7 @@ public class AddTagsFragment extends DialogFragment {
                     public void onClick(DialogInterface dialogInterface, int i) {
                         String newTag = editTextTag.getText().toString().trim();
                         if (!newTag.isEmpty()) {
-                            tagList.add(newTag);
-                            TagsListener.onTagAdded(newTag);
+                            tagsListener.onTagAdded(newTag);
                         }
                         dismiss();
                     }
@@ -100,7 +82,5 @@ public class AddTagsFragment extends DialogFragment {
         return builder.create();
     }
 
-    public interface TagsListener {
-        void onTagsAdded(ArrayList<String> newTags);
-    }
+
 }

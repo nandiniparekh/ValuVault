@@ -16,7 +16,7 @@ import com.example.cmput301groupproject.utility.TagsManager;
 
 import java.util.ArrayList;
 
-public class ViewTagsActivity extends AppCompatActivity implements AddTagsFragment.TagsListener {
+public class ViewTagsActivity extends AppCompatActivity implements AddTagsFragment.TagsOnFragmentInteractionListener {
 
     private Button backButton;
     private Button addTagButton;
@@ -24,7 +24,7 @@ public class ViewTagsActivity extends AppCompatActivity implements AddTagsFragme
     private TagsManager tagsManager;
     private ArrayList<String> tagDataList;
     private ArrayList<String> selectedTags;
-    private ListView selectTagList;
+    private ListView viewTagList;
     private TagsAdapter tagsAdapter;
 
     @Override
@@ -42,9 +42,9 @@ public class ViewTagsActivity extends AppCompatActivity implements AddTagsFragme
         tagsManager = new TagsManager(userCollectionPath);
 
         // Set up ListView
-        selectTagList = findViewById(R.id.select_tag_list);
+        viewTagList = findViewById(R.id.select_tag_list);
         tagsAdapter = new TagsAdapter(this, tagDataList);
-        selectTagList.setAdapter(tagsAdapter);
+        viewTagList.setAdapter(tagsAdapter);
 
         // Set up checkbox click listener for selecting and deselecting items
         tagsAdapter.onTagCheckedChangeListener(new TagsAdapter.onTagCheckedChangeListener() {
@@ -71,8 +71,7 @@ public class ViewTagsActivity extends AppCompatActivity implements AddTagsFragme
             @Override
             public void onClick(View v) {
                 // Handle Add Tags button click
-                AddTagsFragment addTagsFragment = AddTagsFragment.newInstance(tagDataList);
-                addTagsFragment.show(getSupportFragmentManager(), "addTagsDialog");
+                AddTagsFragment.newInstance(tagDataList).show(getSupportFragmentManager(), "ADD_TAGS");
             }
         });
 
@@ -100,7 +99,8 @@ public class ViewTagsActivity extends AppCompatActivity implements AddTagsFragme
         tagsManager.getTags(new TagsManager.CallbackHandler<ArrayList<String>>() {
             @Override
             public void onSuccess(ArrayList<String> tags) {
-                tagDataList = tags;
+                tagDataList.clear();
+                tagDataList.addAll(tags);
                 tagsAdapter.notifyDataSetChanged();
             }
 
@@ -119,6 +119,9 @@ public class ViewTagsActivity extends AppCompatActivity implements AddTagsFragme
                 // Update the local tagList and notify the adapter
                 tagDataList.removeAll(deletedTags);
                 tagsAdapter.notifyDataSetChanged();
+
+                // Clear the selected tags list
+                selectedTags.clear();
             }
 
             @Override
@@ -129,27 +132,22 @@ public class ViewTagsActivity extends AppCompatActivity implements AddTagsFragme
     }
 
     // Implement the TagsListener method to handle added tags
-    @Override
-    public void onTagsAdded(ArrayList<String> newTags) {
-        // Update the tagList and notify the adapter
-        tagDataList.addAll(newTags);
-        tagsAdapter.notifyDataSetChanged();
-
+    public void onTagAdded(String newTag) {
         // Update the Firestore database with the new list of tags
-        for (String newTag : newTags) {
-            tagsManager.addTag(newTag, new TagsManager.CallbackHandler<String>() {
-                @Override
-                public void onSuccess(String result) {
-                    // Handle success if needed
-                }
+        tagsManager.addTag(newTag, new TagsManager.CallbackHandler<String>() {
+            @Override
+            public void onSuccess(String result) {
+                // Update the tagList and notify the adapter
+                tagDataList.add(newTag);
+                tagsAdapter.notifyDataSetChanged();
+            }
 
-                @Override
-                public void onFailure(String e) {
-                    // Handle failure if needed
-                    Log.e("TagsManager", "Error adding tag in Firestore: " + e);
-                }
-            });
-        }
+            @Override
+            public void onFailure(String e) {
+                // Handle failure if needed
+                Log.e("TagsManager", "Error adding tag in Firestore: " + e);
+            }
+        });
     }
 }
 
