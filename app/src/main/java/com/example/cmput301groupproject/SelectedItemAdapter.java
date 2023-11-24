@@ -1,4 +1,4 @@
-package com.example.cmput301groupproject.adapters;
+package com.example.cmput301groupproject;
 
 
 import android.content.Context;
@@ -12,9 +12,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
-import com.example.cmput301groupproject.utility.HouseholdItem;
-import com.example.cmput301groupproject.R;
 
 import java.util.ArrayList;
 

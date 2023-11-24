@@ -1,8 +1,6 @@
-package com.example.cmput301groupproject.fragments;
+package com.example.cmput301groupproject;
 
 import androidx.fragment.app.Fragment;
-
-import com.example.cmput301groupproject.utility.HouseholdItem;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

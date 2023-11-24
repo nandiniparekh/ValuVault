@@ -1,8 +1,7 @@
-package com.example.cmput301groupproject.utility;
+package com.example.cmput301groupproject;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * This is the class that represents an item in the household inventory
@@ -17,7 +16,7 @@ public class HouseholdItem implements Serializable {
     private String comment;
     private String firestoreId;
 
-    private List<String> tags;
+    private ArrayList<String> tags;
 
     /**
      * Constructs a HouseholdItem object with the provided attributes
@@ -191,7 +190,7 @@ public class HouseholdItem implements Serializable {
      *
      * @return The tags of the item
      */
-    public List<String> getTags() {
+    public ArrayList<String> getTags() {
         return tags;
     }
 
@@ -209,7 +208,7 @@ public class HouseholdItem implements Serializable {
      *
      * @param tags The tags to be set
      */
-    public void setTags(List<String> tags) {
+    public void setTags(ArrayList<String> tags) {
         this.tags = tags;
     }
 

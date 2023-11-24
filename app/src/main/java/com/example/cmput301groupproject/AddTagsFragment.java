@@ -1,4 +1,4 @@
-package com.example.cmput301groupproject.fragments;
+package com.example.cmput301groupproject;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -12,8 +12,6 @@ import android.widget.EditText;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
-
-import com.example.cmput301groupproject.R;
 
 import java.util.ArrayList;
 

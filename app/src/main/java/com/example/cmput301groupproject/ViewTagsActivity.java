@@ -1,4 +1,4 @@
-package com.example.cmput301groupproject.activities;
+package com.example.cmput301groupproject;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,11 +8,6 @@ import android.widget.Button;
 import android.widget.ListView;
 
 import androidx.appcompat.app.AppCompatActivity;
-
-import com.example.cmput301groupproject.R;
-import com.example.cmput301groupproject.adapters.TagsAdapter;
-import com.example.cmput301groupproject.fragments.AddTagsFragment;
-import com.example.cmput301groupproject.utility.TagsManager;
 
 import java.util.ArrayList;
 

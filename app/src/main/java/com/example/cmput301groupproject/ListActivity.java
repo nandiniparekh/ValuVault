@@ -1,4 +1,4 @@
-package com.example.cmput301groupproject.activities;
+package com.example.cmput301groupproject;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,10 +7,6 @@ import android.widget.Button;
 import android.widget.ListView;
 
 import androidx.appcompat.app.AppCompatActivity;
-
-import com.example.cmput301groupproject.utility.HouseholdItem;
-import com.example.cmput301groupproject.R;
-import com.example.cmput301groupproject.adapters.SelectedItemAdapter;
 
 import java.util.ArrayList;
 

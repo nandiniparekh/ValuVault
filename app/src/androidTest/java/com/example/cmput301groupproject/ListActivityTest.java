@@ -18,9 +18,6 @@ import androidx.test.espresso.intent.Intents;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 
-import com.example.cmput301groupproject.activities.ListActivity;
-import com.example.cmput301groupproject.activities.MainActivity;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.FixMethodOrder;

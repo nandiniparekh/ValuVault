@@ -1,4 +1,4 @@
-package com.example.cmput301groupproject.utility;
+package com.example.cmput301groupproject;
 
 import android.util.Log;
 

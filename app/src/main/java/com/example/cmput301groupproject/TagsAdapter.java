@@ -1,4 +1,4 @@
-package com.example.cmput301groupproject.adapters;
+package com.example.cmput301groupproject;
 
 import android.content.Context;
 import android.view.LayoutInflater;

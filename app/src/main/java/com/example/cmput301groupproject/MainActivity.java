@@ -1,4 +1,4 @@
-package com.example.cmput301groupproject.activities;
+package com.example.cmput301groupproject;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -17,12 +17,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import androidx.appcompat.app.AlertDialog;
 
-import com.example.cmput301groupproject.fragments.FiltersFragment;
-import com.example.cmput301groupproject.utility.HouseholdItem;
-import com.example.cmput301groupproject.fragments.ItemFragment;
-import com.example.cmput301groupproject.R;
-import com.example.cmput301groupproject.fragments.SortFragment;
-import com.example.cmput301groupproject.adapters.CustomItemList;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
