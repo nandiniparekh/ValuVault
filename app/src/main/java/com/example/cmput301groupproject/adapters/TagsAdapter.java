@@ -1,80 +1,67 @@
 package com.example.cmput301groupproject.adapters;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.annotation.Nullable;
 
 import com.example.cmput301groupproject.R;
 
 import java.util.ArrayList;
 
-public class TagsAdapter extends RecyclerView.Adapter<TagsAdapter.ViewHolder> {
-
+public class TagsAdapter extends ArrayAdapter<String> {
+    private final Context context;
     private ArrayList<String> tags;
-    private ArrayList<String> selectedTags;
 
-    public TagsAdapter(ArrayList<String> tags) {
-        this.tags = tags;
-        this.selectedTags = new ArrayList<>();
+    private onTagCheckedChangeListener onTagCheckedChangeListener;
+
+    public interface onTagCheckedChangeListener {
+        void onTagCheckedChange(int position, boolean isChecked);
     }
 
-    public void setTags(ArrayList<String> tags) {
-        this.tags = tags;
-        notifyDataSetChanged();
+    public void onTagCheckedChangeListener(onTagCheckedChangeListener listener) {
+        this.onTagCheckedChangeListener = listener;
     }
 
-    public ArrayList<String> getSelectedTags() {
-        return selectedTags;
+    public TagsAdapter(Context context, ArrayList<String> tags) {
+        super(context, 0, tags);
+        this.context = context;
+        this.tags = tags;
     }
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.tag_display, parent, false);
-        return new ViewHolder(view);
-    }
+    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+        View view = convertView;
 
-    @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        if (view == null) {
+            view = LayoutInflater.from(context).inflate(R.layout.tag_display, parent, false);
+        }
+
         String tag = tags.get(position);
-        holder.bind(tag);
 
-        // Set the checkbox state based on the selectedTags list
-        holder.checkBox.setChecked(selectedTags.contains(tag));
+        TextView tagName = view.findViewById(R.id.textViewTag);
+        tagName.setText(tag);
 
-        // Set a click listener to handle tag selection
-        holder.itemView.setOnClickListener(v -> {
-            if (selectedTags.contains(tag)) {
-                selectedTags.remove(tag);
-            } else {
-                selectedTags.add(tag);
+        CheckBox checkBox = view.findViewById(R.id.checkBoxTag);
+
+        // Add listener to handle checkbox selection
+        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (onTagCheckedChangeListener != null) {
+                    onTagCheckedChangeListener.onTagCheckedChange(position, isChecked);
+                }
             }
-            notifyDataSetChanged(); // Update the view to reflect changes
         });
-    }
 
-    @Override
-    public int getItemCount() {
-        return tags.size();
-    }
-
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        private TextView textView;
-        private CheckBox checkBox;
-
-        public ViewHolder(@NonNull View itemView) {
-            super(itemView);
-            textView = itemView.findViewById(R.id.textViewTag);
-            checkBox = itemView.findViewById(R.id.checkBoxTag);
-        }
-
-        public void bind(String tag) {
-            textView.setText(tag);
-        }
+        return view;
     }
 }

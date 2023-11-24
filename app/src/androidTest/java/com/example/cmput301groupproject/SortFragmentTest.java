@@ -4,6 +4,7 @@ package com.example.cmput301groupproject;
 import static org.junit.Assert.assertEquals;
 
 import com.example.cmput301groupproject.fragments.SortFragment;
+import com.example.cmput301groupproject.utility.HouseholdItem;
 
 import org.junit.Before;
 import org.junit.Test;

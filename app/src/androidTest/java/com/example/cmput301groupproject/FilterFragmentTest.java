@@ -2,6 +2,9 @@ package com.example.cmput301groupproject;
 
 import static org.junit.Assert.assertEquals;
 
+import com.example.cmput301groupproject.utility.FilterItems;
+import com.example.cmput301groupproject.utility.HouseholdItem;
+
 import org.junit.Test;
 
 import java.util.ArrayList;

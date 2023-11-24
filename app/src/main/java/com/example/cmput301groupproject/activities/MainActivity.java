@@ -18,7 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AlertDialog;
 
 import com.example.cmput301groupproject.fragments.FiltersFragment;
-import com.example.cmput301groupproject.HouseholdItem;
+import com.example.cmput301groupproject.utility.HouseholdItem;
 import com.example.cmput301groupproject.fragments.ItemFragment;
 import com.example.cmput301groupproject.R;
 import com.example.cmput301groupproject.fragments.SortFragment;

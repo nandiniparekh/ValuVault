@@ -1,10 +1,9 @@
-package com.example.cmput301groupproject.activities;
+package com.example.cmput301groupproject.utility;
 
 import android.util.Log;
 
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.SetOptions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,22 +53,38 @@ public class TagsManager {
     public void addTag(String tag, final CallbackHandler callback) {
         DocumentReference userDocRef = getUserDocumentReference();
 
-        Map<String, Object> tagsData = new HashMap<>();
-        tagsData.put(TAG_LIST_FIELD, new ArrayList<>()); // Initialize an empty tag list
+        // Fetch the current list of tags from Firestore
+        userDocRef.get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        Map<String, Object> userData = documentSnapshot.getData();
+                        if (userData != null && userData.containsKey(TAGS_FIELD)) {
+                            Map<String, Object> tagsData = (Map<String, Object>) userData.get(TAGS_FIELD);
+                            if (tagsData != null && tagsData.containsKey(TAG_LIST_FIELD)) {
+                                ArrayList<String> tagsList = (ArrayList<String>) tagsData.get(TAG_LIST_FIELD);
 
-        userDocRef.set(tagsData, SetOptions.merge()) // Set or update the tags field
-                .addOnSuccessListener(aVoid -> {
-                    // Add the new tag to the list
-                    ArrayList<String> tagsList = (ArrayList<String>) tagsData.get(TAG_LIST_FIELD);
-                    if (tagsList != null) {
-                        tagsList.add(tag);
-                        callback.onSuccess(tag);
-                    } else {
-                        callback.onFailure("Error adding tag");
+                                // Add the new tag to the list
+                                if (tagsList != null) {
+                                    tagsList.add(tag);
+
+                                    // Update the tags in Firestore
+                                    userDocRef.update(TAGS_FIELD, tagsData)
+                                            .addOnSuccessListener(aVoid -> {
+                                                callback.onSuccess(tag);
+                                            })
+                                            .addOnFailureListener(e -> {
+                                                Log.e(TAG, "Error updating tags: " + e.getMessage());
+                                                callback.onFailure(e.getMessage());
+                                            });
+                                } else {
+                                    callback.onFailure("Error adding tag");
+                                }
+                            }
+                        }
                     }
                 })
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error adding tag: " + e.getMessage());
+                    Log.e(TAG, "Error fetching current tags: " + e.getMessage());
                     callback.onFailure(e.getMessage());
                 });
     }

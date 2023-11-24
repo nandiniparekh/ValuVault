@@ -2,7 +2,7 @@ package com.example.cmput301groupproject.fragments;
 
 import androidx.fragment.app.Fragment;
 
-import com.example.cmput301groupproject.HouseholdItem;
+import com.example.cmput301groupproject.utility.HouseholdItem;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

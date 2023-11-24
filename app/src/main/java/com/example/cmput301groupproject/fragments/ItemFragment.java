@@ -17,7 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
-import com.example.cmput301groupproject.HouseholdItem;
+import com.example.cmput301groupproject.utility.HouseholdItem;
 import com.example.cmput301groupproject.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;

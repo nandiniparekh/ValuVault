@@ -11,8 +11,8 @@ import android.widget.Toast;
 
 import androidx.fragment.app.DialogFragment;
 
-import com.example.cmput301groupproject.FilterItems;
-import com.example.cmput301groupproject.HouseholdItem;
+import com.example.cmput301groupproject.utility.FilterItems;
+import com.example.cmput301groupproject.utility.HouseholdItem;
 import com.example.cmput301groupproject.R;
 
 import java.util.ArrayList;

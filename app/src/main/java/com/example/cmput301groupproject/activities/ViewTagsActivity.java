@@ -2,24 +2,29 @@ package com.example.cmput301groupproject.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ListView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.cmput301groupproject.R;
 import com.example.cmput301groupproject.adapters.TagsAdapter;
 import com.example.cmput301groupproject.fragments.AddTagsFragment;
+import com.example.cmput301groupproject.utility.TagsManager;
 
 import java.util.ArrayList;
 
 public class ViewTagsActivity extends AppCompatActivity implements AddTagsFragment.TagsListener {
 
+    private Button backButton;
+    private Button addTagButton;
+    private Button deleteSelectedTagsButton;
     private TagsManager tagsManager;
-    private ArrayList<String> tagList;
-    private RecyclerView recyclerView;
+    private ArrayList<String> tagDataList;
+    private ArrayList<String> selectedTags;
+    private ListView selectTagList;
     private TagsAdapter tagsAdapter;
 
     @Override
@@ -27,34 +32,52 @@ public class ViewTagsActivity extends AppCompatActivity implements AddTagsFragme
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_tags);
 
+        selectedTags = new ArrayList<>();
+        tagDataList = new ArrayList<>();
+
         // Retrieve userCollectionPath from the intent
         String userCollectionPath = getIntent().getStringExtra("userID");
 
         // Initialize TagsManager with the userCollectionPath
         tagsManager = new TagsManager(userCollectionPath);
 
-        // Set up RecyclerView
-        recyclerView = findViewById(R.id.recyclerViewTags);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-//        tagsAdapter = new TagsAdapter(tagList);
-//        recyclerView.setAdapter(tagsAdapter);
-//
-//        // Fetch tags from the database
-//        fetchTags();
+        // Set up ListView
+        selectTagList = findViewById(R.id.select_tag_list);
+        tagsAdapter = new TagsAdapter(this, tagDataList);
+        selectTagList.setAdapter(tagsAdapter);
+
+        // Set up checkbox click listener for selecting and deselecting items
+        tagsAdapter.onTagCheckedChangeListener(new TagsAdapter.onTagCheckedChangeListener() {
+            @Override
+            public void onTagCheckedChange(int position, boolean isChecked) {
+                String selectedTag = tagDataList.get(position);
+                if (isChecked && !selectedTags.contains(selectedTag)) {
+                    selectedTags.add(selectedTag);
+                } else if (!isChecked && selectedTags.contains(selectedTag)) {
+                    selectedTags.remove(selectedTag);
+                }
+            }
+        });
+
+        // Fetch tags from the database
+        fetchTags();
+
+        backButton = findViewById(R.id.btnBackToMain);
+        addTagButton = findViewById(R.id.btnAddTags);
+        deleteSelectedTagsButton = findViewById(R.id.btnDeleteTags);
 
         // Set up button click listeners
-        Button btnAddTags = findViewById(R.id.btnAddTags);
-        btnAddTags.setOnClickListener(new View.OnClickListener() {
+        addTagButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Handle Add Tags button click
-                AddTagsFragment addTagsFragment = AddTagsFragment.newInstance(tagList);
+                AddTagsFragment addTagsFragment = AddTagsFragment.newInstance(tagDataList);
                 addTagsFragment.show(getSupportFragmentManager(), "addTagsDialog");
             }
         });
 
-        Button btnDeleteTags = findViewById(R.id.btnDeleteTags);
-        btnDeleteTags.setOnClickListener(new View.OnClickListener() {
+        // Delete selected tags button
+        deleteSelectedTagsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Handle Delete Selected Tags button click
@@ -63,8 +86,7 @@ public class ViewTagsActivity extends AppCompatActivity implements AddTagsFragme
         });
 
         // Add the back button click listener
-        Button btnBackToMain = findViewById(R.id.btnBackToMain);
-        btnBackToMain.setOnClickListener(new View.OnClickListener() {
+        backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Return to MainActivity
@@ -78,8 +100,8 @@ public class ViewTagsActivity extends AppCompatActivity implements AddTagsFragme
         tagsManager.getTags(new TagsManager.CallbackHandler<ArrayList<String>>() {
             @Override
             public void onSuccess(ArrayList<String> tags) {
-                tagList = tags;
-                tagsAdapter.setTags(tagList);
+                tagDataList = tags;
+                tagsAdapter.notifyDataSetChanged();
             }
 
             @Override
@@ -90,16 +112,13 @@ public class ViewTagsActivity extends AppCompatActivity implements AddTagsFragme
     }
 
     private void deleteSelectedTags() {
-        // Get the list of selected tags from the adapter
-        ArrayList<String> selectedTags = tagsAdapter.getSelectedTags();
-
         // Delete the selected tags using TagsManager
         tagsManager.deleteTags(selectedTags, new TagsManager.CallbackHandler<ArrayList<String>>() {
             @Override
             public void onSuccess(ArrayList<String> deletedTags) {
                 // Update the local tagList and notify the adapter
-                tagList.removeAll(deletedTags);
-                tagsAdapter.setTags(tagList);
+                tagDataList.removeAll(deletedTags);
+                tagsAdapter.notifyDataSetChanged();
             }
 
             @Override
@@ -113,8 +132,24 @@ public class ViewTagsActivity extends AppCompatActivity implements AddTagsFragme
     @Override
     public void onTagsAdded(ArrayList<String> newTags) {
         // Update the tagList and notify the adapter
-        tagList.addAll(newTags);
-        tagsAdapter.setTags(tagList);
+        tagDataList.addAll(newTags);
+        tagsAdapter.notifyDataSetChanged();
+
+        // Update the Firestore database with the new list of tags
+        for (String newTag : newTags) {
+            tagsManager.addTag(newTag, new TagsManager.CallbackHandler<String>() {
+                @Override
+                public void onSuccess(String result) {
+                    // Handle success if needed
+                }
+
+                @Override
+                public void onFailure(String e) {
+                    // Handle failure if needed
+                    Log.e("TagsManager", "Error adding tag in Firestore: " + e);
+                }
+            });
+        }
     }
 }
 

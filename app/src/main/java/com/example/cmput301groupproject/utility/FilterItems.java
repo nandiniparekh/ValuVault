@@ -1,4 +1,6 @@
-package com.example.cmput301groupproject;
+package com.example.cmput301groupproject.utility;
+
+import com.example.cmput301groupproject.utility.HouseholdItem;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;

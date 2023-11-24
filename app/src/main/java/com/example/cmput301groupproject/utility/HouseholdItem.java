@@ -1,4 +1,4 @@
-package com.example.cmput301groupproject;
+package com.example.cmput301groupproject.utility;
 
 import java.io.Serializable;
 import java.util.ArrayList;
