@@ -16,6 +16,7 @@ import android.widget.EditText;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentManager;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -30,12 +31,13 @@ import com.google.mlkit.vision.codescanner.GmsBarcodeScanning;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
 
-public class ItemFragment extends DialogFragment {
+public class ItemEditFragment extends DialogFragment implements TagSelectFragment.OnTagsSelectedListener {
     private String titleDesc = "Add Item";
     private EditText description;
     private EditText make;
@@ -44,6 +46,9 @@ public class ItemFragment extends DialogFragment {
     private EditText estimatedValue;
     private EditText comment;
     private EditText purchaseDate;
+    private ArrayList<String> selectedTags = new ArrayList<>();
+    private Button selectTagsButton;
+    private Button scanBarcodeButton;
     private FirebaseFirestore db;
 
     // Setting the configuration for BarcodeScanner as UPC-A format and enabling autozoom features
@@ -88,10 +93,18 @@ public class ItemFragment extends DialogFragment {
         comment = view.findViewById(R.id.comment_edit_text);
         purchaseDate = view.findViewById(R.id.purchase_date_edit_text);
 
-        Button scanBarcodeButton = view.findViewById(R.id.scan_barcode_button);
-        scanBarcodeButton.setOnClickListener(view1 -> startScanner());
         scanBarcodeButton = view.findViewById(R.id.scan_barcode_button);
         scanBarcodeButton.setOnClickListener(view1 -> startScanner());
+
+        selectTagsButton = view.findViewById(R.id.select_tags_button);
+        selectTagsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Launch the TagSelectFragment
+                showTagSelectFragment();
+            }
+        });
+
         Bundle args = getArguments();
         if (args != null) {
             titleDesc = "Edit Item";
@@ -186,10 +199,15 @@ public class ItemFragment extends DialogFragment {
                             passedHouseholdItem.setComment(cmt);
                             passedHouseholdItem.setDateOfPurchase(date);
 
+                            passedHouseholdItem.setTags(selectedTags);
+
                             listener.onHouseholdItemEdited(passedHouseholdItem);
                         } else {
                             // Add a new item
-                            listener.onHouseholdItemAdded(new HouseholdItem(date, desc, mk, mdl, serial, estValue, cmt));
+                            HouseholdItem newItem = new HouseholdItem(date, desc, mk, mdl, serial, estValue, cmt);
+                            newItem.setTags(selectedTags);
+
+                            listener.onHouseholdItemAdded(newItem);
                         }
                     }
                 });
@@ -284,11 +302,28 @@ public class ItemFragment extends DialogFragment {
                         });
     }
 
-    public static ItemFragment newInstance(HouseholdItem item) {
+    private void showTagSelectFragment() {
+        TagSelectFragment tagSelectFragment = new TagSelectFragment();
+        tagSelectFragment.setOnTagsSelectedListener(this);
+
+        // Use FragmentManager to open the TagSelectFragment
+        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+        tagSelectFragment.show(fragmentManager, "TagSelectFragment");
+    }
+
+    // Implement the OnTagsSelectedListener interface
+    @Override
+    public void onTagsSelected(ArrayList<String> selectedTags) {
+        // Handle the selected tags here
+        // This method will be called when tags are selected in TagSelectFragment
+        this.selectedTags = selectedTags;
+    }
+
+    public static ItemEditFragment newInstance(HouseholdItem item) {
         Bundle args = new Bundle();
         args.putSerializable("item", item);
 
-        ItemFragment fragment = new ItemFragment();
+        ItemEditFragment fragment = new ItemEditFragment();
         fragment.setArguments(args);
         return fragment;
     }
