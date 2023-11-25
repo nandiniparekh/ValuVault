@@ -329,9 +329,7 @@ public class MainActivity extends AppCompatActivity implements ItemEditFragment.
 
         // Add tags to the data if available
         ArrayList<String> tags = item.getTags();
-        if (tags != null && !tags.isEmpty()) {
-            data.put("Tags", tags);
-        }
+        data.put("Tags", tags);
 
         itemsRef.add(data)
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
@@ -360,9 +358,7 @@ public class MainActivity extends AppCompatActivity implements ItemEditFragment.
 
         // Add tags to the data if available
         ArrayList<String> tags = editedItem.getTags();
-        if (tags != null && !tags.isEmpty()) {
-            data.put("Tags", tags);
-        }
+        data.put("Tags", tags);
 
         itemsRef.document(editedItem.getFirestoreId())
                 .update(data)
