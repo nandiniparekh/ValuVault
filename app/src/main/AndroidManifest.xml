@@ -38,6 +38,16 @@
             android:exported="true">
         </activity>
 
+        <activity
+            android:name=".ViewTagsActivity"
+            android:label="View Tags"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <!-- Include the metadata for ML Kit Vision dependencies -->
         <meta-data
             android:name="com.google.mlkit.vision.DEPENDENCIES"

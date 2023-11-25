@@ -16,7 +16,7 @@ public class ListActivity extends AppCompatActivity {
     private Button deleteSelectedItemsButton;
     private ListView selectItemList;
     private ArrayList<HouseholdItem> passedDataList;
-    private SelectedItemAdapter  listAdapter;
+    private SelectedItemAdapter listAdapter;
     private ArrayList<HouseholdItem> selectedItems;
     private ArrayList<String> selectedTags;
     @Override

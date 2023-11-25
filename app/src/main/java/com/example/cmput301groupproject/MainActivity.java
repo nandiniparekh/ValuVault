@@ -34,7 +34,7 @@ import java.util.HashMap;
 /**
  * The MainActivity class represents the main activity of the application
  */
-public class MainActivity extends AppCompatActivity implements ItemFragment.OnFragmentInteractionListener, SortFragment.SortListener, FiltersFragment.FiltersFragmentListener{
+public class MainActivity extends AppCompatActivity implements ItemFragment.OnFragmentInteractionListener, SortFragment.SortListener, FiltersFragment.FiltersFragmentListener {
     private Button selectButton;
     private Button tagButton;
     private Button sortButton;
@@ -102,39 +102,44 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
             }
         });
 
-            itemsRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
-                @Override
-                public void onEvent(@Nullable QuerySnapshot querySnapshots,
-                                    @Nullable FirebaseFirestoreException error) {
-                    if (error != null) {
-                        Log.e("Firestore", error.toString());
-                        return;
-                    }
-                    if (querySnapshots != null) {
-                        dataList.clear();
-                        for (QueryDocumentSnapshot doc: querySnapshots) {
-                            String firestoreId = doc.getId(); // Retrieve the auto-generated Firestore ID
-                            String description = doc.getString("Description");
-                            String dateOfPurchaseString = doc.getString("Purchase Date");
-                            String make = doc.getString("Make");
-                            String model = doc.getString("Model");
-                            String serialNumber = doc.getString("Serial Number");
-                            String estimatedValue = doc.getString("Estimated Value");
-                            String comment = doc.getString("Comment");
-
-                            Log.d("Firestore", String.format("Item(%s, %s, %s, %s, %s, %s, %s) fetched",
-                                    dateOfPurchaseString, description, make, model, serialNumber, estimatedValue, comment));
-                            HouseholdItem savedItem = new HouseholdItem(dateOfPurchaseString, description, make, model, serialNumber, estimatedValue, comment);
-                            savedItem.setFirestoreId(firestoreId);
-                            dataList.add(savedItem);
-                        }
-                        itemAdapter.notifyDataSetChanged();
-
-                        // Calculate the total estimated value of the items and set it to the TextView
-                        setTotalEstimatedValue(dataList);
-                    }
+        itemsRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot querySnapshots,
+                                @Nullable FirebaseFirestoreException error) {
+                if (error != null) {
+                    Log.e("Firestore", error.toString());
+                    return;
                 }
-            });
+                if (querySnapshots != null) {
+                    dataList.clear();
+                    for (QueryDocumentSnapshot doc: querySnapshots) {
+                        String firestoreId = doc.getId(); // Retrieve the auto-generated Firestore ID
+
+                        if(firestoreId == "tags"){
+                            continue;
+                        }
+
+                        String description = doc.getString("Description");
+                        String dateOfPurchaseString = doc.getString("Purchase Date");
+                        String make = doc.getString("Make");
+                        String model = doc.getString("Model");
+                        String serialNumber = doc.getString("Serial Number");
+                        String estimatedValue = doc.getString("Estimated Value");
+                        String comment = doc.getString("Comment");
+
+                        Log.d("Firestore", String.format("Item(%s, %s, %s, %s, %s, %s, %s) fetched",
+                                dateOfPurchaseString, description, make, model, serialNumber, estimatedValue, comment));
+                        HouseholdItem savedItem = new HouseholdItem(dateOfPurchaseString, description, make, model, serialNumber, estimatedValue, comment);
+                        savedItem.setFirestoreId(firestoreId);
+                        dataList.add(savedItem);
+                    }
+                    itemAdapter.notifyDataSetChanged();
+
+                    // Calculate the total estimated value of the items and set it to the TextView
+                    setTotalEstimatedValue(dataList);
+                }
+            }
+        });
 
         selectButton = findViewById(R.id.selectButton);
         tagButton = findViewById(R.id.tagButton);
@@ -151,11 +156,14 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
             }
         });
 
-      
+
         tagButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Go to tags. Probably source inspiration from "Kendrick" branch
+                // Send userCollectionPath to ViewTagsActivity
+                Intent viewTagsIntent = new Intent(MainActivity.this, ViewTagsActivity.class);
+                viewTagsIntent.putExtra("userID", userCollectionPath);
+                startActivity(viewTagsIntent);
             }
         });
 
