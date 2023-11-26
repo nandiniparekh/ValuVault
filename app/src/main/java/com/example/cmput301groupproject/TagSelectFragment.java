@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ListView;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 
 import java.util.ArrayList;
@@ -27,6 +28,16 @@ public class TagSelectFragment extends DialogFragment {
 
     public void setOnTagsSelectedListener(OnTagsSelectedListener listener) {
         this.onTagsSelectedListener = listener;
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if (context instanceof OnTagsSelectedListener) {
+            onTagsSelectedListener = (OnTagsSelectedListener) context;
+        } else {
+            throw new RuntimeException(context + " must implement OnTagsSelectedListener");
+        }
     }
 
     @Override

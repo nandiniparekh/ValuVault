@@ -170,6 +170,7 @@ public class MainActivity extends AppCompatActivity implements ItemEditFragment.
                 // Send dataList to ListActivity
                 Intent intent = new Intent(MainActivity.this, ListActivity.class);
                 intent.putExtra("dataList", dataList);
+                intent.putExtra("userDoc", userCollectionPath);
                 startActivity(intent);
             }
         });
