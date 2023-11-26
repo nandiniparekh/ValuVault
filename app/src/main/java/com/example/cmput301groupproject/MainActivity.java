@@ -12,9 +12,8 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -29,6 +28,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 
 /**
@@ -45,6 +45,8 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
 
     private ArrayList<HouseholdItem> dataList;
     private ArrayAdapter<HouseholdItem> itemAdapter;
+
+    private List<String> images;
     private FirebaseFirestore db;
     private CollectionReference itemsRef;
 
@@ -113,11 +115,17 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
                             String serialNumber = doc.getString("Serial Number");
                             String estimatedValue = doc.getString("Estimated Value");
                             String comment = doc.getString("Comment");
+                            ArrayList<String> images = (ArrayList<String>) doc.get("Images");
+
 
                             Log.d("Firestore", String.format("Item(%s, %s, %s, %s, %s, %s, %s) fetched",
-                                    dateOfPurchaseString, description, make, model, serialNumber, estimatedValue, comment));
+                                    dateOfPurchaseString, description, make, model, serialNumber, estimatedValue, comment, images));
                             HouseholdItem savedItem = new HouseholdItem(dateOfPurchaseString, description, make, model, serialNumber, estimatedValue, comment);
                             savedItem.setFirestoreId(firestoreId);
+
+                            if (images != null) {
+                                savedItem.setImages(images);
+                            }
                             dataList.add(savedItem);
                         }
                         itemAdapter.notifyDataSetChanged();
@@ -287,7 +295,7 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
      */
     @Override
     public void onHouseholdItemAdded(HouseholdItem item) {
-        HashMap<String, String> data = new HashMap<>();
+        HashMap<String, Object> data = new HashMap<>();
         data.put("Description", item.getDescription());
         data.put("Make", item.getMake());
         data.put("Model", item.getModel());
@@ -295,6 +303,10 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
         data.put("Comment", item.getComment());
         data.put("Serial Number", item.getSerialNumber());
         data.put("Purchase Date", item.getDateOfPurchase());
+        List<String> itemImages = item.getImages();
+        if (itemImages != null) {
+            data.put("Images", itemImages); // Store the list of strings as an array in Firestore
+        }
         itemsRef.add(data)
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override
@@ -319,6 +331,10 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
         data.put("Comment", editedItem.getComment());
         data.put("Serial Number", editedItem.getSerialNumber());
         data.put("Purchase Date", editedItem.getDateOfPurchase());
+        List<String> itemImages = editedItem.getImages();
+        if (itemImages != null) {
+            data.put("Images", itemImages); // Store the list of strings as an array in Firestore
+        }
         itemsRef.document(editedItem.getFirestoreId())
                 .update(data)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {

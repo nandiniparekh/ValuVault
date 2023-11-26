@@ -1,5 +1,7 @@
 package com.example.cmput301groupproject;
 
+import android.util.Log;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +20,8 @@ public class HouseholdItem implements Serializable {
     private String firestoreId;
 
     private List<String> tags;
+    private ArrayList<String> images;
+
 
     /**
      * Constructs a HouseholdItem object with the provided attributes
@@ -39,6 +43,7 @@ public class HouseholdItem implements Serializable {
         this.estimatedValue = estimatedValue;
         this.comment = comment;
         this.tags = new ArrayList<>();
+        this.images = new ArrayList<>();
     }
 
     // Getters and Setters
@@ -211,6 +216,16 @@ public class HouseholdItem implements Serializable {
      */
     public void setTags(List<String> tags) {
         this.tags = tags;
+    }
+
+    public ArrayList<String> getImages() {
+        return images;
+    }
+
+    public void setImages(ArrayList<String> images) {
+        String size = String.valueOf(images.size());
+        Log.d("Images", size);
+        this.images = images;
     }
 
     /**

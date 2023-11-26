@@ -4,7 +4,6 @@ package com.example.cmput301groupproject;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -30,9 +29,13 @@ public class PhotoPickerFragment extends Fragment {
     private ActivityResultLauncher<Intent> imagePickerLauncher;
     private RecyclerView recyclerView;
     private PhotoAdapter adapter;
+
+    public List<Uri> getSelectedImages() {
+        return selectedImages;
+    }
+
     private List<Uri> selectedImages = new ArrayList<>();
 
-    private List<Bitmap> selectedBitmapImage = new ArrayList<>();
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,7 +59,7 @@ public class PhotoPickerFragment extends Fragment {
                                 count = data.getClipData().getItemCount();
 
 //                                clears the array everytime you select new images
-                                selectedImages.clear();
+//                                selectedImages.clear();
                                 for (int i = 0; i < count; i++) {
                                     Uri imageUri = data.getClipData().getItemAt(i).getUri();
                                     selectedImages.add(imageUri);

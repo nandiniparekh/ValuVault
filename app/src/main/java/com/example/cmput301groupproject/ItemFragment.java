@@ -6,6 +6,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -30,6 +31,9 @@ import com.google.mlkit.vision.codescanner.GmsBarcodeScanner;
 import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions;
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class ItemFragment extends DialogFragment {
 
@@ -42,6 +46,7 @@ public class ItemFragment extends DialogFragment {
     private EditText comment;
     private Button loadButton;
     private EditText purchaseDate;
+    private PhotoPickerFragment photoPickerFragment;
     private FirebaseFirestore db;
     private CollectionReference itemsRef;
     private GmsBarcodeScannerOptions options = new GmsBarcodeScannerOptions.Builder()
@@ -52,6 +57,8 @@ public class ItemFragment extends DialogFragment {
     private HouseholdItem passedHouseholdItem;
     private OnFragmentInteractionListener listener;
 
+    private List<Uri> selectedImages = new ArrayList<>();
+    private ArrayList<String> imagesUpload = new ArrayList<>();
 
     public interface OnFragmentInteractionListener {
         void onHouseholdItemAdded(HouseholdItem newItem);
@@ -93,8 +100,15 @@ public class ItemFragment extends DialogFragment {
                 FragmentTransaction transaction = fragmentManager.beginTransaction();
 
                 // Create an instance of the fragment to load
-                PhotoPickerFragment photoPickerFragment = new PhotoPickerFragment();
-
+                photoPickerFragment = new PhotoPickerFragment();
+//                selectedImages = photoPickerFragment.getSelectedImages();
+//                String size = String.valueOf(selectedImages.size());
+//                Log.d("itemfragment", size);
+//
+//                for (Uri uri : selectedImages) {
+//                    String stringUri = uri.toString();
+//                    imagesUpload.add(stringUri);
+//                }
 
                 // Replace the content of the fragmentContainer with the new fragment
                 transaction.replace(R.id.galleryFragmentContainer, photoPickerFragment);
@@ -130,6 +144,15 @@ public class ItemFragment extends DialogFragment {
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
+                        selectedImages = photoPickerFragment.getSelectedImages();
+                        String size = String.valueOf(selectedImages.size());
+                        Log.d("item fragment", size);
+
+                        for (Uri uri : selectedImages) {
+                            String stringUri = uri.toString();
+                            imagesUpload.add(stringUri);
+                        }
+
                         // Get input values and update the item object
                         String desc = description.getText().toString();
                         String mk = make.getText().toString();
@@ -147,11 +170,15 @@ public class ItemFragment extends DialogFragment {
                             passedHouseholdItem.setEstimatedValue(estValue);
                             passedHouseholdItem.setComment(cmt);
                             passedHouseholdItem.setDateOfPurchase(date);
+                            passedHouseholdItem.setImages(imagesUpload);
 
                             listener.onHouseholdItemEdited(passedHouseholdItem);
                         } else {
                             // Add a new item
-                            listener.onHouseholdItemAdded(new HouseholdItem(date, desc, mk, mdl, serial, estValue, cmt));
+                            HouseholdItem newItem = new HouseholdItem(date, desc, mk, mdl, serial, estValue, cmt);
+                            newItem.setImages(imagesUpload);
+
+                            listener.onHouseholdItemAdded(newItem);
                         }
                     }
                 });
