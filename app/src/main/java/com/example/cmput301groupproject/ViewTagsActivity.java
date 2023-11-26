@@ -11,7 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
 
-public class ViewTagsActivity extends AppCompatActivity implements AddTagsFragment.TagsOnFragmentInteractionListener {
+public class ViewTagsActivity extends AppCompatActivity implements TagDefineFragment.TagsOnFragmentInteractionListener {
 
     private Button backButton;
     private Button addTagButton;
@@ -37,7 +37,7 @@ public class ViewTagsActivity extends AppCompatActivity implements AddTagsFragme
         tagsManager = new TagsManager(userCollectionPath);
 
         // Set up ListView
-        viewTagList = findViewById(R.id.select_tag_list);
+        viewTagList = findViewById(R.id.define_tag_list);
         tagsAdapter = new TagsAdapter(this, tagDataList);
         viewTagList.setAdapter(tagsAdapter);
 
@@ -66,7 +66,7 @@ public class ViewTagsActivity extends AppCompatActivity implements AddTagsFragme
             @Override
             public void onClick(View v) {
                 // Handle Add Tags button click
-                AddTagsFragment.newInstance(tagDataList).show(getSupportFragmentManager(), "ADD_TAGS");
+                TagDefineFragment.newInstance(tagDataList).show(getSupportFragmentManager(), "ADD_TAGS");
             }
         });
 

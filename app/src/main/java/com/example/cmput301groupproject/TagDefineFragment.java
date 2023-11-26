@@ -15,7 +15,7 @@ import androidx.fragment.app.DialogFragment;
 
 import java.util.ArrayList;
 
-public class AddTagsFragment extends DialogFragment {
+public class TagDefineFragment extends DialogFragment {
 
     private static final String ARG_TAG_LIST = "tagList";
 
@@ -39,8 +39,8 @@ public class AddTagsFragment extends DialogFragment {
         }
     }
 
-    public static AddTagsFragment newInstance(ArrayList<String> tagList) {
-        AddTagsFragment fragment = new AddTagsFragment();
+    public static TagDefineFragment newInstance(ArrayList<String> tagList) {
+        TagDefineFragment fragment = new TagDefineFragment();
         Bundle args = new Bundle();
         args.putStringArrayList(ARG_TAG_LIST, tagList);
         fragment.setArguments(args);
@@ -58,7 +58,7 @@ public class AddTagsFragment extends DialogFragment {
             tagList = new ArrayList<>();
         }
 
-        View view = LayoutInflater.from(getActivity()).inflate(R.layout.add_tags_fragment, null);
+        View view = LayoutInflater.from(getActivity()).inflate(R.layout.tags_add_fragment, null);
 
         editTextTag = view.findViewById(R.id.editTextTag);
 

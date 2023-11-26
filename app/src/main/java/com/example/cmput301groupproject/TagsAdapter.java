@@ -12,8 +12,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.example.cmput301groupproject.R;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,15 +19,21 @@ public class TagsAdapter extends ArrayAdapter<String> {
     private final Context context;
     private final ArrayList<String> tags;
     private final List<Boolean> checkedStates;
-
     private onTagCheckedChangeListener onTagCheckedChangeListener;
+    private OnCheckboxCheckedChangeListener onCheckboxCheckedChangeListener;
 
     public interface onTagCheckedChangeListener {
         void onTagCheckedChange(int position, boolean isChecked);
     }
-
     public void onTagCheckedChangeListener(onTagCheckedChangeListener listener) {
         this.onTagCheckedChangeListener = listener;
+    }
+
+    public interface OnCheckboxCheckedChangeListener {
+        void onCheckboxChange(int position, boolean isChecked);
+    }
+    public void setOnCheckboxCheckedChangeListener(OnCheckboxCheckedChangeListener listener) {
+        this.onCheckboxCheckedChangeListener = listener;
     }
 
     public TagsAdapter(Context context, ArrayList<String> tags) {
@@ -77,6 +81,9 @@ public class TagsAdapter extends ArrayAdapter<String> {
                     // Update the checked state in the list
                     checkedStates.set(position, isChecked);
                 }
+                if (onCheckboxCheckedChangeListener != null) {
+                    onCheckboxCheckedChangeListener.onCheckboxChange(position, isChecked);
+                }
             }
         });
 
@@ -106,18 +113,4 @@ public class TagsAdapter extends ArrayAdapter<String> {
 
         notifyDataSetChanged();
     }
-
-//    // Method to update the checked states when the data set changes
-//    public void updateCheckedStates() {
-//        // Clear the existing checked states
-//        checkedStates.clear();
-//
-//        // Initialize the checked state list with the new size
-//        for (int i = 0; i < tags.size(); i++) {
-//            checkedStates.add(false);
-//        }
-//
-//        // Notify the adapter that the data set has changed
-//        notifyDataSetChanged();
-//    }
 }
