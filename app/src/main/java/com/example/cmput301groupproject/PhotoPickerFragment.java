@@ -115,12 +115,16 @@ public class PhotoPickerFragment extends Fragment {
         takePhotoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Dasom's code
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_photography, nextFrag, "")
+                        .addToBackStack(null)
+                        .commit();
             }
         });
 
         return rootView;
     }
+
 
     private void openGallery() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
