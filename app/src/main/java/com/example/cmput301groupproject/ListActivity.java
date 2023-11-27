@@ -84,8 +84,6 @@ public class ListActivity extends AppCompatActivity implements TagSelectFragment
             public void onClick(View v) {
                 // Send intent with selected items and tags to MainActivity
                 showTagSelectFragment();
-
-
             }
         });
 
@@ -96,6 +94,7 @@ public class ListActivity extends AppCompatActivity implements TagSelectFragment
                 Intent intent = new Intent(ListActivity.this, MainActivity.class);
                 intent.putExtra("selectedItems", selectedItems);
                 intent.putExtra("command", "deleteItems");
+                intent.putExtra("userDoc", userCollectionPath);
                 startActivity(intent);
             }
         });

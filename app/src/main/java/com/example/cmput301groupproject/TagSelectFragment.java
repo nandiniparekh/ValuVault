@@ -3,6 +3,7 @@ package com.example.cmput301groupproject;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,7 +37,11 @@ public class TagSelectFragment extends DialogFragment {
         if (context instanceof OnTagsSelectedListener) {
             onTagsSelectedListener = (OnTagsSelectedListener) context;
         } else {
-            throw new RuntimeException(context + " must implement OnTagsSelectedListener");
+            // Log a warning instead of throwing an exception
+            Log.w("TagSelectFragment", "Attached context does not implement OnTagsSelectedListener");
+
+            // Need to see if better to set onTagsSelectedListener to null or have a default implementation here
+            //throw new RuntimeException(context + " must implement OnTagsSelectedListener");
         }
     }
 
