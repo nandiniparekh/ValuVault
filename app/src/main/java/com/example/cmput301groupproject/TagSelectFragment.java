@@ -3,12 +3,14 @@ package com.example.cmput301groupproject;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ListView;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 
 import java.util.ArrayList;
@@ -27,6 +29,20 @@ public class TagSelectFragment extends DialogFragment {
 
     public void setOnTagsSelectedListener(OnTagsSelectedListener listener) {
         this.onTagsSelectedListener = listener;
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if (context instanceof OnTagsSelectedListener) {
+            onTagsSelectedListener = (OnTagsSelectedListener) context;
+        } else {
+            // Log a warning instead of throwing an exception
+            Log.w("TagSelectFragment", "Attached context does not implement OnTagsSelectedListener");
+
+            // Need to see if better to set onTagsSelectedListener to null or have a default implementation here
+            //throw new RuntimeException(context + " must implement OnTagsSelectedListener");
+        }
     }
 
     @Override

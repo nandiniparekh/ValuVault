@@ -1,6 +1,5 @@
 package com.example.cmput301groupproject;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -84,8 +83,7 @@ public class ViewTagsActivity extends AppCompatActivity implements TagDefineFrag
             @Override
             public void onClick(View v) {
                 // Return to MainActivity
-                Intent intent = new Intent(ViewTagsActivity.this, MainActivity.class);
-                startActivity(intent);
+                finish();
             }
         });
     }
