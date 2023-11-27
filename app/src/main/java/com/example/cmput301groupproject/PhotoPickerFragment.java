@@ -116,7 +116,7 @@ public class PhotoPickerFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 getActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_photography, nextFrag, "")
+                        .replace(R.id.fragmentContainerView, new )
                         .addToBackStack(null)
                         .commit();
             }
