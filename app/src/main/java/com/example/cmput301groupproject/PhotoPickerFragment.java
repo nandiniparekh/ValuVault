@@ -17,6 +17,8 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -29,7 +31,7 @@ public class PhotoPickerFragment extends Fragment {
     private ActivityResultLauncher<Intent> imagePickerLauncher;
     private RecyclerView recyclerView;
     private PhotoAdapter adapter;
-
+    private PhotographyFragment photographyFragment;
     public List<Uri> getSelectedImages() {
         return selectedImages;
     }
@@ -94,7 +96,7 @@ public class PhotoPickerFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.gallery_photos_fragment, container, false);
-
+        View view = inflater.inflate(R.layout.edit_item_fragment, container, false);
         recyclerView = rootView.findViewById(R.id.photoRecyclerView);
         recyclerView.setLayoutManager(new GridLayoutManager(requireContext(), 3));
         adapter = new PhotoAdapter(selectedImages);
@@ -115,16 +117,20 @@ public class PhotoPickerFragment extends Fragment {
         takePhotoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragmentContainerView, new )
-                        .addToBackStack(null)
-                        .commit();
+                openNewFragment();
             }
         });
-
         return rootView;
     }
 
+    private void openNewFragment(){
+        PhotographyFragment photoFragment = new PhotographyFragment();
+        // Use FragmentManager to replace the current fragment with the new one
+        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.cameraContainer, photoFragment);
+        fragmentTransaction.commit();
+    }
 
     private void openGallery() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
