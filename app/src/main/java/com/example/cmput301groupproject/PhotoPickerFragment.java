@@ -96,7 +96,7 @@ public class PhotoPickerFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.gallery_photos_fragment, container, false);
-        View view = inflater.inflate(R.layout.edit_item_fragment, container, false);
+        //View view = inflater.inflate(R.layout.fragment_camera, container, false);
         recyclerView = rootView.findViewById(R.id.photoRecyclerView);
         recyclerView.setLayoutManager(new GridLayoutManager(requireContext(), 3));
         adapter = new PhotoAdapter(selectedImages);
@@ -128,7 +128,8 @@ public class PhotoPickerFragment extends Fragment {
         // Use FragmentManager to replace the current fragment with the new one
         FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.cameraContainer, photoFragment);
+        fragmentTransaction.replace(R.id.galleryFragmentContainer, photoFragment);
+        fragmentTransaction.addToBackStack(null); // Optional: Add the transaction to the back stack for navigation
         fragmentTransaction.commit();
     }
 
