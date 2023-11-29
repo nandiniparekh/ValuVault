@@ -45,6 +45,7 @@ public class ItemFragment extends DialogFragment {
     private EditText estimatedValue;
     private EditText comment;
     private Button loadButton;
+    private Button camUpload_button;
     private EditText purchaseDate;
     private PhotoPickerFragment photoPickerFragment;
     private FirebaseFirestore db;
@@ -92,6 +93,19 @@ public class ItemFragment extends DialogFragment {
         comment = view.findViewById(R.id.comment_edit_text);
         purchaseDate = view.findViewById(R.id.purchase_date_edit_text);
         loadButton = view.findViewById(R.id.load_button);
+        camUpload_button = view.findViewById(R.id.cam_button);
+
+        camUpload_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentManager fragmentManager = getChildFragmentManager(); // Use getChildFragmentManager() for nested fragments
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                photoPickerFragment = new PhotoPickerFragment();
+                transaction.replace(R.id.cameraContainer, photoPickerFragment);
+                transaction.addToBackStack(null); // Optional: Add the transaction to the back stack for navigation
+                transaction.commit();
+            }
+        });
 
         loadButton.setOnClickListener(new View.OnClickListener() {
             @Override
