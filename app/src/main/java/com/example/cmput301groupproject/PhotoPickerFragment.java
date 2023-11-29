@@ -114,12 +114,6 @@ public class PhotoPickerFragment extends Fragment {
             }
         });
 
-        takePhotoButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openNewFragment();
-            }
-        });
         return rootView;
     }
 
@@ -128,7 +122,7 @@ public class PhotoPickerFragment extends Fragment {
         // Use FragmentManager to replace the current fragment with the new one
         FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.galleryFragmentContainer, photoFragment);
+        fragmentTransaction.replace(R.id.cameraContainer, photoFragment);
         fragmentTransaction.addToBackStack(null); // Optional: Add the transaction to the back stack for navigation
         fragmentTransaction.commit();
     }
