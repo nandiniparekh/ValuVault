@@ -9,6 +9,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
+/**
+ * This is a class that sorts the items in ascending or descending order by date, description, make, and value
+ */
 
 public class SortFragment extends Fragment {
 
@@ -35,6 +38,11 @@ public class SortFragment extends Fragment {
         this.sortListener = listener;
     }
 
+    /**
+     * This receives dataList from the MainActivity and implement the sort functionality
+     * @param dataList
+     * This is to sort dataList by sortCriteria and sortOrder
+     */
     public void receiveDataList(ArrayList<HouseholdItem> dataList, int sortCriteria,int sortOrder) {
         // Set the sorting criteria and order
         this.sortCriteria = sortCriteria;
@@ -62,7 +70,11 @@ public class SortFragment extends Fragment {
 
     }
 
-
+    /**
+     * This returns a list sorted by Description
+     * @return dataList
+     * Return the sorted list
+     */
     private void sortDataListDescription(ArrayList<HouseholdItem> dataList) {
         Collections.sort(dataList, new Comparator<HouseholdItem>() {
             @Override
@@ -77,6 +89,11 @@ public class SortFragment extends Fragment {
             Collections.reverse(dataList);
         }
     }
+    /**
+     * This returns a list sorted by Date
+     * @return dataList
+     * Return the sorted list
+     */
     private void sortDataListDate(ArrayList<HouseholdItem> dataList) {
         Collections.sort(dataList, new Comparator<HouseholdItem>() {
             @Override
@@ -105,6 +122,11 @@ public class SortFragment extends Fragment {
             Collections.reverse(dataList);
         }
     }
+    /**
+     * This returns a list sorted by Make
+     * @return dataList
+     * Return the sorted list
+     */
     private void sortDataListMake(ArrayList<HouseholdItem> dataList) {
         Collections.sort(dataList, new Comparator<HouseholdItem>() {
             @Override
@@ -117,6 +139,11 @@ public class SortFragment extends Fragment {
             Collections.reverse(dataList);
         }
     }
+    /**
+     * This returns a list sorted by Estimated Value
+     * @return dataList
+     * Return the sorted list
+     */
     private void sortDataListVal(ArrayList<HouseholdItem> dataList) {
         Collections.sort(dataList, new Comparator<HouseholdItem>() {
             @Override

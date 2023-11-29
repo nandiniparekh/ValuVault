@@ -6,7 +6,6 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,11 +17,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
+
 import androidx.fragment.app.FragmentTransaction;
+
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -31,12 +31,22 @@ import com.google.mlkit.vision.codescanner.GmsBarcodeScanner;
 import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions;
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class ItemFragment extends DialogFragment {
+import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
+
+
+public class ItemEditFragment extends DialogFragment implements TagSelectFragment.OnTagsSelectedListener {
     private String titleDesc = "Add Item";
     private EditText description;
     private EditText make;
@@ -44,11 +54,17 @@ public class ItemFragment extends DialogFragment {
     private EditText serialNumber;
     private EditText estimatedValue;
     private EditText comment;
-    private Button loadButton;
     private EditText purchaseDate;
+
     private PhotoPickerFragment photoPickerFragment;
+
+    private ArrayList<String> selectedTags = new ArrayList<>();
+    private Button selectTagsButton;
+    private Button scanBarcodeButton;
+
     private FirebaseFirestore db;
-    private CollectionReference itemsRef;
+
+    // Setting the configuration for BarcodeScanner as UPC-A format and enabling autozoom features
     private GmsBarcodeScannerOptions options = new GmsBarcodeScannerOptions.Builder()
             .setBarcodeFormats(
                     Barcode.FORMAT_UPC_A)
@@ -57,8 +73,12 @@ public class ItemFragment extends DialogFragment {
     private HouseholdItem passedHouseholdItem;
     private OnFragmentInteractionListener listener;
 
+
     private List<Uri> selectedImages = new ArrayList<>();
     private ArrayList<String> imagesUpload = new ArrayList<>();
+
+    private GmsBarcodeScanner scanner;
+
 
     public interface OnFragmentInteractionListener {
         void onHouseholdItemAdded(HouseholdItem newItem);
@@ -78,10 +98,10 @@ public class ItemFragment extends DialogFragment {
         }
     }
 
-
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+        db = FirebaseFirestore.getInstance();
         View view = LayoutInflater.from(getActivity()).inflate(R.layout.edit_item_fragment, null);
 
         description = view.findViewById(R.id.description_edit_text);
@@ -91,11 +111,15 @@ public class ItemFragment extends DialogFragment {
         estimatedValue = view.findViewById(R.id.estimated_value_edit_text);
         comment = view.findViewById(R.id.comment_edit_text);
         purchaseDate = view.findViewById(R.id.purchase_date_edit_text);
-        loadButton = view.findViewById(R.id.load_button);
 
-        loadButton.setOnClickListener(new View.OnClickListener() {
+        scanBarcodeButton = view.findViewById(R.id.scan_barcode_button);
+        scanBarcodeButton.setOnClickListener(view1 -> startScanner());
+
+        selectTagsButton = view.findViewById(R.id.select_tags_button);
+        selectTagsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 FragmentManager fragmentManager = getChildFragmentManager(); // Use getChildFragmentManager() for nested fragments
                 FragmentTransaction transaction = fragmentManager.beginTransaction();
 
@@ -114,14 +138,13 @@ public class ItemFragment extends DialogFragment {
                 transaction.replace(R.id.galleryFragmentContainer, photoPickerFragment);
                 transaction.addToBackStack(null); // Optional: Add the transaction to the back stack for navigation
                 transaction.commit();
+
+                // Launch the TagSelectFragment
+                showTagSelectFragment();
+
             }
         });
 
-
-        Button scanBarcodeButton = view.findViewById(R.id.scan_barcode_button);
-        scanBarcodeButton.setOnClickListener(view1 -> startScanner());
-        scanBarcodeButton = view.findViewById(R.id.scan_barcode_button);
-        scanBarcodeButton.setOnClickListener(view1 -> startScanner());
         Bundle args = getArguments();
         if (args != null) {
             titleDesc = "Edit Item";
@@ -161,7 +184,61 @@ public class ItemFragment extends DialogFragment {
                         String estValue = estimatedValue.getText().toString();
                         String cmt = comment.getText().toString();
                         String date = purchaseDate.getText().toString();
-                        // ...
+
+                        // Validate input fields
+                        if (desc.isEmpty() || mk.isEmpty() || mdl.isEmpty() || estValue.isEmpty() || cmt.isEmpty() || date.isEmpty()) {
+                            // Show an error message or toast indicating that all fields are required
+                            new AlertDialog.Builder(getContext())
+                                    .setTitle("Error")
+                                    .setMessage("All fields are required")
+                                    .setPositiveButton(android.R.string.ok, null)
+                                    .setIcon(android.R.drawable.ic_dialog_alert)
+                                    .show();
+                            return;
+                        }
+
+                        // Validate Estimated Value
+                        try {
+                            // Try to convert the estimated value to double
+                            double estimatedValueDouble = Double.parseDouble(estValue);
+                            // Check if the conversion is successful
+                            if (estimatedValueDouble < 0) {
+                                // Show an error message or toast for invalid estimated value
+                                new AlertDialog.Builder(getContext())
+                                        .setTitle("Error")
+                                        .setMessage("Estimated value must be a non-negative number")
+                                        .setPositiveButton(android.R.string.ok, null)
+                                        .setIcon(android.R.drawable.ic_dialog_alert)
+                                        .show();
+                                return;
+                            }
+                            // Round estimated value to 2 decimal places
+                            DecimalFormat df = new DecimalFormat("#.##");
+                            estValue = df.format(estimatedValueDouble);
+
+                        } catch (NumberFormatException e) {
+                            // Show an error message or toast for invalid estimated value
+                            new AlertDialog.Builder(getContext())
+                                    .setTitle("Error")
+                                    .setMessage("Invalid estimated value format")
+                                    .setPositiveButton(android.R.string.ok, null)
+                                    .setIcon(android.R.drawable.ic_dialog_alert)
+                                    .show();
+                            return;
+                        }
+
+                        // Validate Date Format
+                        if (!isValidDate(date)) {
+                            // Show an error message or toast for invalid date format
+                            new AlertDialog.Builder(getContext())
+                                    .setTitle("Error")
+                                    .setMessage("Invalid date entry (yyyy/MM/dd), year between 1000-2100")
+                                    .setPositiveButton(android.R.string.ok, null)
+                                    .setIcon(android.R.drawable.ic_dialog_alert)
+                                    .show();
+                            return;
+                        }
+
                         if (passedHouseholdItem != null) {
                             passedHouseholdItem.setDescription(desc);
                             passedHouseholdItem.setMake(mk);
@@ -172,11 +249,17 @@ public class ItemFragment extends DialogFragment {
                             passedHouseholdItem.setDateOfPurchase(date);
                             passedHouseholdItem.setImages(imagesUpload);
 
+                            passedHouseholdItem.setTags(selectedTags);
+
                             listener.onHouseholdItemEdited(passedHouseholdItem);
                         } else {
                             // Add a new item
                             HouseholdItem newItem = new HouseholdItem(date, desc, mk, mdl, serial, estValue, cmt);
+
                             newItem.setImages(imagesUpload);
+
+                            newItem.setTags(selectedTags);
+
 
                             listener.onHouseholdItemAdded(newItem);
                         }
@@ -196,15 +279,54 @@ public class ItemFragment extends DialogFragment {
         return builder.create();
     }
 
-    private void startScanner(){
-        GmsBarcodeScanner scanner = GmsBarcodeScanning.getClient(getContext(),options);
+    // Helper method to check if the date is in the format "yyyy/MM/dd"
+    public static boolean isValidDate(String dateStr) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault());
+        sdf.setLenient(false);
 
-        // The task failed with an exception
+        try {
+            Date date = sdf.parse(dateStr);
+
+            // Check for reasonable year, month, and day entries
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+
+            int year = calendar.get(Calendar.YEAR);
+            int month = calendar.get(Calendar.MONTH) + 1; // Months are zero-based
+            int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+            return year >= 1000 && year <= 2100 &&
+                    month >= 1 && month <= 12 &&
+                    day >= 1 && day <= calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+
+        } catch (ParseException e) {
+            return false;
+        }
+    }
+
+    /**
+     * This method initiates the barcode scanning process using Google Code Scanner. When a barcode
+     * is scanned, the firestore database is queried for returning the associated product description
+     * inside the "description" EditText when adding/editing items. In the future, it will also
+     * include other information about the item.
+     *
+     * This method uses the GmsBarcodeScanning.getClient method to obtain an instance of the GmsBarcode
+     * Scanner while configuring the barcode format to be UPC-A. It then starts the process of scanning
+     * and sets up listeners in events of a successful scan and a cancelled scan. Upon success, it
+     * retrieves information from the firestore collection and updates the "description" EditText.
+     */
+    protected void startScanner(){
+        // Initialize barcode scanner
+        scanner = GmsBarcodeScanning.getClient(getContext(),options);
+        // Start scanning
         scanner
                 .startScan()
                 .addOnSuccessListener(
                         barcode -> {
+                            // Get the raw value of barcode scanned
                             String scannedBarcode = barcode.getRawValue();
+
+                            // Query firestore for information regarding associated product
                             DocumentReference docRef = db.collection("Items_Barcode_info").document(scannedBarcode);
                             docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                                 @Override
@@ -212,12 +334,17 @@ public class ItemFragment extends DialogFragment {
                                     if (task.isSuccessful()) {
                                         DocumentSnapshot document = task.getResult();
                                         if (document.exists()) {
+
+                                            // Logging and updating description
                                             Log.d(TAG, "DocumentSnapshot data: " + document.getData());
                                             description.setText((String)document.get("Product Description"));
                                         } else {
+                                            // Logging if no such item in database
                                             Log.d(TAG, "No such item exists in the database");
                                         }
                                     } else {
+
+                                        //Logging failure message
                                         Log.d(TAG, "get failed with ", task.getException());
                                     }
                                 }
@@ -226,16 +353,31 @@ public class ItemFragment extends DialogFragment {
                 .addOnCanceledListener(
                         () -> {
                             // The task has been cancelled
-                        })
-                .addOnFailureListener(
-                        Throwable::getMessage);
-
+                        });
     }
-    public static ItemFragment newInstance(HouseholdItem item) {
+
+    private void showTagSelectFragment() {
+        TagSelectFragment tagSelectFragment = new TagSelectFragment();
+        tagSelectFragment.setOnTagsSelectedListener(this);
+
+        // Use FragmentManager to open the TagSelectFragment
+        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+        tagSelectFragment.show(fragmentManager, "TagSelectFragment");
+    }
+
+    // Implement the OnTagsSelectedListener interface
+    @Override
+    public void onTagsSelected(ArrayList<String> selectedTags) {
+        // Handle the selected tags here
+        // This method will be called when tags are selected in TagSelectFragment
+        this.selectedTags = selectedTags;
+    }
+
+    public static ItemEditFragment newInstance(HouseholdItem item) {
         Bundle args = new Bundle();
         args.putSerializable("item", item);
 
-        ItemFragment fragment = new ItemFragment();
+        ItemEditFragment fragment = new ItemEditFragment();
         fragment.setArguments(args);
         return fragment;
     }

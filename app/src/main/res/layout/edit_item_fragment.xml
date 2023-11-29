@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -57,31 +58,34 @@
         android:ems="10"
         android:hint="Item Comment"
         android:id="@+id/comment_edit_text"
-        android:inputType="text" />
+        android:inputType="text"
+        tools:ignore="HardcodedText" />
 
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:hint="Purchase Date"
+        android:hint="Purchase Date (yyyy/mm/dd)"
         android:id="@+id/purchase_date_edit_text"
-        android:inputType="text" />
+        android:inputType="date" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Select Tags"
+        android:id="@+id/select_tags_button"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginTop="16dp"/>
+
+<!--    <ListView-->
+<!--        android:id="@+id/attach_tag_list"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="150dp" />-->
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Scan Barcode"
         android:id="@+id/scan_barcode_button"
         android:layout_gravity="bottom|center_horizontal"/>
-
-    <Button
-        android:id="@+id/load_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Load Photo(s)"/>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/galleryFragmentContainer"></LinearLayout>
 
 </LinearLayout>

@@ -1,6 +1,8 @@
 package com.example.cmput301groupproject;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -9,6 +11,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -30,12 +33,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-
 /**
  * The MainActivity class represents the main activity of the application
  */
-public class MainActivity extends AppCompatActivity implements ItemFragment.OnFragmentInteractionListener, SortFragment.SortListener{
-
+public class MainActivity extends AppCompatActivity implements ItemEditFragment.OnFragmentInteractionListener, SortFragment.SortListener, FiltersFragment.FiltersFragmentListener {
     private Button selectButton;
     private Button tagButton;
     private Button sortButton;
@@ -49,6 +50,8 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
     private List<String> images;
     private FirebaseFirestore db;
     private CollectionReference itemsRef;
+    private ArrayList<HouseholdItem> unfilteredList;
+    private int filterCount = 0;
 
     /**
      * Initializes the main activity, sets the layout, and defines interactions
@@ -62,9 +65,23 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
 
         db = FirebaseFirestore.getInstance();
 
-        itemsRef = db.collection("Kendrick_items");
+        // Retrieve the collection path from the intent if it exists
+        String userCollectionPath = getIntent().getStringExtra("userDoc");
+
+        // Only update the collection path if it's not already set
+        if (userCollectionPath != null && itemsRef == null) {
+            // Use the retrieved collection path to set up the Firestore collection reference
+            itemsRef = db.collection(userCollectionPath);
+        }
+
+        // Save the userCollectionPath in MainActivity
+        SharedPreferences preferences = getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString("userCollectionPath", userCollectionPath);
+        editor.apply();
+
+
         dataList = new ArrayList<>();
-        // Other code omitted
 
         itemAdapter = new CustomItemList(this, dataList);
 
@@ -77,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 HouseholdItem selectedItem = dataList.get(i);
 
-                ItemFragment.newInstance(selectedItem).show(getSupportFragmentManager(), "EDIT_ITEM");
+                ItemEditFragment.newInstance(selectedItem).show(getSupportFragmentManager(), "EDIT_ITEM");
             }
         });
 
@@ -92,9 +109,10 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
         addItemButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new ItemFragment().show(getSupportFragmentManager(), "ADD_ITEM");
+                new ItemEditFragment().show(getSupportFragmentManager(), "ADD_ITEM");
             }
         });
+
 
             itemsRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
                 @Override
@@ -133,35 +151,81 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
                         // Calculate the total estimated value of the items and set it to the TextView
                         setTotalEstimatedValue(dataList);
                     }
+
+        itemsRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot querySnapshots,
+                                @Nullable FirebaseFirestoreException error) {
+                if (error != null) {
+                    Log.e("Firestore", error.toString());
+                    return;
+
                 }
-            });
+                if (querySnapshots != null) {
+                    dataList.clear();
+                    for (QueryDocumentSnapshot doc: querySnapshots) {
+                        String firestoreId = doc.getId(); // Retrieve the auto-generated Firestore ID
+
+                        if(firestoreId.equals("tags")){
+                            continue;
+                        }
+
+                        String description = doc.getString("Description");
+                        String dateOfPurchaseString = doc.getString("Purchase Date");
+                        String make = doc.getString("Make");
+                        String model = doc.getString("Model");
+                        String serialNumber = doc.getString("Serial Number");
+                        String estimatedValue = doc.getString("Estimated Value");
+                        String comment = doc.getString("Comment");
+
+                        // Check if the document has tags
+                        ArrayList<String> tags = (ArrayList<String>) doc.get("Tags");
+
+                        Log.d("Firestore", String.format("Item(%s, %s, %s, %s, %s, %s, %s) fetched with tags: %s",
+                                dateOfPurchaseString, description, make, model, serialNumber, estimatedValue, comment, tags));
+
+                        HouseholdItem savedItem = new HouseholdItem(dateOfPurchaseString, description, make, model, serialNumber, estimatedValue, comment);
+                        savedItem.setFirestoreId(firestoreId);
+
+                        // Set tags to the savedItem
+                        if (tags != null) {
+                            savedItem.setTags(tags);
+                        }
+
+                        dataList.add(savedItem);
+                    }
+                    itemAdapter.notifyDataSetChanged();
+
+                    // Calculate the total estimated value of the items and set it to the TextView
+                    setTotalEstimatedValue(dataList);
+                }
+            }
+        });
 
         selectButton = findViewById(R.id.selectButton);
         tagButton = findViewById(R.id.tagButton);
         sortButton = findViewById(R.id.sortButton);
         filterButton = findViewById(R.id.filterButton);
 
-//        selectButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                // Maybe switch ListView or just spawn ListFragment
-//                ListFragment.newInstance(dataList).show(getSupportFragmentManager(), "SELECT_ITEMS");
-//            }
-//        });
         selectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // Send dataList to ListActivity
                 Intent intent = new Intent(MainActivity.this, ListActivity.class);
                 intent.putExtra("dataList", dataList);
+                intent.putExtra("userDoc", userCollectionPath);
                 startActivity(intent);
             }
         });
 
+
         tagButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Go to tags. Probably source inspiration from "Kendrick" branch
+                // Send userCollectionPath to ViewTagsActivity
+                Intent viewTagsIntent = new Intent(MainActivity.this, ViewTagsActivity.class);
+                viewTagsIntent.putExtra("userID", userCollectionPath);
+                startActivity(viewTagsIntent);
             }
         });
 
@@ -233,15 +297,18 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
 
         });
 
-        filterButton.setOnClickListener(new View.OnClickListener() {
+
+        filterButton.setOnClickListener(new View.OnClickListener() {    //filter items button listener
             @Override
             public void onClick(View v) {
-                // Implement Nandini's stuff
+                filterCount++;
+                //creates a new instance of the filters fragment.
+                FiltersFragment.newInstance(dataList).show(getSupportFragmentManager(), "FILTER_ITEMS");
             }
         });
 
         // New code for receiving intents from ListActivity
-        handleIntentsFromListActivity(getIntent());
+        handleIntentsFromExternalActivity(getIntent());
     }
     // the SortListener method in MainActivity to receive the sorted list
     @Override
@@ -303,10 +370,18 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
         data.put("Comment", item.getComment());
         data.put("Serial Number", item.getSerialNumber());
         data.put("Purchase Date", item.getDateOfPurchase());
+
         List<String> itemImages = item.getImages();
         if (itemImages != null) {
             data.put("Images", itemImages); // Store the list of strings as an array in Firestore
         }
+
+
+        // Add tags to the data if available
+        ArrayList<String> tags = item.getTags();
+        data.put("Tags", tags);
+
+
         itemsRef.add(data)
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override
@@ -331,10 +406,18 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
         data.put("Comment", editedItem.getComment());
         data.put("Serial Number", editedItem.getSerialNumber());
         data.put("Purchase Date", editedItem.getDateOfPurchase());
+
         List<String> itemImages = editedItem.getImages();
         if (itemImages != null) {
             data.put("Images", itemImages); // Store the list of strings as an array in Firestore
         }
+
+
+        // Add tags to the data if available
+        ArrayList<String> tags = editedItem.getTags();
+        data.put("Tags", tags);
+
+
         itemsRef.document(editedItem.getFirestoreId())
                 .update(data)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -371,6 +454,40 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
     // Method to handle adding tags and performing an action
     public void onTagsApplied(ArrayList<HouseholdItem> taggedItems, ArrayList<String> tags) {
         // Apply tags
+        for (HouseholdItem item : taggedItems) {
+            // Add tags to the item
+            ArrayList<String> existingTags = item.getTags();
+            if (existingTags == null) {
+                existingTags = new ArrayList<>();
+            }
+
+            // Ensure no duplicate tags are added
+            for (String tag : tags) {
+                if (!existingTags.contains(tag)) {
+                    existingTags.add(tag);
+                }
+            }
+
+            // Update the tags in Firestore
+            HashMap<String, Object> data = new HashMap<>();
+            data.put("Tags", existingTags);
+
+            // Update the document with the new tags
+            itemsRef.document(item.getFirestoreId())
+                    .update(data)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d("Firestore", "Tags successfully added to the item!");
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w("Firestore", "Error updating document with tags", e);
+                        }
+                    });
+        }
 
     }
 
@@ -391,7 +508,7 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
      *
      * @param intent The incoming intent
      */
-    private void handleIntentsFromListActivity(Intent intent) {
+    private void handleIntentsFromExternalActivity(Intent intent) {
         if (intent != null) {
             String command = intent.getStringExtra("command");
             if (command != null) {
@@ -419,7 +536,34 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
         }
     }
 
-    // this method to receive the sorted list from the SortFragment
+    @Override
+    public void onFilterList(ArrayList<HouseholdItem> filteredDataList) {
+        if (filterCount < 2) {
+            unfilteredList = (ArrayList<HouseholdItem>) dataList.clone();
+        }
+        if (filteredDataList.isEmpty()) {
+            Toast.makeText(MainActivity.this, "No records found with the selected filters", Toast.LENGTH_SHORT).show();
+        }
+        if (filteredDataList != null && !filteredDataList.isEmpty()) {
+            dataList.clear();
+            dataList.addAll(filteredDataList);
+            itemAdapter.notifyDataSetChanged();
+            setTotalEstimatedValue(dataList);
+            Log.d("Filtering", "Filtered list displayed");
+        } else {
+            Log.e("Filtering", "Problem with the list");
+        }
+    }
 
-
+    @Override
+    public void onRemoveFilters(boolean isUnfiltered) {
+        if (isUnfiltered && !unfilteredList.equals(dataList)) {
+            dataList.clear();
+            dataList.addAll(unfilteredList);
+            itemAdapter.notifyDataSetChanged();
+            setTotalEstimatedValue(dataList);
+        } else {
+            Log.e("Removing filters", "Problem with removing filters");
+        }
+    }
 }

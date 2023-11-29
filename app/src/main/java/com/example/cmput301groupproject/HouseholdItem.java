@@ -22,6 +22,7 @@ public class HouseholdItem implements Serializable {
     private List<String> tags;
     private ArrayList<String> images;
 
+    private ArrayList<String> tags;
 
     /**
      * Constructs a HouseholdItem object with the provided attributes
@@ -196,7 +197,7 @@ public class HouseholdItem implements Serializable {
      *
      * @return The tags of the item
      */
-    public List<String> getTags() {
+    public ArrayList<String> getTags() {
         return tags;
     }
 
@@ -214,7 +215,7 @@ public class HouseholdItem implements Serializable {
      *
      * @param tags The tags to be set
      */
-    public void setTags(List<String> tags) {
+    public void setTags(ArrayList<String> tags) {
         this.tags = tags;
     }
 
