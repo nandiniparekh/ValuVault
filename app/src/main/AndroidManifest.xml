@@ -12,26 +12,47 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CMPUT301GroupProject"
         tools:targetApi="31">
+
+        <!-- LoginActivity is set as the main (launcher) activity -->
+        <activity
+            android:name=".LoginActivity"
+            android:label="Login Activity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <activity
             android:name=".MainActivity"
             android:launchMode="standard"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.CMPUT301GroupProject">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
-        <meta-data
-            android:name="com.google.mlkit.vision.DEPENDENCIES"
-            android:value="barcode_ui"/>
+
         <activity
             android:name=".ListActivity"
             android:label="List Activity"
             android:exported="true">
         </activity>
+
+        <activity
+            android:name=".ViewTagsActivity"
+            android:label="View Tags"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Include the metadata for ML Kit Vision dependencies -->
+        <meta-data
+            android:name="com.google.mlkit.vision.DEPENDENCIES"
+            android:value="barcode_ui" />
+
     </application>
 
 </manifest>

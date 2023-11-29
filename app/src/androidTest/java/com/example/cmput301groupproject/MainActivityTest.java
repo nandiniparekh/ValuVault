@@ -1,5 +1,6 @@
 package com.example.cmput301groupproject;
 
+import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
@@ -7,6 +8,8 @@ import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+
+import static org.hamcrest.CoreMatchers.anything;
 
 import androidx.test.espresso.action.ViewActions;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
@@ -27,7 +30,7 @@ public class MainActivityTest {
         // Click the add item button
         onView(withId(R.id.add_item_b)).perform(click());
         // Type in the required fields for the new item
-        onView(withId(R.id.purchase_date_edit_text)).perform(ViewActions.typeText("2023-11-09"));
+        onView(withId(R.id.purchase_date_edit_text)).perform(ViewActions.typeText("2023/11/09"));
         onView(withId(R.id.description_edit_text)).perform(ViewActions.typeText("Test description"));
         onView(withId(R.id.make_edit_text)).perform(ViewActions.typeText("Test make"));
         onView(withId(R.id.model_edit_text)).perform(ViewActions.typeText("Test model"));
@@ -43,7 +46,10 @@ public class MainActivityTest {
     @Test
     public void testB_EditItem() {
         // Assuming dataList is not empty, perform an edit action on the first item in the list
-        onView(withId(R.id.item_list)).perform(click());
+        onData(anything())
+                .inAdapterView(withId(R.id.item_list))
+                .atPosition(0)
+                .perform(click());
         // Make changes to the item details
         onView(withId(R.id.description_edit_text)).perform(ViewActions.replaceText("Test description - Edited"));
         // Click on the OK button for the edit
@@ -55,7 +61,10 @@ public class MainActivityTest {
     @Test
     public void testC_DeleteItem() {
         // Assuming dataList is not empty, perform a click on the first item in the list
-        onView(withId(R.id.item_list)).perform(click());
+        onData(anything())
+                .inAdapterView(withId(R.id.item_list))
+                .atPosition(0)
+                .perform(click());
         // Verify if the delete option is displayed
         onView(withText("Remove")).check(matches(isDisplayed()));
         // Click on the delete option
@@ -63,6 +72,19 @@ public class MainActivityTest {
         // Check if the deleted item is no longer displayed in the list
         onView(withText("Test description")).check(doesNotExist());
     }
+
+    @Test
+    public void testD_ScanButton_from_AddItem() {
+        //Assuming we are on main activity we try to test navigation to scanner
+        // Click on add item
+        onView(withId(R.id.add_item_b)).perform(click());
+        // Click on Scan Button
+        onView(withId(R.id.scan_barcode_button)).perform(click());
+    }
+
+}
+
+
 
 //    @Test
 //    public void testD_ListView() {
@@ -86,5 +108,5 @@ public class MainActivityTest {
 //                .onChildView(withId(R.id.description_edit_text))
 //                .check(matches(withText("Test description")));
 //    }
-}
+
 

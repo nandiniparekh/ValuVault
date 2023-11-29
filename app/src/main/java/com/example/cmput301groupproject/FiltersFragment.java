@@ -13,7 +13,12 @@ import androidx.fragment.app.DialogFragment;
 
 import java.util.ArrayList;
 
+
+/**
+ * This class represents the Filters fragment that pops up when the Filter button is clicked on Main Screen
+ */
 public class FiltersFragment extends DialogFragment {
+
 
     public interface FiltersFragmentListener {
         void onFilterList(ArrayList<HouseholdItem> filteredDataList);
@@ -49,6 +54,7 @@ public class FiltersFragment extends DialogFragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.filter_items_fragment, container, false);
 
+        //finding and assigning buttons from the layout
         makeFilterText = view.findViewById(R.id.makeFilter_text);
         descriptionKeyword = view.findViewById(R.id.description_keyword);
         startDateText = view.findViewById(R.id.editText);
@@ -58,11 +64,13 @@ public class FiltersFragment extends DialogFragment {
         filterByDateRangeButton = view.findViewById(R.id.dateFilter_button);
         removeFilters = view.findViewById(R.id.removeFilter_button);
 
+        //creating FilterItems object and setting the unfiltered list
         FilterItems filterItems = new FilterItems();
         filterItems.setItemsList(unfilteredItems);
 
         filterByMakeButton.setOnClickListener(v -> {
             String make = makeFilterText.getText().toString();
+            //calls the filterByMake function in FilterItems class if this button is clicked
             if (!make.isEmpty()) {
                 filterItems.filterByMake(make);
                 dismiss();
@@ -74,6 +82,7 @@ public class FiltersFragment extends DialogFragment {
 
         filterByDescButton.setOnClickListener(v -> {
             String keyword = descriptionKeyword.getText().toString();
+            //calls the filterByKeyword function in the FilterItems class if this button is clicked
             if (!keyword.isEmpty()) {
                 filterItems.filterByKeyword(keyword);
                 dismiss();
@@ -86,7 +95,7 @@ public class FiltersFragment extends DialogFragment {
         filterByDateRangeButton.setOnClickListener(v -> {
             String start = startDateText.getText().toString();
             String end = endDateText.getText().toString();
-
+            //calls the filterByDate function in the FilterItems class if this button is clicked
             if (!start.isEmpty() && !end.isEmpty()) {
                 filterItems.filterByDate(start, end);
                 dismiss();
@@ -94,13 +103,14 @@ public class FiltersFragment extends DialogFragment {
                 Toast.makeText(getContext(), "Please enter start and end dates.", Toast.LENGTH_SHORT).show();
             }
             ArrayList<HouseholdItem> items = filterItems.getFilteredItems();
-            if (items == null || !items.isEmpty()) {
+            if (items == null || items.isEmpty()) {
                 Toast.makeText(getContext(), "The entered dates are not valid. Please enter in expected format.", Toast.LENGTH_SHORT).show();
             }
             listener.onFilterList(items);
         });
 
         removeFilters.setOnClickListener(v -> {
+            //removes the filters on the list of items when this button is called.
             listener.onRemoveFilters(true);
             dismiss();
         });
@@ -108,7 +118,12 @@ public class FiltersFragment extends DialogFragment {
         return view;
     }
 
-
+    /**
+     * Creates a new instance of FiltersFragment with a given list of items.
+     *
+     * @param items An ArrayList of HouseholdItem objects (unfiltered) to be passed to the fragment.
+     * @return A new instance of FiltersFragment with the provided items as its arguments.
+     */
     public static FiltersFragment newInstance(ArrayList<HouseholdItem> items) {
         FiltersFragment fragment = new FiltersFragment();
 

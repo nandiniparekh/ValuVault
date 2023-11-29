@@ -19,6 +19,7 @@ public class SortFragment extends Fragment {
     public static final int SORT_BY_DESCRIPTION = 1;
     public static final int SORT_BY_MAKE = 2;
     public static final int SORT_BY_VAL = 3;
+    public static final int SORT_BY_TAG = 4;
 
     public static final int ASCENDING = 0;
     public static final int DESCENDING = 1;
@@ -61,6 +62,9 @@ public class SortFragment extends Fragment {
                 break;
             case SORT_BY_VAL:
                 sortDataListVal(dataList);
+                break;
+            case SORT_BY_TAG:
+                sortDataListTags(dataList);
                 break;
         }
 
@@ -160,5 +164,28 @@ public class SortFragment extends Fragment {
             Collections.reverse(dataList);
         }
     }
+    private void sortDataListTags(ArrayList<HouseholdItem> dataList) {
+        Collections.sort(dataList, new Comparator<HouseholdItem>() {
+            @Override
+            public int compare(HouseholdItem item1, HouseholdItem item2) {
+                // Compare items based on the number of tags
+                int tagsCount1 = item1.getTags().size();
+                int tagsCount2 = item2.getTags().size();
+
+                if (tagsCount1 > tagsCount2) {
+                    return -1; // Item1 comes first (more tags)
+                } else if (tagsCount1 < tagsCount2) {
+                    return 1;  // Item2 comes first (more tags)
+                } else {
+                    // If the number of tags is the same, use another criteria (e.g., alphabetical order)
+                    return item1.getDescription().compareToIgnoreCase(item2.getDescription());
+                }
+            }
+        });
+        if (sortOrder == DESCENDING) {
+            Collections.reverse(dataList);
+        }
+    }
+
 
 }
