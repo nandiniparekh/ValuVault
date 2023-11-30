@@ -42,10 +42,12 @@
             android:name=".ViewTagsActivity"
             android:label="View Tags"
             android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".ItemEditActivity"
+            android:label="Add/edit items"
+            android:exported="true">
         </activity>
 
         <!-- Include the metadata for ML Kit Vision dependencies -->
