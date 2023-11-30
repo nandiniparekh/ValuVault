@@ -1,6 +1,7 @@
 package com.example.cmput301groupproject;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -75,13 +76,15 @@ public class FiltersFragment extends DialogFragment {
         tagsSpinner = view.findViewById(R.id.spinner_filter_tags);
         selectedTagsTV = view.findViewById(R.id.selectedTags_textview);
 
-        TagsManager tagsManager = new TagsManager("temp");
-        tagsManager.getTags(new TagsManager.CallbackHandler() {
+        SharedPreferences preferences = getActivity().getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
+        String userCollectionPath = preferences.getString("userCollectionPath", null);
+        TagsManager tagsManager = new TagsManager(userCollectionPath);
+        tagsManager.getTags(new TagsManager.CallbackHandler<ArrayList<String>>() {
             @Override
-            public void onSuccess(Object result) {
-                tagsList = (ArrayList<String>) result;
+            public void onSuccess(ArrayList<String> result) {
+                tagsList.clear();
+                tagsList.addAll(result);
             }
-
             @Override
             public void onFailure(String e) {
                 Log.e("Filter TAGS", "Error fetching tags: " + e);

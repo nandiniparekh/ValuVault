@@ -2,6 +2,7 @@ package com.example.cmput301groupproject;
 
 import static org.junit.Assert.assertEquals;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -9,8 +10,10 @@ import java.util.ArrayList;
 public class FilterFragmentTest {
     private ArrayList<HouseholdItem> testItemsList;
     FilterItems filterItems;
+
+    @Before
     public void setUp() {
-        FilterItems filterItems = new FilterItems();
+        filterItems = new FilterItems();
         testItemsList = new ArrayList<>();
         // Populate testItemsList with sample data
         // Item 1
