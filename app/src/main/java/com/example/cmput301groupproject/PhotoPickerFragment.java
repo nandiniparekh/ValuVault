@@ -17,8 +17,6 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -104,7 +102,7 @@ public class PhotoPickerFragment extends Fragment {
 
         Button choosePhotoButton = rootView.findViewById(R.id.choosePhotoButton);
 
-        Button takePhotoButton = rootView.findViewById(R.id.camera_button);
+        // takePhotoButton = rootView.findViewById(R.id.camera_button);
 
 
         choosePhotoButton.setOnClickListener(new View.OnClickListener() {
@@ -114,18 +112,25 @@ public class PhotoPickerFragment extends Fragment {
             }
         });
 
+        /**takePhotoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openNewFragment();
+            }
+        });**/
+
         return rootView;
     }
 
-    private void openNewFragment(){
+    /**private void openNewFragment(){
         PhotographyFragment photoFragment = new PhotographyFragment();
         // Use FragmentManager to replace the current fragment with the new one
         FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.cameraContainer, photoFragment);
+        fragmentTransaction.replace(R.id.galleryFragmentContainer, photoFragment);
         fragmentTransaction.addToBackStack(null); // Optional: Add the transaction to the back stack for navigation
         fragmentTransaction.commit();
-    }
+    }**/
 
     private void openGallery() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);

@@ -18,11 +18,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/choose_photos" />
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/camera_button"
-        android:text="Take Picture" />
     </LinearLayout>
     <LinearLayout
         android:layout_width="wrap_content"

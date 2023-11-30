@@ -48,6 +48,7 @@ public class ItemFragment extends DialogFragment {
     private Button camUpload_button;
     private EditText purchaseDate;
     private PhotoPickerFragment photoPickerFragment;
+    private PhotographyFragment photographyFragment;
     private FirebaseFirestore db;
     private CollectionReference itemsRef;
     private GmsBarcodeScannerOptions options = new GmsBarcodeScannerOptions.Builder()
@@ -100,8 +101,8 @@ public class ItemFragment extends DialogFragment {
             public void onClick(View v) {
                 FragmentManager fragmentManager = getChildFragmentManager(); // Use getChildFragmentManager() for nested fragments
                 FragmentTransaction transaction = fragmentManager.beginTransaction();
-                photoPickerFragment = new PhotoPickerFragment();
-                transaction.replace(R.id.cameraContainer, photoPickerFragment);
+                photographyFragment = new PhotographyFragment();
+                transaction.replace(R.id.cameraContainer, photographyFragment);
                 transaction.addToBackStack(null); // Optional: Add the transaction to the back stack for navigation
                 transaction.commit();
             }
