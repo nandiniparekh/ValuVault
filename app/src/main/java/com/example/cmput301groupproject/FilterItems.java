@@ -77,6 +77,23 @@ public class FilterItems {
         }
     }
 
+    public void filterByTags(ArrayList<String> selectedTags){
+    /**
+     * Filters the list of items based on if it contains the selected tag
+     *
+     * @param selectedTags(ArrayList<String>) is the list of tags selected as filters.
+     */
+        for (HouseholdItem item : itemsList) {
+            ArrayList<String> tags = item.getTags();
+            for (String tag : tags) {
+                if(selectedTags.contains(tag)) {
+                    filteredItems.add(item);
+                    break;
+                }
+            }
+        }
+    }
+
     /**
      * Setter function for the unifiltered items list.
      *

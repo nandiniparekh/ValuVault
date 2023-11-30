@@ -2,11 +2,15 @@ package com.example.cmput301groupproject;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.fragment.app.DialogFragment;
@@ -34,10 +38,14 @@ public class FiltersFragment extends DialogFragment {
     private Button filterByDescButton;
     private Button filterByDateRangeButton;
     private Button removeFilters;
+    private Button filterByTags;
+    private Spinner tagsSpinner;
+    private TextView selectedTagsTV;
 
     static ArrayList<HouseholdItem> unfilteredItems = new ArrayList<HouseholdItem>();
-
-    private ArrayList<HouseholdItem> filteredItems = new ArrayList<HouseholdItem>();
+    private final ArrayList<HouseholdItem> filteredItems = new ArrayList<HouseholdItem>();
+    private ArrayList<String> tagsList = new ArrayList<String>();
+    private ArrayList<String> selectedTags = new ArrayList<String>();
 
     @Override
     public void onAttach(Context context) {
@@ -63,10 +71,48 @@ public class FiltersFragment extends DialogFragment {
         filterByDescButton = view.findViewById(R.id.filterByDesc_button);
         filterByDateRangeButton = view.findViewById(R.id.dateFilter_button);
         removeFilters = view.findViewById(R.id.removeFilter_button);
+        filterByTags = view.findViewById(R.id.filter_tags_button);
+        tagsSpinner = view.findViewById(R.id.spinner_filter_tags);
+        selectedTagsTV = view.findViewById(R.id.selectedTags_textview);
+
+        TagsManager tagsManager = new TagsManager("temp");
+        tagsManager.getTags(new TagsManager.CallbackHandler() {
+            @Override
+            public void onSuccess(Object result) {
+                tagsList = (ArrayList<String>) result;
+            }
+
+            @Override
+            public void onFailure(String e) {
+                Log.e("Filter TAGS", "Error fetching tags: " + e);
+            }
+        });
 
         //creating FilterItems object and setting the unfiltered list
         FilterItems filterItems = new FilterItems();
         filterItems.setItemsList(unfilteredItems);
+
+        TagsAdapter tagsAdapter = new TagsAdapter(getContext(), tagsList);
+        tagsSpinner.setAdapter(tagsAdapter);
+
+        tagsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                selectedTags.add(tagsList.get(position));
+                selectedTagsTV.setText("Selected tags : " + tagsList);
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+
+        filterByTags.setOnClickListener(v -> {
+            if (selectedTags.isEmpty())
+                Toast.makeText(getContext(), "You have not selected any tags. Please select one or more tags.", Toast.LENGTH_SHORT).show();
+            else
+                filterItems.filterByTags(selectedTags);
+            listener.onFilterList(filterItems.getFilteredItems());
+        });
 
         filterByMakeButton.setOnClickListener(v -> {
             String make = makeFilterText.getText().toString();
