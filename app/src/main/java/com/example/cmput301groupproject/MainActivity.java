@@ -35,7 +35,7 @@ import java.util.HashMap;
 /**
  * The MainActivity class represents the main activity of the application
  */
-public class MainActivity extends AppCompatActivity implements ItemEditFragment.OnFragmentInteractionListener, SortFragment.SortListener, FiltersFragment.FiltersFragmentListener {
+public class MainActivity extends AppCompatActivity implements SortFragment.SortListener, FiltersFragment.FiltersFragmentListener {
     private Button selectButton;
     private Button tagButton;
     private Button sortButton;
@@ -91,7 +91,10 @@ public class MainActivity extends AppCompatActivity implements ItemEditFragment.
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 HouseholdItem selectedItem = dataList.get(i);
 
-                ItemEditFragment.newInstance(selectedItem).show(getSupportFragmentManager(), "EDIT_ITEM");
+                Intent intent = new Intent(MainActivity.this, ItemEditActivity.class);
+                intent.putExtra("userDoc", userCollectionPath);
+                intent.putExtra("selectedItem", selectedItem);
+                startActivity(intent);
             }
         });
 
@@ -105,8 +108,10 @@ public class MainActivity extends AppCompatActivity implements ItemEditFragment.
         addItemButton = findViewById(R.id.add_item_b);
         addItemButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                new ItemEditFragment().show(getSupportFragmentManager(), "ADD_ITEM");
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, ItemEditActivity.class);
+                intent.putExtra("userDoc", userCollectionPath);
+                startActivity(intent);
             }
         });
 
@@ -180,7 +185,7 @@ public class MainActivity extends AppCompatActivity implements ItemEditFragment.
             @Override
             public void onClick(View v) {
                 // Send userCollectionPath to ViewTagsActivity
-                Intent viewTagsIntent = new Intent(MainActivity.this, ViewTagsActivity.class);
+                Intent viewTagsIntent = new Intent(MainActivity.this, TagsViewActivity.class);
                 viewTagsIntent.putExtra("userID", userCollectionPath);
                 startActivity(viewTagsIntent);
             }
@@ -317,7 +322,6 @@ public class MainActivity extends AppCompatActivity implements ItemEditFragment.
      *
      * @param item The HouseholdItem object to be added
      */
-    @Override
     public void onHouseholdItemAdded(HouseholdItem item) {
         HashMap<String, Object> data = new HashMap<>();
         data.put("Description", item.getDescription());
@@ -435,18 +439,6 @@ public class MainActivity extends AppCompatActivity implements ItemEditFragment.
     }
 
     /**
-     * Deletes selected items from database
-     *
-     * @param removedItems The list of HouseholdItem objects to be removed
-     */
-    public void onListItemsRemoved(ArrayList<HouseholdItem> removedItems) {
-        // Delete selected items
-        for(HouseholdItem removedItem :removedItems){
-            onHouseholdItemRemoved(removedItem);
-        }
-    }
-
-    /**
      * Handles incoming intents from other activities
      *
      * @param intent The incoming intent
@@ -456,6 +448,24 @@ public class MainActivity extends AppCompatActivity implements ItemEditFragment.
             String command = intent.getStringExtra("command");
             if (command != null) {
                 switch (command) {
+                    case "addItem":
+                        HouseholdItem addItem = (HouseholdItem) intent.getSerializableExtra("addedItem");
+                        if(addItem != null){
+                            onHouseholdItemAdded(addItem);
+                        }
+                        break;
+                    case "editItem":
+                        HouseholdItem editItem = (HouseholdItem) intent.getSerializableExtra("editedItem");
+                        if(editItem != null){
+                            onHouseholdItemEdited(editItem);
+                        }
+                        break;
+                    case "removeItem":
+                        HouseholdItem removeItem = (HouseholdItem) intent.getSerializableExtra("removedItem");
+                        if(removeItem != null){
+                            onHouseholdItemRemoved(removeItem);
+                        }
+                        break;
                     case "applyTags":
                         ArrayList<HouseholdItem> selectedItems = (ArrayList<HouseholdItem>) intent.getSerializableExtra("selectedItems");
                         ArrayList<String> selectedTags = (ArrayList<String>) intent.getSerializableExtra("selectedTags");
@@ -468,7 +478,9 @@ public class MainActivity extends AppCompatActivity implements ItemEditFragment.
                         ArrayList<HouseholdItem> removedItems = (ArrayList<HouseholdItem>) intent.getSerializableExtra("selectedItems");
                         if (removedItems != null) {
                             // Handle removed items
-                            onListItemsRemoved(removedItems);
+                            for(HouseholdItem removedItem :removedItems){
+                                onHouseholdItemRemoved(removedItem);
+                            }
                         }
                         break;
                     default:

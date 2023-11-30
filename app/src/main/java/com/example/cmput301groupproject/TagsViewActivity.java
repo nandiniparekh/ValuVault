@@ -5,12 +5,13 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
 
-public class ViewTagsActivity extends AppCompatActivity implements TagDefineFragment.TagsOnFragmentInteractionListener {
+public class TagsViewActivity extends AppCompatActivity implements TagDefineFragment.TagsOnFragmentInteractionListener {
 
     private Button backButton;
     private Button addTagButton;
@@ -128,21 +129,27 @@ public class ViewTagsActivity extends AppCompatActivity implements TagDefineFrag
 
     // Implement the TagsListener method to handle added tags
     public void onTagAdded(String newTag) {
-        // Update the Firestore database with the new list of tags
-        tagsManager.addTag(newTag, new TagsManager.CallbackHandler<String>() {
-            @Override
-            public void onSuccess(String result) {
-                // Update the tagList and notify the adapter
-                tagDataList.add(newTag);
-                tagsAdapter.notifyDataSetChanged();
-            }
+        // Check if the new tag already exists in the tagDataList
+        if (!tagDataList.contains(newTag)) {
+            // Update the Firestore database with the new list of tags
+            tagsManager.addTag(newTag, new TagsManager.CallbackHandler<String>() {
+                @Override
+                public void onSuccess(String result) {
+                    // Update the tagList and notify the adapter
+                    tagDataList.add(newTag);
+                    tagsAdapter.notifyDataSetChanged();
+                }
 
-            @Override
-            public void onFailure(String e) {
-                // Handle failure if needed
-                Log.e("TagsManager", "Error adding tag in Firestore: " + e);
-            }
-        });
+                @Override
+                public void onFailure(String e) {
+                    // Handle failure if needed
+                    Log.e("TagsManager", "Error adding tag in Firestore: " + e);
+                }
+            });
+        } else {
+            // Handle the case where the tag already exists
+            Toast.makeText(this, "Tag already exists", Toast.LENGTH_SHORT).show();
+        }
     }
 }
 
