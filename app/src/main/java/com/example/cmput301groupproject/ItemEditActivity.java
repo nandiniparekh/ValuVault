@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -101,32 +102,10 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
             serialNumber.setText(passedHouseholdItem.getSerialNumber());
             estimatedValue.setText(passedHouseholdItem.getEstimatedValue());
             comment.setText(passedHouseholdItem.getComment());
+
+            onTagsSelected(passedHouseholdItem.getTags());
         }
 
-        /*
-
-        //
-ArrayList<String> tags = new ArrayList<>();
-// Add tags to the ArrayList
-
-// Find the LinearLayout in layout
-LinearLayout tagsLayout = view.findViewById(R.id.tags_layout);
-
-// Clear existing views in the layout
-tagsLayout.removeAllViews();
-
-// Loop through the tags and add TextViews dynamically
-for (String tag : tags) {
-    TextView tagTextView = new TextView(getContext());
-    tagTextView.setText(tag);
-    tagTextView.setBackgroundResource(R.drawable.tag_background); // Optional: Add a background drawable for styling
-    tagTextView.setTextColor(getResources().getColor(android.R.color.white)); // Optional: Set text color
-    tagTextView.setPadding(8, 4, 8, 4); // Optional: Set padding
-
-    // Add the TextView to the LinearLayout
-    tagsLayout.addView(tagTextView);
-}
-         */
         TextView activityTitle = findViewById(R.id.title_text);
         activityTitle.setText(titleDesc);
 
@@ -347,5 +326,24 @@ for (String tag : tags) {
         // Handle the selected tags here
         // This method will be called when tags are selected in TagSelectFragment
         this.selectedTags = selectedTags;
+
+
+        // Find the LinearLayout in layout
+        LinearLayout tagsLayout = findViewById(R.id.tags_layout);
+
+        // Clear existing views in the layout
+        tagsLayout.removeAllViews();
+
+        // Loop through the tags and add TextViews dynamically
+        for (String tag : selectedTags) {
+            TextView tagTextView = new TextView(this);
+            tagTextView.setText(tag);
+            tagTextView.setBackgroundResource(R.drawable.tag_background); // Optional: Add a background drawable for styling
+            tagTextView.setTextColor(getResources().getColor(android.R.color.white)); // Optional: Set text color
+            tagTextView.setPadding(8, 4, 8, 4); // Optional: Set padding
+
+            // Add the TextView to the LinearLayout
+            tagsLayout.addView(tagTextView);
+        }
     }
 }

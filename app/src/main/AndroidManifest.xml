@@ -39,7 +39,7 @@
         </activity>
 
         <activity
-            android:name=".ViewTagsActivity"
+            android:name=".TagsViewActivity"
             android:label="View Tags"
             android:exported="true">
         </activity>

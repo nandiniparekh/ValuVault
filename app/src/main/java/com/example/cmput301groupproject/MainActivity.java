@@ -185,7 +185,7 @@ public class MainActivity extends AppCompatActivity implements SortFragment.Sort
             @Override
             public void onClick(View v) {
                 // Send userCollectionPath to ViewTagsActivity
-                Intent viewTagsIntent = new Intent(MainActivity.this, ViewTagsActivity.class);
+                Intent viewTagsIntent = new Intent(MainActivity.this, TagsViewActivity.class);
                 viewTagsIntent.putExtra("userID", userCollectionPath);
                 startActivity(viewTagsIntent);
             }
