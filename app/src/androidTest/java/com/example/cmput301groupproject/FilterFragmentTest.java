@@ -10,10 +10,10 @@ import java.util.ArrayList;
 public class FilterFragmentTest {
     private ArrayList<HouseholdItem> testItemsList;
     FilterItems filterItems;
-
+  
     @Before
     public void setUp() {
-        filterItems = new FilterItems();
+        this.filterItems = new FilterItems();
         testItemsList = new ArrayList<>();
         // Populate testItemsList with sample data
         // Item 1
