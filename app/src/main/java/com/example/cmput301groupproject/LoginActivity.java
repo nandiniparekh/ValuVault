@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -37,10 +38,31 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String enteredUsername = usernameEditText.getText().toString().trim();
 
-                // Check if the entered username is in the "users" collection
-                checkUsernameInDatabase(enteredUsername);
+                // Check if the entered username is blank
+                if (enteredUsername.isEmpty()) {
+                    // Show a toast indicating that the username is required
+                    showCenteredToast("Please enter a username (minimum 1 alphanumeric character)");
+                } else {
+                    // Proceed with checking the username in the database
+                    checkUsernameInDatabase(enteredUsername);
+                }
             }
         });
+    }
+
+    private void showCenteredToast(String message) {
+        // Inflate the custom layout
+        View toastView = getLayoutInflater().inflate(R.layout.custom_toast_layout, null);
+
+        // Set the message in the TextView
+        TextView messageTextView = toastView.findViewById(R.id.toastMessageTextView);
+        messageTextView.setText(message);
+
+        // Create and show the custom Toast
+        Toast toast = new Toast(getApplicationContext());
+        toast.setDuration(Toast.LENGTH_SHORT);
+        toast.setView(toastView);
+        toast.show();
     }
 
     private void checkUsernameInDatabase(final String username) {

@@ -99,6 +99,14 @@ public class TagsViewActivity_BasicTest {
 
 
         onView(withId(R.id.btnDeleteTags)).perform(click());
+
+        // pause for load
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         onView(withText("tag1")).check(doesNotExist());
     }
 
@@ -114,6 +122,13 @@ public class TagsViewActivity_BasicTest {
                     .perform(click());
         }
         onView(withId(R.id.btnDeleteTags)).perform(click());
+
+        // pause for load
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         for(int i = 2; i <= 1 + tagCap; i++) {
             String tagText = "tag" + i;

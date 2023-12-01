@@ -67,7 +67,7 @@ public class ListActivityTest {
 
         onView(withId(R.id.backSelectButton)).perform(click());
 
-        // Check if the ShowActivity is launched
+        // Check if the MainActivity is launched
         intended(hasComponent(MainActivity.class.getName()));
     }
 
