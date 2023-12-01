@@ -3,10 +3,13 @@ package com.example.cmput301groupproject;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +24,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +32,7 @@ public class PhotoPickerFragment extends Fragment {
 
     private ActivityResultLauncher<String> requestPermissionLauncher;
     private ActivityResultLauncher<Intent> imagePickerLauncher;
+    private ActivityResultLauncher<Intent> cameraimagePickerLauncher;
     private RecyclerView recyclerView;
     private PhotoAdapter adapter;
     private List<Uri> selectedImages = new ArrayList<>();
@@ -71,6 +76,20 @@ public class PhotoPickerFragment extends Fragment {
                 }
         );
 
+        cameraimagePickerLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+            @Override
+            public void onActivityResult(ActivityResult result) {
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    Bundle extras = result.getData().getExtras();
+                    Bitmap imageBitmap = (Bitmap) extras.get("data");
+                   //convert bitmap to uri and add it to selected images
+                    Uri cameraImageUri = getImageUri(requireContext(), imageBitmap);
+                    selectedImages.add(cameraImageUri);
+                    adapter.notifyDataSetChanged();
+                }
+            }
+        });
+
     }
 
     private void requestMediaPermission() {
@@ -90,6 +109,17 @@ public class PhotoPickerFragment extends Fragment {
             adapter.notifyDataSetChanged();
         }
     }
+
+    public Uri getImageUri(Context inContext, Bitmap inImage) {
+        Log.d("here", "hi3");
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
+        Log.d("here", "hi4");
+        // Return the image Uri
+        return Uri.parse(path);
+    }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -115,12 +145,14 @@ public class PhotoPickerFragment extends Fragment {
         takePhotoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Dasom's code
+                Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                cameraimagePickerLauncher.launch(cameraIntent);
             }
         });
 
         return rootView;
     }
+
 
     public List<Uri> getSelectedImages() {
         return selectedImages;
