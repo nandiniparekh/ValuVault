@@ -2,6 +2,7 @@ package com.example.cmput301groupproject;
 
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -183,10 +184,18 @@ public class PhotoPickerFragment extends Fragment {
         }
 
         @Override
-        public void onBindViewHolder(PhotoViewHolder holder, int position) {
+        public void onBindViewHolder(PhotoViewHolder holder, @SuppressLint("RecyclerView") int position) {
             Uri imageUri = imageUris.get(position);
             // Load and display the image directly into the ImageView
             holder.imageView.setImageURI(imageUri);
+            holder.delete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    imageUris.remove(imageUri);
+                    notifyItemRemoved(position);
+                    notifyItemRangeChanged(position, getItemCount());
+                }
+            });
         }
 
         @Override
@@ -195,11 +204,12 @@ public class PhotoPickerFragment extends Fragment {
         }
 
         public class PhotoViewHolder extends RecyclerView.ViewHolder {
-            ImageView imageView;
+            ImageView imageView, delete;
 
             public PhotoViewHolder(View itemView) {
                 super(itemView);
                 imageView = itemView.findViewById(R.id.imageView);
+                delete = imageView.findViewById(R.id.delete);
             }
         }
     }
