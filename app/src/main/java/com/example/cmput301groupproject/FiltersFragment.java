@@ -7,10 +7,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Spinner;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,7 +39,7 @@ public class FiltersFragment extends DialogFragment {
     private Button filterByDateRangeButton;
     private Button removeFilters;
     private Button filterByTags;
-    private Spinner tagsSpinner;
+    private ListView listViewTags;
     private TextView selectedTagsTV;
 
     static ArrayList<HouseholdItem> unfilteredItems = new ArrayList<HouseholdItem>();
@@ -73,17 +72,21 @@ public class FiltersFragment extends DialogFragment {
         filterByDateRangeButton = view.findViewById(R.id.dateFilter_button);
         removeFilters = view.findViewById(R.id.removeFilter_button);
         filterByTags = view.findViewById(R.id.filter_tags_button);
-        tagsSpinner = view.findViewById(R.id.spinner_filter_tags);
-        selectedTagsTV = view.findViewById(R.id.selectedTags_textview);
+        listViewTags = view.findViewById(R.id.list_filter_tags);
 
         SharedPreferences preferences = getActivity().getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
         String userCollectionPath = preferences.getString("userCollectionPath", null);
         TagsManager tagsManager = new TagsManager(userCollectionPath);
+
+        TagsAdapter tagsAdapter = new TagsAdapter(getContext(), tagsList);
+        listViewTags.setAdapter(tagsAdapter);
+
         tagsManager.getTags(new TagsManager.CallbackHandler<ArrayList<String>>() {
             @Override
             public void onSuccess(ArrayList<String> result) {
                 tagsList.clear();
                 tagsList.addAll(result);
+                tagsAdapter.notifyDataSetChanged();
             }
             @Override
             public void onFailure(String e) {
@@ -95,19 +98,16 @@ public class FiltersFragment extends DialogFragment {
         FilterItems filterItems = new FilterItems();
         filterItems.setItemsList(unfilteredItems);
 
-        TagsAdapter tagsAdapter = new TagsAdapter(getContext(), tagsList);
-        tagsSpinner.setAdapter(tagsAdapter);
 
-        tagsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                selectedTags.add(tagsList.get(position));
-                selectedTagsTV.setText("Selected tags : " + tagsList);
-            }
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
+        // Set up checkbox click listener for selecting and deselecting items
+        tagsAdapter.onTagCheckedChangeListener((position, isChecked) -> {
+            selectedTags.clear();
+            String selectedTag = tagsList.get(position);
+            if (isChecked && !selectedTags.contains(selectedTag)) {
+                selectedTags.add(selectedTag);
             }
         });
+
 
         filterByTags.setOnClickListener(v -> {
             if (selectedTags.isEmpty())
@@ -115,6 +115,7 @@ public class FiltersFragment extends DialogFragment {
             else
                 filterItems.filterByTags(selectedTags);
             listener.onFilterList(filterItems.getFilteredItems());
+            dismiss();
         });
 
         filterByMakeButton.setOnClickListener(v -> {

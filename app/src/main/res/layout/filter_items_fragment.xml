@@ -79,33 +79,22 @@
         android:id="@+id/removeFilter_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="100dp"
+        android:layout_marginBottom="68dp"
         android:text="Remove filters"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <Spinner
-        android:id="@+id/spinner_filter_tags"
+    <ListView
+        android:id="@+id/list_filter_tags"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:prompt="@string/tag_spinner"
-        android:layout_marginTop="20dp"
+        android:layout_height="100dp"
+        android:orientation="horizontal"
         android:scrollbarSize="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/dateFilter_button" />
-
-    <TextView
-        android:id="@+id/selectedTags_textview"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="13dp"
-        android:text="Selected tags : "
-        android:textSize="20dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/spinner_filter_tags" />
 
     <Button
         android:id="@+id/filter_tags_button"
@@ -116,8 +105,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/selectedTags_textview"
-        app:layout_constraintVertical_bias="0.097" />
+        app:layout_constraintTop_toBottomOf="@+id/list_filter_tags"
+        app:layout_constraintVertical_bias="0.528" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
