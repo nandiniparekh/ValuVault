@@ -28,15 +28,51 @@ import org.junit.runners.MethodSorters;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ListActivityTest {
     @Rule
-    public ActivityScenarioRule<MainActivity> activityRule = new ActivityScenarioRule<>(MainActivity.class);
-
-    private String cityName = "TestCity";
+    public ActivityScenarioRule<LoginActivity> activityScenarioRule = new ActivityScenarioRule<>(LoginActivity.class);
 
     @Before
     public void setup() {
-        // Initialize Intents
+        // Initialize Intents before each test
         Intents.init();
 
+        // Type the username "TestUser" in the EditText
+        onView(ViewMatchers.withId(R.id.usernameEditText))
+                .perform(ViewActions.typeText("TestUser_Tags"), ViewActions.closeSoftKeyboard());
+
+        // Click the login button
+        onView(ViewMatchers.withId(R.id.loginButton))
+                .perform(ViewActions.click());
+
+        // Delay for a short time to allow any asynchronous operations to complete
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @After
+    public void tearDown() {
+        // Release Intents after the test
+        Intents.release();
+    }
+
+    @Test
+    public void testA_ActivitySwitch() {
+        // Click the select items button to launch the ListActivity
+        onView(withId(R.id.selectButton)).perform(click());
+
+        // Check if the ShowActivity is launched
+        intended(hasComponent(ListActivity.class.getName()));
+
+        onView(withId(R.id.backSelectButton)).perform(click());
+
+        // Check if the ShowActivity is launched
+        intended(hasComponent(MainActivity.class.getName()));
+    }
+
+    @Test
+    public void testB_ItemDescriptionConsistency() {
         // Click the add item button
         onView(withId(R.id.add_item_b)).perform(click());
         // Type in the required fields for the new item
@@ -49,55 +85,64 @@ public class ListActivityTest {
         onView(withId(R.id.comment_edit_text)).perform(ViewActions.typeText("Test comment"));
         // Click on the OK button for adding the item
         onView(withText("OK")).perform(click());
-    }
 
-    @After
-    public void tearDown() {
-        // Release Intents after the test
-        Intents.release();
-        // Assuming dataList is not empty, perform a click on the first item in the list
-        // Assuming dataList is not empty, perform a click on the first item in the list
-        onData(anything())
-                .inAdapterView(withId(R.id.item_list))
-                .atPosition(0)
-                .perform(click());
-        // Verify if the delete option is displayed
-        onView(withText("Remove")).check(matches(isDisplayed()));
-        // Click on the delete option
-        onView(withText("Remove")).perform(click());
-    }
+        // Click the add item button
+        onView(withId(R.id.add_item_b)).perform(click());
+        // Type in the required fields for the new item
+        onView(withId(R.id.purchase_date_edit_text)).perform(ViewActions.typeText("2023/11/08"));
+        onView(withId(R.id.description_edit_text)).perform(ViewActions.typeText("Test description2"));
+        onView(withId(R.id.make_edit_text)).perform(ViewActions.typeText("Test make2"));
+        onView(withId(R.id.model_edit_text)).perform(ViewActions.typeText("Test model2"));
+        onView(withId(R.id.serial_number_edit_text)).perform(ViewActions.typeText("Test serial number2"));
+        onView(withId(R.id.estimated_value_edit_text)).perform(ViewActions.typeText("1000"));
+        onView(withId(R.id.comment_edit_text)).perform(ViewActions.typeText("Test comment2"));
+        // Click on the OK button for adding the item
+        onView(withText("OK")).perform(click());
 
-    @Test
-    public void testA_ActivitySwitch() {
-        // Click the select items button to launch the ListActivity
-        onView(withId(R.id.selectButton)).perform(click());
-
-        // Check if the ShowActivity is launched
-        intended(hasComponent(ListActivity.class.getName()));
-    }
-
-    @Test
-    public void testB_ItemDescriptionConsistency() {
         // Click the select items button to launch the ListActivity
         onView(withId(R.id.selectButton)).perform(click());
 
         // Check if the description name in ListActivity matches the expected household name
         onView(withText("Test description")).check(matches(isDisplayed()));
+        onView(withText("Test description2")).check(matches(isDisplayed()));
     }
 
     @Test
-    public void testC_BackButton() {
+    public void testC_ApplyTags() {
         // Click the select items button to launch the ListActivity
         onView(withId(R.id.selectButton)).perform(click());
 
         // Wait for the view to load
         onView(ViewMatchers.withId(R.id.select_item_list)).check(matches(isDisplayed()));
 
-        // Simulate pressing the back button
-        onView(withId(R.id.backSelectButton)).perform(click());
+        for(int i = 0; i < 2; i++) {
+            // Assuming dataList is not empty, perform a click on the checkboxes in the list
+            onData(anything())
+                    .inAdapterView(withId(R.id.select_item_list))
+                    .atPosition(i)
+                    .onChildView(withId(R.id.checkbox))
+                    .perform(click());
+        }
 
-        // Check if the MainActivity is displayed after pressing the back button
-        onView(ViewMatchers.withId(R.id.item_list)).check(matches(isDisplayed()));
+        // Simulate pressing the apply tags button
+        onView(withId(R.id.applyTagsButton)).perform(click());
+
+        // Assuming tagsList is not empty, apply the first tag in the list to both items
+        onData(anything())
+                .inAdapterView(withId(R.id.tag_list))
+                .atPosition(0)
+                .onChildView(withId(R.id.checkBoxTag))
+                .perform(click());
+        onView(withId(R.id.apply_tags_button)).perform(click());
+
+        // Verify tag application
+        for(int i = 0; i < 2; i++) {
+            onData(anything())
+                    .inAdapterView(withId(R.id.item_list))
+                    .atPosition(0)
+                    .perform(click());
+            onView(withText("tag1")).check(matches(isDisplayed()));
+        }
     }
 
     @Test
@@ -108,17 +153,19 @@ public class ListActivityTest {
         // Wait for the view to load
         onView(ViewMatchers.withId(R.id.select_item_list)).check(matches(isDisplayed()));
 
-        // Assuming dataList is not empty, perform a click on the first checkbox in the list
-        onData(anything())
-                .inAdapterView(withId(R.id.select_item_list))
-                .atPosition(0)
-                .onChildView(withId(R.id.checkbox))
-                .perform(click());
-
+        for(int i = 0; i < 2; i++) {
+            // Assuming dataList is not empty, perform a click on the checkboxes in the list
+            onData(anything())
+                    .inAdapterView(withId(R.id.select_item_list))
+                    .atPosition(i)
+                    .onChildView(withId(R.id.checkbox))
+                    .perform(click());
+        }
         // Simulate pressing the delete button
         onView(withId(R.id.deleteSelectedItemsButton)).perform(click());
 
         // Check if the item is displayed after pressing the back button
         onView(withText("Test description")).check(doesNotExist());
+        onView(withText("Test description2")).check(doesNotExist());
     }
 }
