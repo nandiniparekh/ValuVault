@@ -19,7 +19,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -135,12 +137,15 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
         loadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                FragmentManager fragmentManager = getChildFragmentManager(); // Use getChildFragmentManager() for nested fragments
-//                FragmentTransaction transaction = fragmentManager.beginTransaction();
-//
-//                // Create an instance of the fragment to load
-//                photoPickerFragment = new PhotoPickerFragment();
-//                if (loadedImages.size() != 0) {
+               // Create an instance of the fragment to load
+                photoPickerFragment = new PhotoPickerFragment();
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+                // Replace the fragment_container with the fragment
+                fragmentTransaction.replace(R.id.galleryFragmentContainer, photoPickerFragment);
+                fragmentTransaction.commit();
+                if (loadedImages.size() != 0) {
 ////                    for (String imageUrl : loadedImages) {
 ////                        ImageView imageView = new ImageView(requireContext()); // Create a new ImageView
 ////                        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
@@ -157,15 +162,12 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
 ////                        imageContainer.addView(imageView);
 ////                    }
 ////                    Log.d("images", "here");
-//                    Uri uri = Uri.parse(loadedImages.get(0));
-//                    Glide.with(ItemEditActivity.this)
-//                            .load(uri)
-//                            .into(loadedImage);
-//                }
-//                // Replace the content of the fragmentContainer with the new fragment
-//                transaction.replace(R.id.galleryFragmentContainer, photoPickerFragment);
-//                transaction.addToBackStack(null);
-//                transaction.commit();
+                    Uri uri = Uri.parse(loadedImages.get(0));
+                    Glide.with(ItemEditActivity.this)
+                            .load(uri)
+                            .into(loadedImage);
+                }
+;
             }
         });
 
