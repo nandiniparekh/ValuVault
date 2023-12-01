@@ -2,6 +2,7 @@ package com.example.cmput301groupproject;
 
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
@@ -11,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
@@ -28,8 +30,11 @@ public class PhotoPickerFragment extends Fragment {
     private ActivityResultLauncher<String> requestPermissionLauncher;
     private ActivityResultLauncher<Intent> imagePickerLauncher;
     private RecyclerView recyclerView;
+    private TextView textView;
+    private Button choosePhotoButton;
     private PhotoAdapter adapter;
     private PhotographyFragment photographyFragment;
+    private static final int Read_Permissions = 101;
     public List<Uri> getSelectedImages() {
         return selectedImages;
     }
@@ -66,6 +71,7 @@ public class PhotoPickerFragment extends Fragment {
 
                                 }
                                 adapter.notifyDataSetChanged();
+                                textView.setText("Photos ("+selectedImages.size()+")");
                             }
                         }
                     }
@@ -94,16 +100,12 @@ public class PhotoPickerFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.gallery_photos_fragment, container, false);
-        //View view = inflater.inflate(R.layout.fragment_camera, container, false);
-        recyclerView = rootView.findViewById(R.id.photoRecyclerView);
-        recyclerView.setLayoutManager(new GridLayoutManager(requireContext(), 3));
+        textView = rootView.findViewById(R.id.totalPhotos);
         adapter = new PhotoAdapter(selectedImages);
+        recyclerView = rootView.findViewById(R.id.photoRecyclerView);
+        recyclerView.setLayoutManager(new GridLayoutManager(requireContext(), 4));
         recyclerView.setAdapter(adapter);
-
-        Button choosePhotoButton = rootView.findViewById(R.id.choosePhotoButton);
-
-        // takePhotoButton = rootView.findViewById(R.id.camera_button);
-
+        choosePhotoButton = rootView.findViewById(R.id.choosePhotoButton);
 
         choosePhotoButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -111,31 +113,14 @@ public class PhotoPickerFragment extends Fragment {
                 openGallery();
             }
         });
-
-        /**takePhotoButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openNewFragment();
-            }
-        });**/
-
         return rootView;
     }
 
-    /**private void openNewFragment(){
-        PhotographyFragment photoFragment = new PhotographyFragment();
-        // Use FragmentManager to replace the current fragment with the new one
-        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.galleryFragmentContainer, photoFragment);
-        fragmentTransaction.addToBackStack(null); // Optional: Add the transaction to the back stack for navigation
-        fragmentTransaction.commit();
-    }**/
 
     private void openGallery() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("image/*");
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        intent.setType("image/*");
         imagePickerLauncher.launch(intent);
     }
 
@@ -153,10 +138,18 @@ public class PhotoPickerFragment extends Fragment {
         }
 
         @Override
-        public void onBindViewHolder(PhotoViewHolder holder, int position) {
+        public void onBindViewHolder(PhotoViewHolder holder, @SuppressLint("RecyclerView") int position) {
             Uri imageUri = imageUris.get(position);
             // Load and display the image directly into the ImageView.
             holder.imageView.setImageURI(imageUri);
+            holder.delete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    imageUris.remove(imageUri);
+                    notifyItemRemoved(position);
+                    notifyItemRangeChanged(position, getItemCount());
+                }
+            });
         }
 
         @Override
@@ -165,11 +158,12 @@ public class PhotoPickerFragment extends Fragment {
         }
 
         public class PhotoViewHolder extends RecyclerView.ViewHolder {
-            ImageView imageView;
+            ImageView imageView, delete;
 
             public PhotoViewHolder(View itemView) {
                 super(itemView);
                 imageView = itemView.findViewById(R.id.imageView);
+                delete = itemView.findViewById(R.id.delete);
             }
         }
     }

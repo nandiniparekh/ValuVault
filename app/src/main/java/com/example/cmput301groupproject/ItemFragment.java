@@ -38,6 +38,7 @@ import java.util.List;
 public class ItemFragment extends DialogFragment {
 
     private String titleDesc = "Add Item";
+    private Uri cameraUri;
     private EditText description;
     private EditText make;
     private EditText model;
@@ -160,6 +161,8 @@ public class ItemFragment extends DialogFragment {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         selectedImages = photoPickerFragment.getSelectedImages();
+                        cameraUri = photographyFragment.getImageUri();
+                        selectedImages.add(cameraUri);
                         String size = String.valueOf(selectedImages.size());
                         Log.d("item fragment", size);
 

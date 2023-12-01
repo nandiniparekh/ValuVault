@@ -29,6 +29,11 @@ public class PhotographyFragment extends Fragment {
     private Button deleteButton;
     private Button btnPicture;
     private ImageView imageView;
+
+    public Uri getImageUri() {
+        return imageUri;
+    }
+
     private Uri imageUri;
     private ActivityResultLauncher<Intent> activityResultLauncher;
 
