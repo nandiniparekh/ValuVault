@@ -224,7 +224,7 @@ public class HouseholdItem implements Serializable {
 
     public void setImages(ArrayList<String> images) {
         String size = String.valueOf(images.size());
-        Log.d("Images", size);
+        Log.d("SetImages", size);
         this.images = images;
     }
 

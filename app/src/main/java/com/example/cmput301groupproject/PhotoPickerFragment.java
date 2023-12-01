@@ -4,6 +4,7 @@ package com.example.cmput301groupproject;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -29,16 +30,16 @@ public class PhotoPickerFragment extends Fragment {
     private ActivityResultLauncher<Intent> imagePickerLauncher;
     private RecyclerView recyclerView;
     private PhotoAdapter adapter;
-
-    public List<Uri> getSelectedImages() {
-        return selectedImages;
-    }
-
     private List<Uri> selectedImages = new ArrayList<>();
+    public void setLoadImages(List<Bitmap> loadImages) {
+        this.loadImages = loadImages;
+    }
+    private List<Bitmap> loadImages = new ArrayList<>();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         requestPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(),
                 isGranted -> {
                     if (isGranted) {
@@ -58,8 +59,6 @@ public class PhotoPickerFragment extends Fragment {
                             if (data.getClipData() != null) {
                                 count = data.getClipData().getItemCount();
 
-//                                clears the array everytime you select new images
-//                                selectedImages.clear();
                                 for (int i = 0; i < count; i++) {
                                     Uri imageUri = data.getClipData().getItemAt(i).getUri();
                                     selectedImages.add(imageUri);
@@ -73,6 +72,7 @@ public class PhotoPickerFragment extends Fragment {
         );
 
     }
+
     private void requestMediaPermission() {
         requestPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE);
     }
@@ -86,11 +86,11 @@ public class PhotoPickerFragment extends Fragment {
     // Create a method to handle the result
     private void handleImagePickerResult(List<Uri> uris) {
         if (uris != null) {
-            selectedImages.clear();
             selectedImages.addAll(uris);
             adapter.notifyDataSetChanged();
         }
     }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.gallery_photos_fragment, container, false);
@@ -122,6 +122,14 @@ public class PhotoPickerFragment extends Fragment {
         return rootView;
     }
 
+    public List<Uri> getSelectedImages() {
+        return selectedImages;
+    }
+
+    public void setSelectedImages(List<Uri> selectedImages) {
+        this.selectedImages = selectedImages;
+    }
+
     private void openGallery() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("image/*");
@@ -145,7 +153,7 @@ public class PhotoPickerFragment extends Fragment {
         @Override
         public void onBindViewHolder(PhotoViewHolder holder, int position) {
             Uri imageUri = imageUris.get(position);
-            // Load and display the image directly into the ImageView.
+            // Load and display the image directly into the ImageView
             holder.imageView.setImageURI(imageUri);
         }
 

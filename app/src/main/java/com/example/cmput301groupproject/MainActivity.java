@@ -28,7 +28,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 
 /**
@@ -45,8 +44,6 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
 
     private ArrayList<HouseholdItem> dataList;
     private ArrayAdapter<HouseholdItem> itemAdapter;
-
-    private List<String> images;
     private FirebaseFirestore db;
     private CollectionReference itemsRef;
 
@@ -115,6 +112,8 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
                             String serialNumber = doc.getString("Serial Number");
                             String estimatedValue = doc.getString("Estimated Value");
                             String comment = doc.getString("Comment");
+
+                            // check if the document has images
                             ArrayList<String> images = (ArrayList<String>) doc.get("Images");
 
 
@@ -123,8 +122,10 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
                             HouseholdItem savedItem = new HouseholdItem(dateOfPurchaseString, description, make, model, serialNumber, estimatedValue, comment);
                             savedItem.setFirestoreId(firestoreId);
 
+                            // set images to the saved item
                             if (images != null) {
                                 savedItem.setImages(images);
+
                             }
                             dataList.add(savedItem);
                         }
@@ -303,10 +304,11 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
         data.put("Comment", item.getComment());
         data.put("Serial Number", item.getSerialNumber());
         data.put("Purchase Date", item.getDateOfPurchase());
-        List<String> itemImages = item.getImages();
-        if (itemImages != null) {
-            data.put("Images", itemImages); // Store the list of strings as an array in Firestore
-        }
+
+        // add images to the document if available
+        ArrayList<String> itemImages = item.getImages();
+        data.put("Images", itemImages); // Store the list of strings as an array in Firestore
+
         itemsRef.add(data)
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override
@@ -331,10 +333,9 @@ public class MainActivity extends AppCompatActivity implements ItemFragment.OnFr
         data.put("Comment", editedItem.getComment());
         data.put("Serial Number", editedItem.getSerialNumber());
         data.put("Purchase Date", editedItem.getDateOfPurchase());
-        List<String> itemImages = editedItem.getImages();
-        if (itemImages != null) {
-            data.put("Images", itemImages); // Store the list of strings as an array in Firestore
-        }
+        ArrayList<String> itemImages = editedItem.getImages();
+        data.put("Images", itemImages); // Store the list of strings as an array in Firestore
+
         itemsRef.document(editedItem.getFirestoreId())
                 .update(data)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {

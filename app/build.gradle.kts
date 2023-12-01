@@ -40,6 +40,7 @@ dependencies {
     implementation("androidx.navigation:navigation-fragment:2.7.3")
     implementation("androidx.navigation:navigation-ui:2.7.3")
     implementation("com.google.firebase:firebase-firestore:24.9.1")
+    implementation ("com.google.firebase:firebase-storage:19.2.2")
     implementation("com.google.android.gms:play-services-code-scanner:16.1.0")
     implementation("com.google.android.gms:play-services-tasks:18.0.2")
     implementation("androidx.test.espresso:espresso-intents:3.5.1")

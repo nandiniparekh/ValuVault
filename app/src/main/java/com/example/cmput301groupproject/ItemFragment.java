@@ -6,6 +6,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,6 +14,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,12 +23,18 @@ import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.google.mlkit.vision.barcode.common.Barcode;
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanner;
 import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions;
@@ -33,6 +42,7 @@ import com.google.mlkit.vision.codescanner.GmsBarcodeScanning;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 
 public class ItemFragment extends DialogFragment {
@@ -47,6 +57,11 @@ public class ItemFragment extends DialogFragment {
     private Button loadButton;
     private EditText purchaseDate;
     private PhotoPickerFragment photoPickerFragment;
+    private ArrayList<String> loadedImages;
+    private LinearLayout imageContainer;
+    private ImageView loadedImage;
+    private ArrayList<Bitmap> loadBitmapImages;
+
     private FirebaseFirestore db;
     private CollectionReference itemsRef;
     private GmsBarcodeScannerOptions options = new GmsBarcodeScannerOptions.Builder()
@@ -92,6 +107,8 @@ public class ItemFragment extends DialogFragment {
         comment = view.findViewById(R.id.comment_edit_text);
         purchaseDate = view.findViewById(R.id.purchase_date_edit_text);
         loadButton = view.findViewById(R.id.load_button);
+        loadedImage = view.findViewById(R.id.loadedImage);
+        imageContainer = view.findViewById(R.id.imageContainer);
 
         loadButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -101,18 +118,31 @@ public class ItemFragment extends DialogFragment {
 
                 // Create an instance of the fragment to load
                 photoPickerFragment = new PhotoPickerFragment();
-//                selectedImages = photoPickerFragment.getSelectedImages();
-//                String size = String.valueOf(selectedImages.size());
-//                Log.d("itemfragment", size);
+                if (loadedImages.size() != 0) {
+//                    for (String imageUrl : loadedImages) {
+//                        ImageView imageView = new ImageView(requireContext()); // Create a new ImageView
+//                        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+//                                LinearLayout.LayoutParams.MATCH_PARENT,
+//                                500);
+//                        imageView.setLayoutParams(layoutParams);
 //
-//                for (Uri uri : selectedImages) {
-//                    String stringUri = uri.toString();
-//                    imagesUpload.add(stringUri);
-//                }
-
+//                        // Load image using Glide
+//                        Glide.with(requireContext())
+//                                .load(imageUrl)
+//                                .into(imageView);
+//
+//                        // Add the ImageView to your layout
+//                        imageContainer.addView(imageView);
+//                    }
+//                    Log.d("images", "here");
+                    Uri uri = Uri.parse(loadedImages.get(0));
+                    Glide.with(requireContext())
+                            .load(uri)
+                            .into(loadedImage);
+                }
                 // Replace the content of the fragmentContainer with the new fragment
                 transaction.replace(R.id.galleryFragmentContainer, photoPickerFragment);
-                transaction.addToBackStack(null); // Optional: Add the transaction to the back stack for navigation
+                transaction.addToBackStack(null);
                 transaction.commit();
             }
         });
@@ -122,6 +152,8 @@ public class ItemFragment extends DialogFragment {
         scanBarcodeButton.setOnClickListener(view1 -> startScanner());
         scanBarcodeButton = view.findViewById(R.id.scan_barcode_button);
         scanBarcodeButton.setOnClickListener(view1 -> startScanner());
+
+
         Bundle args = getArguments();
         if (args != null) {
             titleDesc = "Edit Item";
@@ -133,6 +165,10 @@ public class ItemFragment extends DialogFragment {
             serialNumber.setText(passedHouseholdItem.getSerialNumber());
             estimatedValue.setText(passedHouseholdItem.getEstimatedValue());
             comment.setText(passedHouseholdItem.getComment());
+            if (passedHouseholdItem.getImages() != null) {
+                Log.d("item fragment already loaded", String.valueOf(passedHouseholdItem.getImages().size()));
+                loadedImages = passedHouseholdItem.getImages();
+            }
         }
 
 
@@ -145,41 +181,63 @@ public class ItemFragment extends DialogFragment {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         selectedImages = photoPickerFragment.getSelectedImages();
-                        String size = String.valueOf(selectedImages.size());
-                        Log.d("item fragment", size);
 
-                        for (Uri uri : selectedImages) {
-                            String stringUri = uri.toString();
-                            imagesUpload.add(stringUri);
+                        List<Task<Uri>> uploadTasks = new ArrayList<>();
+                        for (Uri imageUri : selectedImages) {
+                            StorageReference storageRef = FirebaseStorage.getInstance().getReference();
+                            StorageReference imageRef = storageRef.child("images/" + UUID.randomUUID().toString());
+                            UploadTask uploadTask = imageRef.putFile(imageUri);
+                            Task<Uri> urlTask = uploadTask.continueWithTask(task -> {
+                                if (!task.isSuccessful()) {
+                                    throw task.getException();
+                                }
+                                return imageRef.getDownloadUrl();
+                            }).addOnCompleteListener(task -> {
+                                if (task.isSuccessful()) {
+                                    Uri downloadUri = task.getResult();
+                                    imagesUpload.add(downloadUri.toString());
+                                } else {
+                                    // Handle failure
+                                }
+                            });
+                            uploadTasks.add(urlTask);
                         }
 
-                        // Get input values and update the item object
-                        String desc = description.getText().toString();
-                        String mk = make.getText().toString();
-                        String mdl = model.getText().toString();
-                        String serial = serialNumber.getText().toString();
-                        String estValue = estimatedValue.getText().toString();
-                        String cmt = comment.getText().toString();
-                        String date = purchaseDate.getText().toString();
-                        // ...
-                        if (passedHouseholdItem != null) {
-                            passedHouseholdItem.setDescription(desc);
-                            passedHouseholdItem.setMake(mk);
-                            passedHouseholdItem.setModel(mdl);
-                            passedHouseholdItem.setSerialNumber(serial);
-                            passedHouseholdItem.setEstimatedValue(estValue);
-                            passedHouseholdItem.setComment(cmt);
-                            passedHouseholdItem.setDateOfPurchase(date);
-                            passedHouseholdItem.setImages(imagesUpload);
+                        Tasks.whenAllSuccess(uploadTasks).addOnSuccessListener(new OnSuccessListener<List<Object>>() {
+                            @Override
+                            public void onSuccess(List<Object> list) {
+                                String desc = description.getText().toString();
+                                String mk = make.getText().toString();
+                                String mdl = model.getText().toString();
+                                String serial = serialNumber.getText().toString();
+                                String estValue = estimatedValue.getText().toString();
+                                String cmt = comment.getText().toString();
+                                String date = purchaseDate.getText().toString();
+                                // ...
+                                if (passedHouseholdItem != null) {
+                                    passedHouseholdItem.setDescription(desc);
+                                    passedHouseholdItem.setMake(mk);
+                                    passedHouseholdItem.setModel(mdl);
+                                    passedHouseholdItem.setSerialNumber(serial);
+                                    passedHouseholdItem.setEstimatedValue(estValue);
+                                    passedHouseholdItem.setComment(cmt);
+                                    passedHouseholdItem.setDateOfPurchase(date);
+                                    if (imagesUpload != null) {
+                                        int size = imagesUpload.size();
+                                        Log.d("ImagesUploadBottom", String.valueOf(size));
+                                    }
+                                    passedHouseholdItem.setImages(imagesUpload);
 
-                            listener.onHouseholdItemEdited(passedHouseholdItem);
-                        } else {
-                            // Add a new item
-                            HouseholdItem newItem = new HouseholdItem(date, desc, mk, mdl, serial, estValue, cmt);
-                            newItem.setImages(imagesUpload);
+                                    listener.onHouseholdItemEdited(passedHouseholdItem);
+                                } else {
+                                    // Add a new item
+                                    HouseholdItem newItem = new HouseholdItem(date, desc, mk, mdl, serial, estValue, cmt);
+                                    newItem.setImages(imagesUpload);
 
-                            listener.onHouseholdItemAdded(newItem);
-                        }
+                                    listener.onHouseholdItemAdded(newItem);
+                                }
+                            }
+                        });
                     }
                 });
 
