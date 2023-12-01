@@ -143,8 +143,11 @@ public class MainActivity extends AppCompatActivity implements SortFragment.Sort
                         // Check if the document has tags
                         ArrayList<String> tags = (ArrayList<String>) doc.get("Tags");
 
+                        // check if the document has images
+                        ArrayList<String> images = (ArrayList<String>) doc.get("Images");
+
                         Log.d("Firestore", String.format("Item(%s, %s, %s, %s, %s, %s, %s) fetched with tags: %s",
-                                dateOfPurchaseString, description, make, model, serialNumber, estimatedValue, comment, tags));
+                                dateOfPurchaseString, description, make, model, serialNumber, estimatedValue, comment, tags, images));
 
                         HouseholdItem savedItem = new HouseholdItem(dateOfPurchaseString, description, make, model, serialNumber, estimatedValue, comment);
                         savedItem.setFirestoreId(firestoreId);
@@ -152,6 +155,11 @@ public class MainActivity extends AppCompatActivity implements SortFragment.Sort
                         // Set tags to the savedItem
                         if (tags != null) {
                             savedItem.setTags(tags);
+                        }
+
+                        // set images to the saved item
+                        if (images != null) {
+                            savedItem.setImages(images);
                         }
 
                         dataList.add(savedItem);
@@ -336,6 +344,10 @@ public class MainActivity extends AppCompatActivity implements SortFragment.Sort
         ArrayList<String> tags = item.getTags();
         data.put("Tags", tags);
 
+        // add images to the document if available
+        ArrayList<String> itemImages = item.getImages();
+        data.put("Images", itemImages); // Store the list of strings as an array in Firestore
+
         itemsRef.add(data)
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override
@@ -362,8 +374,9 @@ public class MainActivity extends AppCompatActivity implements SortFragment.Sort
         data.put("Purchase Date", editedItem.getDateOfPurchase());
 
         // Add tags to the data if available
-        ArrayList<String> tags = editedItem.getTags();
-        data.put("Tags", tags);
+        data.put("Tags", editedItem.getTags());
+
+        data.put("Images", editedItem.getImages()); // Store the list of strings as an array in Firestore
 
         itemsRef.document(editedItem.getFirestoreId())
                 .update(data)
