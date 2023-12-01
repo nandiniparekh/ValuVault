@@ -163,6 +163,7 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
 ////                    }
 ////                    Log.d("images", "here");
                     Uri uri = Uri.parse(loadedImages.get(0));
+                    //loadedImage.setImageURI(uri);
                     Glide.with(ItemEditActivity.this)
                             .load(uri)
                             .into(loadedImage);
@@ -189,7 +190,8 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                selectedImages = new ArrayList<>(); //photoPickerFragment.getSelectedImages();
+//                selectedImages = new ArrayList<>();
+                selectedImages = photoPickerFragment.getSelectedImages();
 
                 List<Task<Uri>> uploadTasks = new ArrayList<>();
                 for (Uri imageUri : selectedImages) {
