@@ -1,12 +1,16 @@
 package com.example.cmput301groupproject;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.fragment.app.DialogFragment;
@@ -34,10 +38,14 @@ public class FiltersFragment extends DialogFragment {
     private Button filterByDescButton;
     private Button filterByDateRangeButton;
     private Button removeFilters;
+    private Button filterByTags;
+    private ListView listViewTags;
+    private TextView selectedTagsTV;
 
     static ArrayList<HouseholdItem> unfilteredItems = new ArrayList<HouseholdItem>();
-
-    private ArrayList<HouseholdItem> filteredItems = new ArrayList<HouseholdItem>();
+    private final ArrayList<HouseholdItem> filteredItems = new ArrayList<HouseholdItem>();
+    private ArrayList<String> tagsList = new ArrayList<String>();
+    private ArrayList<String> selectedTags = new ArrayList<String>();
 
     @Override
     public void onAttach(Context context) {
@@ -63,10 +71,52 @@ public class FiltersFragment extends DialogFragment {
         filterByDescButton = view.findViewById(R.id.filterByDesc_button);
         filterByDateRangeButton = view.findViewById(R.id.dateFilter_button);
         removeFilters = view.findViewById(R.id.removeFilter_button);
+        filterByTags = view.findViewById(R.id.filter_tags_button);
+        listViewTags = view.findViewById(R.id.list_filter_tags);
+
+        SharedPreferences preferences = getActivity().getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
+        String userCollectionPath = preferences.getString("userCollectionPath", null);
+        TagsManager tagsManager = new TagsManager(userCollectionPath);
+
+        TagsAdapter tagsAdapter = new TagsAdapter(getContext(), tagsList);
+        listViewTags.setAdapter(tagsAdapter);
+
+        tagsManager.getTags(new TagsManager.CallbackHandler<ArrayList<String>>() {
+            @Override
+            public void onSuccess(ArrayList<String> result) {
+                tagsList.clear();
+                tagsList.addAll(result);
+                tagsAdapter.notifyDataSetChanged();
+            }
+            @Override
+            public void onFailure(String e) {
+                Log.e("Filter TAGS", "Error fetching tags: " + e);
+            }
+        });
 
         //creating FilterItems object and setting the unfiltered list
         FilterItems filterItems = new FilterItems();
         filterItems.setItemsList(unfilteredItems);
+
+
+        // Set up checkbox click listener for selecting and deselecting items
+        tagsAdapter.onTagCheckedChangeListener((position, isChecked) -> {
+            selectedTags.clear();
+            String selectedTag = tagsList.get(position);
+            if (isChecked && !selectedTags.contains(selectedTag)) {
+                selectedTags.add(selectedTag);
+            }
+        });
+
+
+        filterByTags.setOnClickListener(v -> {
+            if (selectedTags.isEmpty())
+                Toast.makeText(getContext(), "You have not selected any tags. Please select one or more tags.", Toast.LENGTH_SHORT).show();
+            else
+                filterItems.filterByTags(selectedTags);
+            listener.onFilterList(filterItems.getFilteredItems());
+            dismiss();
+        });
 
         filterByMakeButton.setOnClickListener(v -> {
             String make = makeFilterText.getText().toString();
