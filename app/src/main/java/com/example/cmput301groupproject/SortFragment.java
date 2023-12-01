@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 /**
  * This is a class that sorts the items in ascending or descending order by date, description, make, and value
@@ -20,7 +21,6 @@ public class SortFragment extends Fragment {
     public static final int SORT_BY_MAKE = 2;
     public static final int SORT_BY_VAL = 3;
     public static final int SORT_BY_TAG = 4;
-
     public static final int ASCENDING = 0;
     public static final int DESCENDING = 1;
     private int sortCriteria;
@@ -168,20 +168,28 @@ public class SortFragment extends Fragment {
         Collections.sort(dataList, new Comparator<HouseholdItem>() {
             @Override
             public int compare(HouseholdItem item1, HouseholdItem item2) {
-                // Compare items based on the number of tags
-                int tagsCount1 = item1.getTags().size();
-                int tagsCount2 = item2.getTags().size();
+                // Ensure the tags lists are sorted alphabetically for each item
+                Collections.sort(item1.getTags(), String.CASE_INSENSITIVE_ORDER);
+                Collections.sort(item2.getTags(), String.CASE_INSENSITIVE_ORDER);
 
-                if (tagsCount1 > tagsCount2) {
-                    return -1; // Item1 comes first (more tags)
-                } else if (tagsCount1 < tagsCount2) {
-                    return 1;  // Item2 comes first (more tags)
-                } else {
-                    // If the number of tags is the same, use another criteria (e.g., alphabetical order)
-                    return item1.getDescription().compareToIgnoreCase(item2.getDescription());
+                List<String> tags1 = item1.getTags();
+                List<String> tags2 = item2.getTags();
+
+                // Compare tags lexicographically
+                int minSize = Math.min(tags1.size(), tags2.size());
+                for (int i = 0; i < minSize; i++) {
+                    int tagComparison = tags1.get(i).compareToIgnoreCase(tags2.get(i));
+                    if (tagComparison != 0) {
+                        return tagComparison;
+                    }
                 }
+
+                // If one list is a prefix of the other, or if they're identical,
+                // the shorter list should come first
+                return tags1.size() - tags2.size();
             }
         });
+
         if (sortOrder == DESCENDING) {
             Collections.reverse(dataList);
         }

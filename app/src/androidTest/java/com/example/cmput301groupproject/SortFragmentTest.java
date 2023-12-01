@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class SortFragmentTest {
 
@@ -20,11 +21,12 @@ public class SortFragmentTest {
 
         // Populate testItems with sample HouseholdItem data for testing
         testItems.add(new HouseholdItem("2023/01/15", "Item1", "MakeX", "100", "26", "11", "beepboop"));
+        //item1.setTags(new ArrayList<>(Arrays.asList("end", "apple", "zebra")));
         testItems.add(new HouseholdItem("2023/11/26", "Item2", "MakeY", "150", "669", "100", "beepboopblah"));
         testItems.add(new HouseholdItem("2023/08/01", "Item3", "Dasom", "korean","16","500","beepboopblahblah?"));
     }
 
-        @Test
+    @Test
     public void testSortByDateAscending() {
         sortFragment.receiveDataList(testItems, SortFragment.SORT_BY_DATE, SortFragment.ASCENDING);
         ArrayList<HouseholdItem> sortedList = getSortedList();
@@ -109,10 +111,35 @@ public class SortFragmentTest {
         assertEquals("100", sortedList.get(1).getEstimatedValue());
         assertEquals("11", sortedList.get(2).getEstimatedValue());
     }
+    @Test
+    public void testSortByTagsAlphabetically() {
+        // Setup the test environment
+        ArrayList<HouseholdItem> testItemsWithTags = new ArrayList<>();
+
+        HouseholdItem item1 = new HouseholdItem("2023/01/01", "Item1", "Make1", "Model1", "Serial1", "100", "Comment1");
+        item1.setTags(new ArrayList<>(Arrays.asList("banana", "apple", "cherry")));
+        HouseholdItem item2 = new HouseholdItem("2023/01/02", "Item2", "Make2", "Model2", "Serial2", "200", "Comment2");
+        item2.setTags(new ArrayList<>(Arrays.asList("pineapple", "banana")));
+        HouseholdItem item3 = new HouseholdItem("2023/01/03", "Item3", "Make3", "Model3", "Serial3", "300", "Comment3");
+        item3.setTags(new ArrayList<>(Arrays.asList("banana", "cherry")));
+
+        testItemsWithTags.add(item1);
+        testItemsWithTags.add(item2);
+        testItemsWithTags.add(item3);
+
+        // Call the method to sort by tags
+        sortFragment.receiveDataList(testItemsWithTags,SortFragment.SORT_BY_TAG,SortFragment.ASCENDING);
+
+        // Assertions
+        // Check if the items are sorted in the correct order based on their tags
+        assertEquals("Item1", testItemsWithTags.get(0).getDescription()); // 'apple' comes first alphabetically
+        assertEquals("Item3", testItemsWithTags.get(1).getDescription()); // 'banana' is next
+        assertEquals("Item2", testItemsWithTags.get(2).getDescription()); // 'cherry' is last
+    }
+
 
     private ArrayList<HouseholdItem> getSortedList() {
         // Helper method to retrieve the sorted list after sorting is applied
-        // Adjust this method to fit your implementation.
-        return testItems; // For a basic example
+        return testItems;
     }
 }
