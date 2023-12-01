@@ -62,7 +62,7 @@ public class ListActivityTest {
         // Click the select items button to launch the ListActivity
         onView(withId(R.id.selectButton)).perform(click());
 
-        // Check if the ShowActivity is launched
+        // Check if the ListActivity is launched
         intended(hasComponent(ListActivity.class.getName()));
 
         onView(withId(R.id.backSelectButton)).perform(click());
@@ -76,28 +76,29 @@ public class ListActivityTest {
         // Click the add item button
         onView(withId(R.id.add_item_b)).perform(click());
         // Type in the required fields for the new item
-        onView(withId(R.id.purchase_date_edit_text)).perform(ViewActions.typeText("2023/11/09"));
         onView(withId(R.id.description_edit_text)).perform(ViewActions.typeText("Test description"));
         onView(withId(R.id.make_edit_text)).perform(ViewActions.typeText("Test make"));
         onView(withId(R.id.model_edit_text)).perform(ViewActions.typeText("Test model"));
         onView(withId(R.id.serial_number_edit_text)).perform(ViewActions.typeText("Test serial number"));
         onView(withId(R.id.estimated_value_edit_text)).perform(ViewActions.typeText("100"));
         onView(withId(R.id.comment_edit_text)).perform(ViewActions.typeText("Test comment"));
+        onView(withId(R.id.purchase_date_edit_text)).perform(ViewActions.typeText("2023/11/09"), ViewActions.closeSoftKeyboard());
         // Click on the OK button for adding the item
-        onView(withText("OK")).perform(click());
+        onView(withId(R.id.ok_button)).perform(click());
 
         // Click the add item button
         onView(withId(R.id.add_item_b)).perform(click());
         // Type in the required fields for the new item
-        onView(withId(R.id.purchase_date_edit_text)).perform(ViewActions.typeText("2023/11/08"));
         onView(withId(R.id.description_edit_text)).perform(ViewActions.typeText("Test description2"));
         onView(withId(R.id.make_edit_text)).perform(ViewActions.typeText("Test make2"));
         onView(withId(R.id.model_edit_text)).perform(ViewActions.typeText("Test model2"));
         onView(withId(R.id.serial_number_edit_text)).perform(ViewActions.typeText("Test serial number2"));
         onView(withId(R.id.estimated_value_edit_text)).perform(ViewActions.typeText("1000"));
         onView(withId(R.id.comment_edit_text)).perform(ViewActions.typeText("Test comment2"));
+        onView(withId(R.id.purchase_date_edit_text)).perform(ViewActions.typeText("2023/11/08"), ViewActions.closeSoftKeyboard());
+
         // Click on the OK button for adding the item
-        onView(withText("OK")).perform(click());
+        onView(withId(R.id.ok_button)).perform(click());
 
         // Click the select items button to launch the ListActivity
         onView(withId(R.id.selectButton)).perform(click());
@@ -139,14 +140,48 @@ public class ListActivityTest {
         for(int i = 0; i < 2; i++) {
             onData(anything())
                     .inAdapterView(withId(R.id.item_list))
-                    .atPosition(0)
+                    .atPosition(i)
                     .perform(click());
             onView(withText("tag1")).check(matches(isDisplayed()));
+            onView(withId(R.id.cancel_button)).perform(click());
         }
     }
 
     @Test
-    public void testD_DeleteButton() {
+    public void testD_CancelButton() {
+        // Click the select items button to launch the ListActivity
+        onView(withId(R.id.selectButton)).perform(click());
+
+        // Wait for the view to load
+        onView(ViewMatchers.withId(R.id.select_item_list)).check(matches(isDisplayed()));
+
+        for(int i = 0; i < 2; i++) {
+            // Assuming dataList is not empty, perform a click on the checkboxes in the list
+            onData(anything())
+                    .inAdapterView(withId(R.id.select_item_list))
+                    .atPosition(i)
+                    .onChildView(withId(R.id.checkbox))
+                    .perform(click());
+        }
+
+        // Simulate pressing the apply tags button
+        onView(withId(R.id.applyTagsButton)).perform(click());
+
+        // Assuming tagsList is not empty, start to apply the first tag in the list to both items and then cancel
+        onData(anything())
+                .inAdapterView(withId(R.id.tag_list))
+                .atPosition(0)
+                .onChildView(withId(R.id.checkBoxTag))
+                .perform(click());
+        onView(withId(R.id.cancel_button)).perform(click());
+
+        // Check if the ListActivity is still there
+        intended(hasComponent(ListActivity.class.getName()));
+
+    }
+
+    @Test
+    public void testZ_DeleteButton() {
         // Click the select items button to launch the ListActivity
         onView(withId(R.id.selectButton)).perform(click());
 
