@@ -201,7 +201,7 @@ public class MainActivity extends AppCompatActivity implements SortFragment.Sort
             AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
             alertDialog.setTitle("Sort by:");
             // form of list so that user can select the item from
-            final String[] listItems = new String[]{"Date","Description", "Make","Estimated Value"};
+            final String[] listItems = new String[]{"Date","Description", "Make","Estimated Value","Tags"};
 
             final View customLayout = getLayoutInflater().inflate(R.layout.dialog_custom_sort, null);
 
