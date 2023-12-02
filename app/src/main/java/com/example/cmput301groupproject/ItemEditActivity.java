@@ -79,8 +79,10 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
         comment = findViewById(R.id.comment_edit_text);
         purchaseDate = findViewById(R.id.purchase_date_edit_text);
 
-        scanBarcodeButton = findViewById(R.id.scan_barcode_button);
-        scanBarcodeButton.setOnClickListener(view1 -> startScanner());
+        Button scanBarcodeButton = findViewById(R.id.scan_barcode_button);
+        Button scanSerialNoButton = findViewById(R.id.scan_serial_button);
+        scanSerialNoButton.setOnClickListener(view1 -> goToScannerFragment());
+        scanBarcodeButton.setOnClickListener(view1 -> startBarcodeScanner());
 
         selectTagsButton = findViewById(R.id.select_tags_button);
         selectTagsButton.setOnClickListener(new View.OnClickListener() {
@@ -259,6 +261,36 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
                 .show();
     }
 
+    public void updateFields(String desc, String itemMake, String itemModel, String itemSerialNo, String estValue, String itemComment, String date) {
+        if (description != null) {
+            description.setText(desc);
+        }
+        if (make!= null) {
+            make.setText(itemMake);
+        }
+        if (model != null) {
+            model.setText(itemModel);
+        }
+        if (serialNumber != null) {
+            serialNumber.setText(itemSerialNo);
+        }
+        if (estimatedValue != null) {
+            estimatedValue.setText(estValue);
+        }
+        if (comment != null) {
+            comment.setText(itemComment);
+        }
+        if (purchaseDate != null) {
+            purchaseDate.setText(date);
+        }
+    }
+    private void goToScannerFragment() {
+        ScannerFragment scannerFragment = new ScannerFragment();
+
+        FragmentManager fragmentManager = this.getSupportFragmentManager();
+
+        scannerFragment.show(fragmentManager, "ScannerFragment");
+    }
     /**
      * This method initiates the barcode scanning process using Google Code Scanner. When a barcode
      * is scanned, the firestore database is queried for returning the associated product description
@@ -270,9 +302,9 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
      * and sets up listeners in events of a successful scan and a cancelled scan. Upon success, it
      * retrieves information from the firestore collection and updates the "description" EditText.
      */
-    protected void startScanner(){
+    protected void startBarcodeScanner(){
         // Initialize barcode scanner
-        scanner = GmsBarcodeScanning.getClient(this,options);
+        scanner = GmsBarcodeScanning.getClient(ItemEditActivity.this,options);
         // Start scanning
         scanner
                 .startScan()
@@ -294,6 +326,13 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
                                             Log.d(TAG, "DocumentSnapshot data: " + document.getData());
                                             description.setText((String)document.get("Product Description"));
                                         } else {
+                                            // Show an error message or toast indicating that all fields are required
+                                            new AlertDialog.Builder(ItemEditActivity.this)
+                                                    .setTitle("Error")
+                                                    .setMessage("The scanned barcode does exist not in the database.")
+                                                    .setPositiveButton(android.R.string.ok, null)
+                                                    .setIcon(android.R.drawable.ic_dialog_alert)
+                                                    .show();
                                             // Logging if no such item in database
                                             Log.d(TAG, "No such item exists in the database");
                                         }
