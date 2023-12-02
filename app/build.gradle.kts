@@ -6,7 +6,6 @@ plugins {
 android {
     namespace = "com.example.cmput301groupproject"
     compileSdk = 34
-
     defaultConfig {
         applicationId = "com.example.cmput301groupproject"
         minSdk = 26
@@ -44,6 +43,8 @@ dependencies {
     implementation("com.google.android.gms:play-services-tasks:18.0.2")
     implementation("androidx.test.espresso:espresso-intents:3.5.1")
     implementation("com.google.android.gms:play-services-tasks:17.2.1")
+    implementation("androidx.annotation:annotation:1.7.0")
+    implementation("androidx.compose.material:material-icons-extended-android:1.5.4")
     testImplementation("junit:junit:4.13.2")
     testImplementation("com.google.firebase:firebase-firestore:24.9.1")
     testImplementation(platform("com.google.firebase:firebase-bom:32.5.0"))
@@ -52,6 +53,11 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     compileOnly(files("${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"))
 
+    implementation("androidx.camera:camera-core:1.3.0")
+    implementation("androidx.camera:camera-camera2:1.3.0")
+    implementation("androidx.camera:camera-lifecycle:1.3.0")
+    implementation("androidx.camera:camera-view:1.3.0")
+    implementation("androidx.camera:camera-extensions:1.3.0")
 
 
 

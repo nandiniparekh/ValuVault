@@ -89,9 +89,10 @@ public class ItemFragment extends DialogFragment {
         purchaseDate = view.findViewById(R.id.purchase_date_edit_text);
 
         Button scanBarcodeButton = view.findViewById(R.id.scan_barcode_button);
+        Button scanSerialNoButton = view.findViewById(R.id.scan_serial_button);
+        scanSerialNoButton.setOnClickListener(view1 -> goToScannerFragment());
         scanBarcodeButton.setOnClickListener(view1 -> startScanner());
-        scanBarcodeButton = view.findViewById(R.id.scan_barcode_button);
-        scanBarcodeButton.setOnClickListener(view1 -> startScanner());
+
         Bundle args = getArguments();
         if (args != null) {
             titleDesc = "Edit Item";
@@ -232,17 +233,44 @@ public class ItemFragment extends DialogFragment {
         }
     }
 
-    /**
-     * This method initiates the barcode scanning process using Google Code Scanner. When a barcode
-     * is scanned, the firestore database is queried for returning the associated product description
-     * inside the "description" EditText when adding/editing items. In the future, it will also
-     * include other information about the item.
-     *
-     * This method uses the GmsBarcodeScanning.getClient method to obtain an instance of the GmsBarcode
-     * Scanner while configuring the barcode format to be UPC-A. It then starts the process of scanning
-     * and sets up listeners in events of a successful scan and a cancelled scan. Upon success, it
-     * retrieves information from the firestore collection and updates the "description" EditText.
-     */
+    public void updateFields(String desc, String itemMake, String itemModel, String itemSerialNo, String estValue, String itemComment, String date) {
+        if (description != null) {
+            description.setText(desc);
+        }
+        if (make!= null) {
+            make.setText(itemMake);
+        }
+        if (model != null) {
+            model.setText(itemModel);
+        }
+        if (serialNumber != null) {
+            serialNumber.setText(itemSerialNo);
+        }
+        if (estimatedValue != null) {
+            estimatedValue.setText(estValue);
+        }
+        if (comment != null) {
+            comment.setText(itemComment);
+        }
+        if (purchaseDate != null) {
+            purchaseDate.setText(date);
+        }
+    }
+    private void goToScannerFragment() {
+        ScannerFragment scannerFragment = new ScannerFragment();
+        scannerFragment.show(getParentFragmentManager(), "ScannerFragment");
+    }
+        /**
+         * This method initiates the barcode scanning process using Google Code Scanner. When a barcode
+         * is scanned, the firestore database is queried for returning the associated product description
+         * inside the "description" EditText when adding/editing items. In the future, it will also
+         * include other information about the item.
+         *
+         * This method uses the GmsBarcodeScanning.getClient method to obtain an instance of the GmsBarcode
+         * Scanner while configuring the barcode format to be UPC-A. It then starts the process of scanning
+         * and sets up listeners in events of a successful scan and a cancelled scan. Upon success, it
+         * retrieves information from the firestore collection and updates the "description" EditText.
+         */
     protected void startScanner(){
         // Initialize barcode scanner
         scanner = GmsBarcodeScanning.getClient(getContext(),options);
@@ -267,6 +295,13 @@ public class ItemFragment extends DialogFragment {
                                             Log.d(TAG, "DocumentSnapshot data: " + document.getData());
                                             description.setText((String)document.get("Product Description"));
                                         } else {
+                                            // Show an error message or toast indicating that all fields are required
+                                            new AlertDialog.Builder(getContext())
+                                                    .setTitle("Error")
+                                                    .setMessage("The scanned barcode does exist not in the database.")
+                                                    .setPositiveButton(android.R.string.ok, null)
+                                                    .setIcon(android.R.drawable.ic_dialog_alert)
+                                                    .show();
                                             // Logging if no such item in database
                                             Log.d(TAG, "No such item exists in the database");
                                         }
@@ -283,6 +318,7 @@ public class ItemFragment extends DialogFragment {
                             // The task has been cancelled
                         });
     }
+
 
     public static ItemFragment newInstance(HouseholdItem item) {
         Bundle args = new Bundle();
