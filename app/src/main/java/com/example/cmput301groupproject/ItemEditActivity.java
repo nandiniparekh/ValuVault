@@ -5,14 +5,12 @@ import static android.content.ContentValues.TAG;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -20,8 +18,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -58,17 +57,19 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
     private EditText comment;
     private EditText purchaseDate;
     private ArrayList<String> selectedTags = new ArrayList<>();
+    private ArrayList<Uri> images = new ArrayList<>();
     private Button selectTagsButton;
     private Button scanBarcodeButton;
     private FirebaseFirestore db;
     private Button loadButton;
     private PhotoPickerFragment photoPickerFragment;
     private ArrayList<String> loadedImages;
-    private LinearLayout imageContainer;
-    private ImageView loadedImage;
-    private ArrayList<Bitmap> loadBitmapImages;
     private List<Uri> selectedImages = new ArrayList<>();
     private ArrayList<String> imagesUpload = new ArrayList<>();
+
+    private RecyclerView imageRecyclerView;
+    private PhotoAdapter adapter;
+
 
     // Setting the configuration for BarcodeScanner as UPC-A format and enabling autozoom features
     private GmsBarcodeScannerOptions options = new GmsBarcodeScannerOptions.Builder()
@@ -100,8 +101,7 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
         purchaseDate = findViewById(R.id.purchase_date_edit_text);
 
         loadButton = findViewById(R.id.load_button);
-        loadedImage = findViewById(R.id.loadedImage);
-        imageContainer = findViewById(R.id.imageContainer);
+        loadedImages = new ArrayList<>();
 
         scanBarcodeButton = findViewById(R.id.scan_barcode_button);
         scanBarcodeButton.setOnClickListener(view1 -> startScanner());
@@ -114,6 +114,7 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
                 showTagSelectFragment();
             }
         });
+
 
         Bundle args = intent.getExtras();
         if (args.getSerializable("selectedItem") != null) {
@@ -134,6 +135,28 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
             onTagsSelected(passedHouseholdItem.getTags());
         }
 
+        if (loadedImages.size() != 0) {
+            for (String s : loadedImages) {
+                Uri uri = Uri.parse(s);
+                images.add(uri);
+            }
+
+            //initialize recycler view
+            imageRecyclerView = findViewById(R.id.imageRecyclerView);
+            imageRecyclerView.setLayoutManager(new GridLayoutManager(this, 3));
+            adapter = new PhotoAdapter(images, 2);
+            imageRecyclerView.setAdapter(adapter);
+
+            adapter.setOnDeleteClickListener(position -> {
+                // Remove the photo from your list
+                images.remove(position);
+                loadedImages.remove(position);
+                // Notify adapter of item removal
+                adapter.notifyItemRemoved(position);
+            });
+
+        }
+
         loadButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -145,29 +168,6 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
                 // Replace the fragment_container with the fragment
                 fragmentTransaction.replace(R.id.galleryFragmentContainer, photoPickerFragment);
                 fragmentTransaction.commit();
-                if (loadedImages.size() != 0) {
-////                    for (String imageUrl : loadedImages) {
-////                        ImageView imageView = new ImageView(requireContext()); // Create a new ImageView
-////                        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
-////                                LinearLayout.LayoutParams.MATCH_PARENT,
-////                                500);
-////                        imageView.setLayoutParams(layoutParams);
-////
-////                        // Load image using Glide
-////                        Glide.with(requireContext())
-////                                .load(imageUrl)
-////                                .into(imageView);
-////
-////                        // Add the ImageView to your layout
-////                        imageContainer.addView(imageView);
-////                    }
-////                    Log.d("images", "here");
-                    Uri uri = Uri.parse(loadedImages.get(0));
-                    Glide.with(ItemEditActivity.this)
-                            .load(uri)
-                            .into(loadedImage);
-                }
-;
             }
         });
 
@@ -189,8 +189,14 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                selectedImages = new ArrayList<>(); //photoPickerFragment.getSelectedImages();
+//                selectedImages = new ArrayList<>();
 
+                // when no images are selected, this code breaks the app!
+                try {
+                    selectedImages = photoPickerFragment.getSelectedImages();
+                } catch (NullPointerException e) {
+                    selectedImages.clear();
+                }
                 List<Task<Uri>> uploadTasks = new ArrayList<>();
                 for (Uri imageUri : selectedImages) {
                     StorageReference storageRef = FirebaseStorage.getInstance().getReference();
@@ -211,6 +217,11 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
                     });
                     uploadTasks.add(urlTask);
                 }
+
+                if (loadedImages != null) {
+                    imagesUpload.addAll(loadedImages);
+                }
+
 
                 Tasks.whenAllSuccess(uploadTasks).addOnSuccessListener(new OnSuccessListener<List<Object>>() {
                     @Override
@@ -292,6 +303,7 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
                         startActivity(intent);
                     }
                 });
+
             }
         });
 
