@@ -18,6 +18,7 @@ import java.util.List;
 public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHolder> {
     private List<Uri> imageUris;
     private Context context;
+    private OnDeleteClickListener deleteClickListener;
     private int type;
 
     public PhotoAdapter(List<Uri> imageUris, int type) {
@@ -45,18 +46,35 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
                     .load(imageUri)
                     .into(holder.imageView);
         }
+
+        holder.delete.setOnClickListener(view -> {
+            if (deleteClickListener != null) {
+                deleteClickListener.onDeleteClick(position);
+                notifyItemRemoved(position);
+                notifyItemRangeChanged(position, imageUris.size());
+            }
+        });
     }
     @Override
     public int getItemCount() {
         return imageUris.size();
     }
+    public interface OnDeleteClickListener {
+        void onDeleteClick(int position);
+    }
+
+    public void setOnDeleteClickListener(OnDeleteClickListener listener) {
+        this.deleteClickListener = listener;
+    }
+
 
     public class PhotoViewHolder extends RecyclerView.ViewHolder {
-        ImageView imageView;
+        ImageView imageView, delete;
 
         public PhotoViewHolder(@NonNull View itemView) {
             super(itemView);
             imageView = itemView.findViewById(R.id.imageView);
+            delete = itemView.findViewById(R.id.delete);
         }
     }
 }

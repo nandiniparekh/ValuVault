@@ -147,6 +147,14 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
             adapter = new PhotoAdapter(images, 2);
             imageRecyclerView.setAdapter(adapter);
 
+            adapter.setOnDeleteClickListener(position -> {
+                // Remove the photo from your list
+                images.remove(position);
+                loadedImages.remove(position);
+                // Notify adapter of item removal
+                adapter.notifyItemRemoved(position);
+            });
+
         }
 
         loadButton.setOnClickListener(new View.OnClickListener() {
