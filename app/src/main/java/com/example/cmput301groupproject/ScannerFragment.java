@@ -24,6 +24,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.mlkit.common.MlKitException;
 import com.google.mlkit.vision.common.InputImage;
+
 import com.google.mlkit.vision.text.Text;
 import com.google.mlkit.vision.text.TextRecognition;
 import com.google.mlkit.vision.text.TextRecognizer;
@@ -44,6 +45,8 @@ public class ScannerFragment extends DialogFragment {
     Preview preview;
 
     private ImageCapture imageCapture;
+    private OnSerialNumberCapturedListener serialNumberListener;
+
 
     public ScannerFragment() {
         // Required empty public constructor
@@ -86,6 +89,10 @@ public class ScannerFragment extends DialogFragment {
         // Set a click listener for the capture button
         captureButton.setOnClickListener(v -> captureImage());
 
+        //FOLLOWING ARE SOME TESTS, COMMENT ONE OR THE OTHER FOR VIEWING INDIVIDUAL
+        testOCROnSampleImage();
+        //testOCROnSampleImage2();
+
         return view;
     }
 
@@ -118,7 +125,8 @@ public class ScannerFragment extends DialogFragment {
             @Override
             public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
                 // Process the captured image and extract serial number
-                processCapturedImage(photoFile);
+                Bitmap bitmap = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
+                performOCR(bitmap);
             }
 
             @Override
@@ -142,25 +150,8 @@ public class ScannerFragment extends DialogFragment {
         }
     }
 
-    private void processCapturedImage(File photoFile) {
-        // Process the captured image (e.g., extract serial number)
-        Bitmap bitmap = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
-
-        // TODO: Implement your image processing logic here
-        // For example, you can use OCR libraries to extract text (serial number) from the image
-        // Note: This is a placeholder, and you should replace it with your actual image processing code
-
-        // Example: Extracting a simple text using OCR
-        String serialNumber = performOCR(bitmap);
-
-        // Now, you can use the extracted serial number as needed
-        if (serialNumber != null && !serialNumber.isEmpty()) {
-            // Update your UI or perform further actions based on the extracted serial number
-            // For example, you can display the serial number in a TextView
-            // textViewSerialNumber.setText(serialNumber);
-        } else {
-            // Handle the case where the serial number extraction failed
-        }
+    public void setOnSerialNumberCapturedListener(OnSerialNumberCapturedListener listener) {
+        this.serialNumberListener = listener;
     }
 
     private String performOCR(Bitmap bitmap) {
@@ -176,7 +167,9 @@ public class ScannerFragment extends DialogFragment {
                     if (task.isSuccessful()) {
                         // Extract recognized text
                         Text text = task.getResult();
-                        processRecognizedText(text);
+                        //processRecognizedText(text);
+                        serialNumberListener.onSerialNumberCaptured(processRecognizedText(text));
+
                     } else {
                         // Handle OCR failure
                         Exception e = task.getException();
@@ -187,22 +180,39 @@ public class ScannerFragment extends DialogFragment {
                             // Handle other exceptions
                             Log.e("MLKit", "Unexpected exception: " + e.getMessage());
                         }
+                        //serialNumberListener.onSerialNumberCaptured("");
+                        //dismiss();
                     }
                 });
 
-        return ""; // Placeholder, actual result will be processed in the onCompleteListener
+         return "";// Placeholder, actual result will be processed in the onCompleteListener
     }
 
-    private void processRecognizedText(Text text) {
+    private String processRecognizedText(Text text) {
         // Process the recognized text (extract serial number, etc.)
         // You can access individual text blocks, lines, and elements using text.getTextBlocks(), text.getLines(), text.getElements()
         List<Text.TextBlock> textBlocks = text.getTextBlocks();
+        // CHANGE 1
+        if (textBlocks.isEmpty()) {
+            // Log a message when no text is recognized
+            Log.d("MLKit", "No text recognized");
+            Toast.makeText(requireContext(), "No text found in the image", Toast.LENGTH_SHORT).show();
+            //serialNumberListener.onSerialNumberCaptured("");
+        }
+        //END CHANGE 1
+        String serialNo = "";
         for (Text.TextBlock block : textBlocks) {
             String blockText = block.getText();
+            serialNo += blockText;
             // Process each block of text as needed
-
-            Toast.makeText(requireContext(), blockText, Toast.LENGTH_SHORT).show();
         }
+        String serialNoNoSpaces = serialNo.replace(" ", "");
+        Toast.makeText(requireContext(), serialNoNoSpaces, Toast.LENGTH_SHORT).show();
+        serialNumberListener.onSerialNumberCaptured(serialNoNoSpaces);
+        return serialNoNoSpaces;
+    }
+    public interface OnSerialNumberCapturedListener {
+        void onSerialNumberCaptured(String serialNumber);
     }
 
     @Override
@@ -212,5 +222,21 @@ public class ScannerFragment extends DialogFragment {
         if (cameraProvider != null) {
             cameraProvider.unbindAll();
         }
+    }
+
+    private void testOCROnSampleImage() {
+        // Load a sample image from resources (assuming it's in the res/drawable directory)
+        Bitmap sampleBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.sample_image);
+
+        // Call performOCR with the sample image
+        performOCR(sampleBitmap);
+    }
+
+    private void testOCROnSampleImage2(){
+        // Load a sample image from resources (assuming it's in the res/drawable directory)
+        Bitmap sampleBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.sample_image_2);
+
+        // Call performOCR with the sample image
+        performOCR(sampleBitmap);
     }
 }

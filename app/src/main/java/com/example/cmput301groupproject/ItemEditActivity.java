@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -36,7 +37,7 @@ import java.util.Date;
 import java.util.Locale;
 
 
-public class ItemEditActivity extends AppCompatActivity implements TagSelectFragment.OnTagsSelectedListener {
+public class ItemEditActivity extends AppCompatActivity implements TagSelectFragment.OnTagsSelectedListener, ScannerFragment.OnSerialNumberCapturedListener {
     private String titleDesc = "Add Item";
     private EditText description;
     private EditText make;
@@ -48,6 +49,7 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
     private ArrayList<String> selectedTags = new ArrayList<>();
     private Button selectTagsButton;
     private Button scanBarcodeButton;
+    private Button scanSerialNoButton;
     private FirebaseFirestore db;
 
     // Setting the configuration for BarcodeScanner as UPC-A format and enabling autozoom features
@@ -64,6 +66,7 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.edit_item_fragment);
+        db = FirebaseFirestore.getInstance();
 
         Intent intent = getIntent();
         if (intent != null) {
@@ -79,8 +82,8 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
         comment = findViewById(R.id.comment_edit_text);
         purchaseDate = findViewById(R.id.purchase_date_edit_text);
 
-        Button scanBarcodeButton = findViewById(R.id.scan_barcode_button);
-        Button scanSerialNoButton = findViewById(R.id.scan_serial_button);
+        scanSerialNoButton = findViewById(R.id.scan_serial_button);
+        scanBarcodeButton = findViewById(R.id.scan_barcode_button);
         scanSerialNoButton.setOnClickListener(view1 -> goToScannerFragment());
         scanBarcodeButton.setOnClickListener(view1 -> startBarcodeScanner());
 
@@ -286,7 +289,7 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
     }
     private void goToScannerFragment() {
         ScannerFragment scannerFragment = new ScannerFragment();
-
+        scannerFragment.setOnSerialNumberCapturedListener(this);
         FragmentManager fragmentManager = this.getSupportFragmentManager();
 
         scannerFragment.show(fragmentManager, "ScannerFragment");
@@ -313,36 +316,8 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
                             // Get the raw value of barcode scanned
                             String scannedBarcode = barcode.getRawValue();
 
-                            // Query firestore for information regarding associated product
-                            DocumentReference docRef = db.collection("Items_Barcode_info").document(scannedBarcode);
-                            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                    if (task.isSuccessful()) {
-                                        DocumentSnapshot document = task.getResult();
-                                        if (document.exists()) {
+                            accessFirebase(scannedBarcode);
 
-                                            // Logging and updating description
-                                            Log.d(TAG, "DocumentSnapshot data: " + document.getData());
-                                            description.setText((String)document.get("Product Description"));
-                                        } else {
-                                            // Show an error message or toast indicating that all fields are required
-                                            new AlertDialog.Builder(ItemEditActivity.this)
-                                                    .setTitle("Error")
-                                                    .setMessage("The scanned barcode does exist not in the database.")
-                                                    .setPositiveButton(android.R.string.ok, null)
-                                                    .setIcon(android.R.drawable.ic_dialog_alert)
-                                                    .show();
-                                            // Logging if no such item in database
-                                            Log.d(TAG, "No such item exists in the database");
-                                        }
-                                    } else {
-
-                                        //Logging failure message
-                                        Log.d(TAG, "get failed with ", task.getException());
-                                    }
-                                }
-                            });
                         })
                 .addOnCanceledListener(
                         () -> {
@@ -384,5 +359,47 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
             // Add the TextView to the LinearLayout
             tagsLayout.addView(tagTextView);
         }
+    }
+
+    @Override
+    public void onSerialNumberCaptured(String serialNumber) {
+        if (serialNumber != "") {
+            accessFirebase(serialNumber);
+        }
+        //getSupportFragmentManager().popBackStack();
+    }
+
+    private void accessFirebase(String serialNo) {
+        // Query firestore for information regarding associated product
+        DocumentReference docRef = db.collection("Items_Barcode_info").document(serialNo);
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+
+                        // Logging and updating description
+                        Log.d(TAG, "DocumentSnapshot data: " + document.getData());
+                        description.setText((String) document.get("Product Description"));
+                        comment.setText((String) document.get("Comment"));
+                        //estimatedValue.setText((int) document.get("Estimated Value")); FIX THIS
+                        make.setText((String) document.get("Make"));
+                        model.setText((String) document.get("Model"));
+                        //purchaseDate.setText((String) document.get("Purchase Date")); FIX THIS
+
+                    } else {
+                        // Show an error message or toast indicating that all fields are required
+                        Toast.makeText(ItemEditActivity.this, "The scanned barcode/serial number does not exist in the database.", Toast.LENGTH_SHORT).show();
+                        // Logging if no such item in database
+                        Log.d(TAG, "No such item exists in the database");
+                    }
+                } else {
+
+                    //Logging failure message
+                    Log.d(TAG, "get failed with ", task.getException());
+                }
+            }
+        });
     }
 }
