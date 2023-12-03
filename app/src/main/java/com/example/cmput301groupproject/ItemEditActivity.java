@@ -384,6 +384,7 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
                         description.setText((String) document.get("Product Description"));
                         comment.setText((String) document.get("Comment"));
                         //estimatedValue.setText((int) document.get("Estimated Value")); FIX THIS
+                        serialNumber.setText(serialNo);
                         make.setText((String) document.get("Make"));
                         model.setText((String) document.get("Model"));
                         //purchaseDate.setText((String) document.get("Purchase Date")); FIX THIS
