@@ -130,6 +130,15 @@ public class PhotoPickerFragment extends Fragment {
         adapter = new PhotoAdapter(selectedImages, 1);
         recyclerView.setAdapter(adapter);
 
+        adapter.setOnDeleteClickListener(position -> {
+            // Remove the photo from your list
+            selectedImages.remove(position);
+
+            Log.d("delete selected images", String.valueOf(selectedImages.size()));
+            // Notify adapter of item removal
+            adapter.notifyItemRemoved(position);
+        });
+
         Button choosePhotoButton = rootView.findViewById(R.id.choosePhotoButton);
 
         Button takePhotoButton = rootView.findViewById(R.id.camera_button);
@@ -173,6 +182,8 @@ public class PhotoPickerFragment extends Fragment {
     public void setSelectedImages(List<Uri> selectedImages) {
         this.selectedImages = selectedImages;
     }
+
+
 
     private void openGallery() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
