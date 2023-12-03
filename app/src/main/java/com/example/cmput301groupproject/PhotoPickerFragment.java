@@ -27,6 +27,9 @@ import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A Fragment to pick photos from the device's gallery or capture photos using the camera.
+ */
 public class PhotoPickerFragment extends Fragment {
 
     private ActivityResultLauncher<String> requestPermissionLauncher;
@@ -37,8 +40,12 @@ public class PhotoPickerFragment extends Fragment {
     private List<Uri> selectedImages = new ArrayList<>();
     private List<Uri> loadedImages = new ArrayList<>();
 
-
-
+    /**
+     * Initializes necessary components and sets up ActivityResultLaunchers for loading images
+     * from gallery and camera.
+     *
+     * @param savedInstanceState A Bundle containing the saved state information
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,17 +97,31 @@ public class PhotoPickerFragment extends Fragment {
 
     }
 
+    /**
+     * Requests permission to access media files.
+     */
     private void requestMediaPermission() {
         requestPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE);
     }
 
+    /**
+     * Registers an ActivityResultLauncher for picking images.
+     *
+     * @param getMultipleContents The ActivityResultContracts.GetMultipleContents instance
+     * @param callback            The callback to handle the result
+     * @return The registered ActivityResultLauncher
+     */
     private ActivityResultLauncher<String> registerForImagePicker(
             ActivityResultContracts.GetMultipleContents getMultipleContents,
             ActivityResultCallback<List<Uri>> callback) {
         return registerForActivityResult(getMultipleContents, callback);
     }
 
-    // Create a method to handle the result
+    /**
+     * Handles the result obtained from the image picker.
+     *
+     * @param uris The list of URIs representing selected images
+     */
     private void handleImagePickerResult(List<Uri> uris) {
         if (uris != null) {
             selectedImages.addAll(uris);
@@ -108,6 +129,13 @@ public class PhotoPickerFragment extends Fragment {
         }
     }
 
+    /**
+     * Converts a Bitmap image captured from the camera to its corresponding Uri.
+     *
+     * @param inContext The Context in which the method is called
+     * @param inImage   The Bitmap image to be converted
+     * @return The Uri of the converted image
+     */
     public Uri getImageUri(Context inContext, Bitmap inImage) {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
@@ -116,7 +144,37 @@ public class PhotoPickerFragment extends Fragment {
         return Uri.parse(path);
     }
 
+    /**
+     * Getter function for selected images
+     *
+     * @return The list of selected images as a List of Uri objects
+     */
+    public List<Uri> getSelectedImages() {
+        Log.d("selected images", String.valueOf(selectedImages.size()));
+        if (selectedImages == null) {
+            ArrayList<Uri> emptyArray = new ArrayList<>();
+            return emptyArray;
+        }
+        return selectedImages;
+    }
+    /**
+     * Opens the device's gallery to select images.
+     */
+    private void openGallery() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/*");
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        imagePickerLauncher.launch(intent);
+    }
 
+    /**
+     * Inflates the layout for the Fragment and initializes RecyclerView and buttons.
+     *
+     * @param inflater           The LayoutInflater object that can be used to inflate any views in the Fragment
+     * @param container          The parent view that the Fragment's UI should be attached to
+     * @param savedInstanceState A Bundle containing the saved state information
+     * @return The inflated View for the Fragment
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.gallery_photos_fragment, container, false);
@@ -158,36 +216,6 @@ public class PhotoPickerFragment extends Fragment {
         });
 
         return rootView;
-    }
-
-
-    public List<Uri> getSelectedImages() {
-        Log.d("selected images", String.valueOf(selectedImages.size()));
-        if (selectedImages == null) {
-            ArrayList<Uri> emptyArray = new ArrayList<>();
-            return emptyArray;
-        }
-        return selectedImages;
-    }
-
-    public void setLoadedImages(List<Uri> loadedImages) {
-        this.loadedImages = loadedImages;
-        selectedImages.addAll(loadedImages);
-        adapter.notifyDataSetChanged();
-
-    }
-
-    public void setSelectedImages(List<Uri> selectedImages) {
-        this.selectedImages = selectedImages;
-    }
-
-
-
-    private void openGallery() {
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("image/*");
-        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-        imagePickerLauncher.launch(intent);
     }
 }
 
