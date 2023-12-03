@@ -315,13 +315,13 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
                         barcode -> {
                             // Get the raw value of barcode scanned
                             String scannedBarcode = barcode.getRawValue();
-
                             accessFirebase(scannedBarcode);
+                            scanner = null;
 
                         })
                 .addOnCanceledListener(
                         () -> {
-                            // The task has been cancelled
+                            scanner = null;
                         });
     }
 
