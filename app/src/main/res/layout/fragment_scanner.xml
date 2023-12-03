@@ -19,5 +19,5 @@
         android:layout_gravity="center"
         android:text="Capture"
         android:background="#80000000"
-        android:onClick="onCaptureButtonClick" />
+        />
 </FrameLayout>
