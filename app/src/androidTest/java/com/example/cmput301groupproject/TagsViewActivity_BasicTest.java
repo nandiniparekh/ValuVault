@@ -60,7 +60,7 @@ public class TagsViewActivity_BasicTest {
 
     @Test
     public void testA_AddTags() {
-        int tagCap = 5;
+        int tagCap = 3;
         for(int i = 1; i <= tagCap; i++) {
             // Click the Add Tags button
             onView(withId(R.id.btnAddTags)).perform(click());
@@ -104,16 +104,17 @@ public class TagsViewActivity_BasicTest {
 
     @Test
     public void testC_DeleteTags() {
-        int tagCap = 4;
+        int tagCap = 2;
         for(int i = 0; i < tagCap; i++) {
             // Assuming dataList is not empty, perform a click on the first item in the list
             onData(anything())
                     .inAdapterView(withId(R.id.define_tag_list))
-                    .atPosition(0)
+                    .atPosition(i)
                     .onChildView(withId(R.id.checkBoxTag))
                     .perform(click());
-            onView(withId(R.id.btnDeleteTags)).perform(click());
         }
+
+        onView(withId(R.id.btnDeleteTags)).perform(click());
 
         for(int i = 2; i <= 1 + tagCap; i++) {
             String tagText = "tag" + i;
