@@ -120,7 +120,7 @@ public class TagsViewActivity_BasicTest {
                     .atPosition(i)
                     .onChildView(withId(R.id.checkBoxTag))
                     .perform(click());
-        }
+
         onView(withId(R.id.btnDeleteTags)).perform(click());
 
         // pause for load
@@ -128,7 +128,7 @@ public class TagsViewActivity_BasicTest {
             Thread.sleep(2000);
         } catch (InterruptedException e) {
             e.printStackTrace();
-        }
+
 
         for(int i = 2; i <= 1 + tagCap; i++) {
             String tagText = "tag" + i;
