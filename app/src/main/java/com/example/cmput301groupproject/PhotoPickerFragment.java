@@ -1,6 +1,4 @@
 package com.example.cmput301groupproject;
-
-
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -21,6 +19,7 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -184,18 +183,27 @@ public class PhotoPickerFragment extends Fragment {
         }
 
         @Override
-        public void onBindViewHolder(PhotoViewHolder holder, @SuppressLint("RecyclerView") int position) {
+        public void onBindViewHolder(@NonNull PhotoViewHolder holder, @SuppressLint("RecyclerView") int position) {
+
             Uri imageUri = imageUris.get(position);
             // Load and display the image directly into the ImageView
             holder.imageView.setImageURI(imageUri);
-            holder.delete.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    imageUris.remove(imageUri);
-                    notifyItemRemoved(position);
-                    notifyItemRangeChanged(position, getItemCount());
-                }
-            });
+//            Glide.with(requireContext())
+//                    .load(imageUri)
+//                    .downsample(DownsampleStrategy.CENTER_INSIDE) // or other DownsampleStrategy options
+//                    .into(holder.imageView);
+
+            if (holder.imageView != null) {
+                holder.delete.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        imageUris.remove(imageUri);
+                        notifyItemRemoved(position);
+                        notifyItemRangeChanged(position, getItemCount());
+                    }
+                });
+            }
+
         }
 
         @Override
@@ -206,11 +214,14 @@ public class PhotoPickerFragment extends Fragment {
         public class PhotoViewHolder extends RecyclerView.ViewHolder {
             ImageView imageView, delete;
 
-            public PhotoViewHolder(View itemView) {
+            public PhotoViewHolder(@NonNull View itemView) {
                 super(itemView);
-                imageView = itemView.findViewById(R.id.imageView);
-                delete = imageView.findViewById(R.id.delete);
+                imageView = itemView.findViewById(R.id.imageView); // Correctly finds the imageView
+                delete = itemView.findViewById(R.id.delete); // Correctly finds the delete ImageView
+                // The above line is crucial. It correctly references 'delete' as a direct child of itemView (ConstraintLayout)
+                Log.d("PhotoViewHolder", "imageView: " + imageView + ", delete: " + delete);
             }
+
         }
     }
 }
