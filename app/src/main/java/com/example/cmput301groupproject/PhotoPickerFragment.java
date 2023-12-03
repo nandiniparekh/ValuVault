@@ -33,10 +33,8 @@ public class PhotoPickerFragment extends Fragment {
     private ActivityResultLauncher<Intent> imagePickerLauncher;
     private ActivityResultLauncher<Intent> cameraImagePickerLauncher;
     private RecyclerView recyclerView;
-    private Context context;
     private PhotoAdapter adapter;
     private List<Uri> selectedImages = new ArrayList<>();
-
     private List<Uri> loadedImages = new ArrayList<>();
 
 
