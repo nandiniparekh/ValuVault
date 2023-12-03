@@ -325,6 +325,12 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
                                             // Logging and updating description
                                             Log.d(TAG, "DocumentSnapshot data: " + document.getData());
                                             description.setText((String)document.get("Product Description"));
+                                            comment.setText((String)document.get("Comment"));
+                                            estimatedValue.setText((String)document.get("Estimated Value"));
+                                            make.setText((String)document.get("Make"));
+                                            model.setText((String)document.get("Model"));
+                                            purchaseDate.setText((String)document.get("Purchase Date"));
+
                                         } else {
                                             // Show an error message or toast indicating that all fields are required
                                             new AlertDialog.Builder(ItemEditActivity.this)
