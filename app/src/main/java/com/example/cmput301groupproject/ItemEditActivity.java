@@ -33,12 +33,9 @@ import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.google.mlkit.vision.barcode.common.Barcode;
-
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanner;
 
 import java.text.DecimalFormat;
@@ -149,7 +146,7 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
 
 
         Bundle args = intent.getExtras();
-        if (args.getSerializable("selectedItem") != null) {
+        if (args != null && args.getSerializable("selectedItem") != null) { //EDITED
             titleDesc = "Edit Item";
             passedHouseholdItem = (HouseholdItem) args.getSerializable("selectedItem");
             purchaseDate.setText(passedHouseholdItem.getDateOfPurchase());
@@ -516,7 +513,7 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
         //getSupportFragmentManager().popBackStack();
     }
 
-    private void accessFirebase(String serialNo, boolean isBarcode) {
+    protected void accessFirebase(String serialNo, boolean isBarcode) {
         // Query firestore for information regarding associated product
         DocumentReference docRef = db.collection("Items_Barcode_info").document(serialNo);
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {

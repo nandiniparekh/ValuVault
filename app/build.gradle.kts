@@ -69,6 +69,7 @@ dependencies {
 
     implementation("com.google.android.gms:play-services-mlkit-text-recognition:19.0.0")
     implementation("com.google.mlkit:barcode-scanning:17.2.0")
+    androidTestImplementation("androidx.fragment:fragment-testing:1.4.0")
 
 
 

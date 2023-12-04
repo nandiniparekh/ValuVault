@@ -222,13 +222,15 @@ public class ScannerFragment extends DialogFragment {
             // Process each block of text as needed
         }
         String serialNoNoSpaces = serialNo.replace(" ", "");
-        if (serialNoNoSpaces != "") {
+        if (serialNumberListener != null && serialNoNoSpaces != "") {
             Toast.makeText(requireContext(), serialNoNoSpaces, Toast.LENGTH_SHORT).show();
+            serialNoWoutSpaces = serialNoNoSpaces;
             serialNumberListener.onSerialNumberCaptured(serialNoNoSpaces, false);
             dismiss();
         }
         serialNoWoutSpaces = serialNoNoSpaces;
     }
+
     public Task<String> performBarcodeScanning(Bitmap bitmap) {
         // Create an InputImage from the bitmap
         InputImage image = InputImage.fromBitmap(bitmap, 0);
