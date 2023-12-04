@@ -47,9 +47,12 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     testImplementation("com.google.firebase:firebase-firestore:24.9.1")
     testImplementation(platform("com.google.firebase:firebase-bom:32.5.0"))
+    testImplementation("org.robolectric:robolectric:4.6.1")
     androidTestImplementation("org.mockito:mockito-core:5.7.0")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    androidTestImplementation("androidx.test.espresso:espresso-contrib:3.5.1")
+    androidTestImplementation("androidx.test.espresso:espresso-idling-resource:3.5.1")
 
     implementation ("com.github.bumptech.glide:glide:4.12.0")
     annotationProcessor("com.github.bumptech.glide:compiler:4.12.0")
@@ -57,8 +60,7 @@ dependencies {
     implementation ("com.google.firebase:firebase-storage:19.2.2")
 
     compileOnly(files("${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"))
-
-
-
-
+}
+configurations.all {
+    resolutionStrategy.force("com.android.support:support-annotations:28.0.0")
 }
