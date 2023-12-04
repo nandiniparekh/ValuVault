@@ -6,7 +6,6 @@
     </style>
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:fontFamily">@font/qs</item>
-        <item name="android:buttonBarStyle">?android:attr/buttonBarStyle</item>
     </style>
     <style name="backgrounds" parent="">
         <item name="android:background">@color/black_overlay</item>

@@ -31,6 +31,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Cancel"
+            android:textColor="@color/white"
+            android:textStyle="bold"
             android:id="@+id/cancel_button"
             android:backgroundTint="@color/button_light"
             android:layout_marginTop="8dp"
@@ -41,6 +43,8 @@
             android:layout_height="wrap_content"
             android:text="Ok"
             android:id="@+id/ok_button"
+            android:textColor="@color/white"
+            android:textStyle="bold"
             android:backgroundTint="@color/button_light"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"/>
@@ -50,6 +54,8 @@
             android:layout_height="wrap_content"
             android:backgroundTint="@color/button_light"
             android:text="Remove"
+            android:textColor="@color/white"
+            android:textStyle="bold"
             android:id="@+id/remove_button"
             android:layout_marginTop="8dp"/>
     </LinearLayout>
@@ -133,17 +139,17 @@
         android:text="Select Tags"
         android:id="@+id/select_tags_button"
         android:backgroundTint="@color/button_dark"
+        android:textColor="@color/white"
+        android:textStyle="bold"
         android:layout_gravity="bottom|center_horizontal"
         android:layout_marginTop="16dp"/>
 
-<!--    <ListView-->
-<!--        android:id="@+id/attach_tag_list"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="150dp" />-->
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:backgroundTint="@color/button_dark"
+        android:textColor="@color/white"
+        android:textStyle="bold"
         android:text="Scan Barcode"
         android:id="@+id/scan_barcode_button"
         android:layout_gravity="bottom|center_horizontal"/>
@@ -152,6 +158,8 @@
         android:id="@+id/load_button"
         android:layout_width="wrap_content"
         android:backgroundTint="@color/button_dark"
+        android:textColor="@color/white"
+        android:textStyle="bold"
         android:layout_height="wrap_content"
         android:text="Load Photo(s)"
         android:layout_gravity="bottom|center_horizontal"/>

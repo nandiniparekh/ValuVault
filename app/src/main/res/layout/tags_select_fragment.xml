@@ -16,6 +16,8 @@
     <Button
         android:id="@+id/apply_tags_button"
         android:layout_width="match_parent"
+        android:textColor="@color/white"
+        android:textStyle="bold"
         android:layout_height="wrap_content"
         android:backgroundTint="@color/button_dark"
         android:text="Apply Tags" />
@@ -24,6 +26,8 @@
         android:id="@+id/cancel_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textColor="@color/white"
+        android:textStyle="bold"
         android:backgroundTint="@color/button_light"
         android:text="Cancel" />
 </LinearLayout>
