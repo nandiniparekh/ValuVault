@@ -11,7 +11,7 @@
         android:layout_height="120dp"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="32dp"
-        android:src="@drawable/ic_launcher_foreground" />
+        android:src="@drawable/logo" />
 
     <TextView
         android:id="@+id/titleTextView"
@@ -41,6 +41,9 @@
         android:layout_below="@id/usernameEditText"
         android:layout_marginTop="24dp"
         android:layout_marginStart="16dp"
+        android:textColor="@color/white"
+        android:textStyle="bold"
+        android:backgroundTint="@color/button_light"
         android:layout_marginEnd="16dp"
         android:text="Login" />
 

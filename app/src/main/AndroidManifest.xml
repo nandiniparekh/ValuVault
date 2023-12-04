@@ -18,7 +18,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.CMPUT301GroupProject"
+        android:theme="@style/AppTheme"
         tools:targetApi="31">
 
         <!-- LoginActivity is set as the main (launcher) activity -->
@@ -37,7 +37,7 @@
             android:launchMode="standard"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.CMPUT301GroupProject">
+            android:theme="@style/AppTheme">
         </activity>
 
         <activity
