@@ -19,6 +19,7 @@
             android:layout_width="93dp"
             android:layout_height="67dp"
             android:text="Back"
+            android:backgroundTint="@color/button_light"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
@@ -28,6 +29,7 @@
             android:layout_width="93dp"
             android:layout_height="67dp"
             android:text="Add Tag"
+            android:backgroundTint="@color/button_dark"
             app:layout_constraintStart_toEndOf="@id/btnBackToMain"
             app:layout_constraintEnd_toStartOf="@id/btnDeleteTags"
             app:layout_constraintTop_toTopOf="parent"
@@ -38,6 +40,7 @@
             android:layout_width="93dp"
             android:layout_height="67dp"
             android:text="Delete"
+            android:backgroundTint="@color/button_light"
             app:layout_constraintStart_toEndOf="@id/btnAddTags"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"

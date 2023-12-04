@@ -16,11 +16,13 @@
         <Button
             android:id="@+id/choosePhotoButton"
             android:layout_width="wrap_content"
+            android:backgroundTint="@color/button_dark"
             android:layout_height="wrap_content"
             android:text="Choose photos" />
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:backgroundTint="@color/button_dark"
             android:id="@+id/camera_button"
             android:text="Take Picture" />
     </LinearLayout>
