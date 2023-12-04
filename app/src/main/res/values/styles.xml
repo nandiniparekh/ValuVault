@@ -4,6 +4,10 @@
         <item name="android:background">@color/black_overlay</item>
         <item name="android:buttonBarStyle">?android:attr/buttonBarStyle</item>
     </style>
+    <style name="AppTheme" parent="">
+        <item name="android:fontFamily">@font/qs</item>
+        <item name="android:buttonBarStyle">?android:attr/buttonBarStyle</item>
+    </style>
     <style name="backgrounds" parent="">
         <item name="android:background">@color/black_overlay</item>
     </style>

@@ -26,7 +26,7 @@
 
         <Button
             android:id="@+id/btnAddTags"
-            android:layout_width="93dp"
+            android:layout_width="wrap_content"
             android:layout_height="67dp"
             android:text="Add Tag"
             android:backgroundTint="@color/button_dark"
@@ -37,7 +37,7 @@
 
         <Button
             android:id="@+id/btnDeleteTags"
-            android:layout_width="93dp"
+            android:layout_width="wrap_content"
             android:layout_height="67dp"
             android:text="Delete"
             android:backgroundTint="@color/button_dark"
