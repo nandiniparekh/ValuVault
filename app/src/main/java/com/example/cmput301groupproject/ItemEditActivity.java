@@ -5,6 +5,7 @@ import static android.content.ContentValues.TAG;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -16,6 +17,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -61,6 +63,8 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
     private HouseholdItem passedHouseholdItem;
     private GmsBarcodeScanner scanner;
     private String userCollectionPath;
+    private int CAMERA_PERMISSION_CODE = 1;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,8 +88,25 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
 
         scanSerialNoButton = findViewById(R.id.scan_serial_button);
         scanBarcodeButton = findViewById(R.id.scan_barcode_button);
-        scanSerialNoButton.setOnClickListener(view1 -> goToScannerFragment());
-        scanBarcodeButton.setOnClickListener(view1 -> startBarcodeScanner());
+        scanSerialNoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ContextCompat.checkSelfPermission(this,
+                        Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                    goToScannerFragment(false);
+                }
+                //HERE IS THE ISSUE
+            }
+        });
+        scanBarcodeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                goToScannerFragment(true);
+                Log.e("Argument Passed to ScannerFragment", "");
+
+            }
+        });
+
 
         selectTagsButton = findViewById(R.id.select_tags_button);
         selectTagsButton.setOnClickListener(new View.OnClickListener() {
@@ -287,10 +308,13 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
             purchaseDate.setText(date);
         }
     }
-    private void goToScannerFragment() {
+    private void goToScannerFragment(boolean isBarcodeScan) {
         ScannerFragment scannerFragment = new ScannerFragment();
+        Bundle args = new Bundle();
+        args.putBoolean("CALLED_BARCODE", isBarcodeScan);
         scannerFragment.setOnSerialNumberCapturedListener(this);
         FragmentManager fragmentManager = this.getSupportFragmentManager();
+        scannerFragment.setArguments(args);
 
         scannerFragment.show(fragmentManager, "ScannerFragment");
     }
@@ -362,9 +386,9 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
     }
 
     @Override
-    public void onSerialNumberCaptured(String serialNumber) {
+    public void onSerialNumberCaptured(String serialNumber, boolean isBarcodeScan) {
         if (serialNumber != "") {
-            accessFirebase(serialNumber, false);
+            accessFirebase(serialNumber, isBarcodeScan);
         }
         //getSupportFragmentManager().popBackStack();
     }
@@ -390,9 +414,11 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
                             model.setText((String) document.get("Model"));
                             String pDate = (String) document.get("Purchase Date");
                             purchaseDate.setText(pDate);
+                            Log.d("BarcodeScan used", "updated all fields");
+
                         }
                         else{
-                            Log.d(TAG, "DocumentSnapshot data: " + document.getData());
+                            Log.d("SerialNumberScan used", "updated serial number to "+ serialNo);
                             serialNumber.setText(serialNo);
                         }
                     } else {

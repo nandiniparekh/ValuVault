@@ -23,8 +23,11 @@ import androidx.fragment.app.DialogFragment;
 import com.google.android.gms.tasks.Task;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.mlkit.common.MlKitException;
+import com.google.mlkit.vision.barcode.BarcodeScanner;
+import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
+import com.google.mlkit.vision.barcode.BarcodeScanning;
+import com.google.mlkit.vision.barcode.common.Barcode;
 import com.google.mlkit.vision.common.InputImage;
-
 import com.google.mlkit.vision.text.Text;
 import com.google.mlkit.vision.text.TextRecognition;
 import com.google.mlkit.vision.text.TextRecognizer;
@@ -47,7 +50,7 @@ public class ScannerFragment extends DialogFragment {
     private ImageCapture imageCapture;
     private OnSerialNumberCapturedListener serialNumberListener;
 
-
+    private boolean isBarcode;
     public ScannerFragment() {
         // Required empty public constructor
     }
@@ -76,6 +79,11 @@ public class ScannerFragment extends DialogFragment {
         // Inflate the layout for this fragment
 
         View view = inflater.inflate(R.layout.fragment_scanner, container, false);
+        Bundle args = getArguments();
+        if (args != null) {
+            isBarcode = args.getBoolean("CALLED_BARCODE");
+            Log.e("Bundle Argument Check", "" + isBarcode);
+        }
         getActivity().getWindow().getDecorView().setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                         | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
@@ -87,10 +95,11 @@ public class ScannerFragment extends DialogFragment {
         Button captureButton = view.findViewById(R.id.btnCapture);
 
         // Set a click listener for the capture button
-        captureButton.setOnClickListener(v -> captureImage());
+        captureButton.setOnClickListener(v -> captureImage(isBarcode));
 
         //FOLLOWING ARE SOME TESTS, COMMENT ONE OR THE OTHER FOR VIEWING INDIVIDUAL
-        testOCROnSampleImage();
+        //testOCROnSampleImage();
+        //testBarcodeScannerOnSampleBarcode();
         //testOCROnSampleImage2();
 
         return view;
@@ -117,7 +126,7 @@ public class ScannerFragment extends DialogFragment {
         //Camera camera = cameraProvider.bindToLifecycle((LifecycleOwner)this, cameraSelector, preview);
     }
 
-    private void captureImage() {
+    private void captureImage(boolean isBarcode) {
         File photoFile = createTempFile();
         ImageCapture.OutputFileOptions outputFileOptions = new ImageCapture.OutputFileOptions.Builder(photoFile).build();
 
@@ -126,7 +135,12 @@ public class ScannerFragment extends DialogFragment {
             public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
                 // Process the captured image and extract serial number
                 Bitmap bitmap = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
-                performOCR(bitmap);
+                if (isBarcode == false) {
+                    performOCR(bitmap);
+                }
+                if (isBarcode == true){
+                    performBarcodeScanning(bitmap);
+                }
             }
 
             @Override
@@ -155,7 +169,7 @@ public class ScannerFragment extends DialogFragment {
         //dismiss();
     }
 
-    private String performOCR(Bitmap bitmap) {
+    private void performOCR(Bitmap bitmap) {
         // Initialize TextRecognizer
         TextRecognizer recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
 
@@ -170,7 +184,7 @@ public class ScannerFragment extends DialogFragment {
                         Text text = task.getResult();
                         //processRecognizedText(text);
                         processRecognizedText(text);
-                        dismiss();
+
 
                     } else {
                         // Handle OCR failure
@@ -182,12 +196,8 @@ public class ScannerFragment extends DialogFragment {
                             // Handle other exceptions
                             Log.e("MLKit", "Unexpected exception: " + e.getMessage());
                         }
-                        //serialNumberListener.onSerialNumberCaptured("");
-                        //dismiss();
                     }
                 });
-
-         return "";// Placeholder, actual result will be processed in the onCompleteListener
     }
 
     private void processRecognizedText(Text text) {
@@ -209,11 +219,59 @@ public class ScannerFragment extends DialogFragment {
             // Process each block of text as needed
         }
         String serialNoNoSpaces = serialNo.replace(" ", "");
-        Toast.makeText(requireContext(), serialNoNoSpaces, Toast.LENGTH_SHORT).show();
-        serialNumberListener.onSerialNumberCaptured(serialNoNoSpaces);
+        if (serialNoNoSpaces != "") {
+            Toast.makeText(requireContext(), serialNoNoSpaces, Toast.LENGTH_SHORT).show();
+            serialNumberListener.onSerialNumberCaptured(serialNoNoSpaces, false);
+            dismiss();
+        }
     }
+    public Task<String> performBarcodeScanning(Bitmap bitmap) {
+        // Create an InputImage from the bitmap
+        InputImage image = InputImage.fromBitmap(bitmap, 0);
+
+        // Set up the barcode scanner options to recognize only UPC-A barcodes
+        BarcodeScannerOptions options =
+                new BarcodeScannerOptions.Builder()
+                        .setBarcodeFormats(Barcode.FORMAT_UPC_A)
+                        .build();
+
+        // Get an instance of the barcode scanner
+        BarcodeScanner scanner = BarcodeScanning.getClient(options);
+
+        // Use the barcode scanner to process the image
+        return scanner.process(image)
+                .continueWith(task -> {
+                    if (task.isSuccessful()) {
+                        Log.e("BarcodeScanner", "Barcode scan attempted");
+
+                        // Handle successful barcode scanning
+                        List<Barcode> barcodes = task.getResult();
+                        if (barcodes != null && !barcodes.isEmpty()) {
+                            // Only handle the first barcode for simplicity
+                            Barcode firstBarcode = barcodes.get(0);
+                            Log.e("BarcodeScanner", "Barcode scan successful with: " + firstBarcode.getRawValue());
+                            Toast.makeText(requireContext(), firstBarcode.getRawValue(), Toast.LENGTH_SHORT).show();
+                            serialNumberListener.onSerialNumberCaptured(firstBarcode.getRawValue(), true);
+                            dismiss();
+                            return firstBarcode.getRawValue();
+                        } else {
+                            // No UPC-A barcode found
+                            Log.e("BarcodeScanner", "No UPC-A barcode found");
+                            Toast.makeText(requireContext(), "No barcode detected", Toast.LENGTH_SHORT).show();
+                            return null;
+                        }
+                    } else {
+                        // Handle the failure case
+                        Toast.makeText(requireContext(), "Barcode scanning failed", Toast.LENGTH_SHORT).show();
+                        Log.e("BarcodeScanner", "Barcode scanning failed: " + task.getException().getMessage());
+                        return null;
+                    }
+                });
+    }
+
+
     public interface OnSerialNumberCapturedListener {
-        void onSerialNumberCaptured(String serialNumber);
+        void onSerialNumberCaptured(String serialNumber, boolean isBarcodeScan);
     }
 
     @Override
@@ -239,5 +297,12 @@ public class ScannerFragment extends DialogFragment {
 
         // Call performOCR with the sample image
         performOCR(sampleBitmap);
+    }
+    private void testBarcodeScannerOnSampleBarcode() {
+        // Load a sample image from resources (assuming it's in the res/drawable directory)
+        Bitmap sampleBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.sample_barcode);
+
+        // Call performOCR with the sample image
+        performBarcodeScanning(sampleBitmap);
     }
 }

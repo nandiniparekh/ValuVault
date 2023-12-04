@@ -62,6 +62,8 @@ dependencies {
     implementation("androidx.camera:camera-extensions:1.3.0")
 
     implementation("com.google.android.gms:play-services-mlkit-text-recognition:19.0.0")
+    implementation("com.google.mlkit:barcode-scanning:17.2.0")
+
 
 
 }
