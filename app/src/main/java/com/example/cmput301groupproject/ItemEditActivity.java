@@ -2,9 +2,11 @@ package com.example.cmput301groupproject;
 
 import static android.content.ContentValues.TAG;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,9 +15,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -28,13 +33,13 @@ import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.google.mlkit.vision.barcode.common.Barcode;
+
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanner;
-import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions;
-import com.google.mlkit.vision.codescanner.GmsBarcodeScanning;
 
 import java.text.DecimalFormat;
 import java.text.ParseException;
@@ -47,7 +52,7 @@ import java.util.Locale;
 import java.util.UUID;
 
 
-public class ItemEditActivity extends AppCompatActivity implements TagSelectFragment.OnTagsSelectedListener {
+public class ItemEditActivity extends AppCompatActivity implements TagSelectFragment.OnTagsSelectedListener, ScannerFragment.OnSerialNumberCapturedListener {
     private String titleDesc = "Add Item";
     private EditText description;
     private EditText make;
@@ -60,6 +65,7 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
     private ArrayList<Uri> images = new ArrayList<>();
     private Button selectTagsButton;
     private Button scanBarcodeButton;
+    private Button scanSerialNoButton;
     private FirebaseFirestore db;
     private Button loadButton;
     private PhotoPickerFragment photoPickerFragment;
@@ -72,19 +78,18 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
 
 
     // Setting the configuration for BarcodeScanner as UPC-A format and enabling autozoom features
-    private GmsBarcodeScannerOptions options = new GmsBarcodeScannerOptions.Builder()
-            .setBarcodeFormats(
-                    Barcode.FORMAT_UPC_A)
-            .enableAutoZoom()
-            .build();
+
     private HouseholdItem passedHouseholdItem;
     private GmsBarcodeScanner scanner;
     private String userCollectionPath;
+    private int CAMERA_PERMISSION_CODE = 1;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.edit_item_fragment);
+        db = FirebaseFirestore.getInstance();
 
         Intent intent = getIntent();
         if (intent != null) {
@@ -99,12 +104,39 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
         estimatedValue = findViewById(R.id.estimated_value_edit_text);
         comment = findViewById(R.id.comment_edit_text);
         purchaseDate = findViewById(R.id.purchase_date_edit_text);
+        
 
         loadButton = findViewById(R.id.load_button);
         loadedImages = new ArrayList<>();
 
+        scanSerialNoButton = findViewById(R.id.scan_serial_button);
         scanBarcodeButton = findViewById(R.id.scan_barcode_button);
-        scanBarcodeButton.setOnClickListener(view1 -> startScanner());
+      
+        scanSerialNoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ContextCompat.checkSelfPermission(ItemEditActivity.this,
+                        Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                    goToScannerFragment(false);
+                }
+                else{
+                    requestCameraPermission();
+                }
+            }
+        });
+        scanBarcodeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ContextCompat.checkSelfPermission(ItemEditActivity.this,
+                        Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                    goToScannerFragment(true);
+                }
+                else{
+                    requestCameraPermission();
+                }
+            }
+        });
+
 
         selectTagsButton = findViewById(R.id.select_tags_button);
         selectTagsButton.setOnClickListener(new View.OnClickListener() {
@@ -330,6 +362,31 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
         });
     }
 
+    private void requestCameraPermission() {
+        if(ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.CAMERA)){
+            new AlertDialog.Builder(this)
+                    .setTitle("Permission Needed")
+                    .setMessage("to access camera for scanning")
+                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            ActivityCompat.requestPermissions(ItemEditActivity.this, new String[] {Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE);
+                        }
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    })
+                    .create().show();
+        }
+        else{
+            ActivityCompat.requestPermissions(this,new String[] {Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE);
+        }
+    }
+
+
     // Helper method to check if the date is in the format "yyyy/MM/dd"
     public static boolean isValidDate(String dateStr) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault());
@@ -370,6 +427,39 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
                 .show();
     }
 
+    public void updateFields(String desc, String itemMake, String itemModel, String itemSerialNo, String estValue, String itemComment, String date) {
+        if (description != null) {
+            description.setText(desc);
+        }
+        if (make!= null) {
+            make.setText(itemMake);
+        }
+        if (model != null) {
+            model.setText(itemModel);
+        }
+        if (serialNumber != null) {
+            serialNumber.setText(itemSerialNo);
+        }
+        if (estimatedValue != null) {
+            estimatedValue.setText(estValue);
+        }
+        if (comment != null) {
+            comment.setText(itemComment);
+        }
+        if (purchaseDate != null) {
+            purchaseDate.setText(date);
+        }
+    }
+    private void goToScannerFragment(boolean isBarcodeScan) {
+        ScannerFragment scannerFragment = new ScannerFragment();
+        Bundle args = new Bundle();
+        args.putBoolean("CALLED_BARCODE", isBarcodeScan);
+        scannerFragment.setOnSerialNumberCapturedListener(this);
+        FragmentManager fragmentManager = this.getSupportFragmentManager();
+        scannerFragment.setArguments(args);
+
+        scannerFragment.show(fragmentManager, "ScannerFragment");
+    }
     /**
      * This method initiates the barcode scanning process using Google Code Scanner. When a barcode
      * is scanned, the firestore database is queried for returning the associated product description
@@ -381,46 +471,6 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
      * and sets up listeners in events of a successful scan and a cancelled scan. Upon success, it
      * retrieves information from the firestore collection and updates the "description" EditText.
      */
-    protected void startScanner(){
-        // Initialize barcode scanner
-        scanner = GmsBarcodeScanning.getClient(this,options);
-        // Start scanning
-        scanner
-                .startScan()
-                .addOnSuccessListener(
-                        barcode -> {
-                            // Get the raw value of barcode scanned
-                            String scannedBarcode = barcode.getRawValue();
-
-                            // Query firestore for information regarding associated product
-                            DocumentReference docRef = db.collection("Items_Barcode_info").document(scannedBarcode);
-                            docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                                @Override
-                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                    if (task.isSuccessful()) {
-                                        DocumentSnapshot document = task.getResult();
-                                        if (document.exists()) {
-
-                                            // Logging and updating description
-                                            Log.d(TAG, "DocumentSnapshot data: " + document.getData());
-                                            description.setText((String)document.get("Product Description"));
-                                        } else {
-                                            // Logging if no such item in database
-                                            Log.d(TAG, "No such item exists in the database");
-                                        }
-                                    } else {
-
-                                        //Logging failure message
-                                        Log.d(TAG, "get failed with ", task.getException());
-                                    }
-                                }
-                            });
-                        })
-                .addOnCanceledListener(
-                        () -> {
-                            // The task has been cancelled
-                        });
-    }
 
     private void showTagSelectFragment() {
         TagSelectFragment tagSelectFragment = new TagSelectFragment();
@@ -456,5 +506,56 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
             // Add the TextView to the LinearLayout
             tagsLayout.addView(tagTextView);
         }
+    }
+
+    @Override
+    public void onSerialNumberCaptured(String serialNumber, boolean isBarcodeScan) {
+        if (serialNumber != "") {
+            accessFirebase(serialNumber, isBarcodeScan);
+        }
+        //getSupportFragmentManager().popBackStack();
+    }
+
+    private void accessFirebase(String serialNo, boolean isBarcode) {
+        // Query firestore for information regarding associated product
+        DocumentReference docRef = db.collection("Items_Barcode_info").document(serialNo);
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        if (isBarcode == true) {
+                            // Logging and updating description
+                            Log.d(TAG, "DocumentSnapshot data: " + document.getData());
+                            description.setText((String) document.get("Product Description"));
+                            comment.setText((String) document.get("Comment"));
+                            String val = (String) document.get("Estimated Value");
+                            estimatedValue.setText(val); //FIX THIS
+                            serialNumber.setText(serialNo);
+                            make.setText((String) document.get("Make"));
+                            model.setText((String) document.get("Model"));
+                            String pDate = (String) document.get("Purchase Date");
+                            purchaseDate.setText(pDate);
+                            Log.d("BarcodeScan used", "updated all fields");
+
+                        }
+                        else{
+                            Log.d("SerialNumberScan used", "updated serial number to "+ serialNo);
+                            serialNumber.setText(serialNo);
+                        }
+                    } else {
+                        // Show an error message or toast indicating that all fields are required
+                        Toast.makeText(ItemEditActivity.this, "The scanned barcode/serial number does not exist in the database.", Toast.LENGTH_SHORT).show();
+                        // Logging if no such item in database
+                        Log.d(TAG, "No such item exists in the database");
+                    }
+                } else {
+
+                    //Logging failure message
+                    Log.d(TAG, "get failed with ", task.getException());
+                }
+            }
+        });
     }
 }
