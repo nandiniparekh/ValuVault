@@ -19,7 +19,7 @@
             android:textSize="14sp"
             android:layout_marginEnd="16dp"
             android:background="@android:color/transparent"
-            android:textColor="#673AB7"
+            android:textColor="@color/button_dark"
             />
 
         <Button
@@ -30,7 +30,7 @@
             android:text="Descending"
             android:textSize="14sp"
             android:background="@android:color/transparent"
-            android:textColor="#673AB7"
+            android:textColor="@color/button_dark"
 
            />
 

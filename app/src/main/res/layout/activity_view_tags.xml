@@ -40,7 +40,7 @@
             android:layout_width="93dp"
             android:layout_height="67dp"
             android:text="Delete"
-            android:backgroundTint="@color/button_light"
+            android:backgroundTint="@color/button_dark"
             app:layout_constraintStart_toEndOf="@id/btnAddTags"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
