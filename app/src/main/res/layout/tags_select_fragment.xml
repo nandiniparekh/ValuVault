@@ -16,12 +16,14 @@
         android:id="@+id/apply_tags_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Apply Tags" />
+        android:text="Apply Tags"
+        android:fontFamily="sans-serif-condensed"/>
 
     <Button
         android:id="@+id/cancel_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Cancel" />
+        android:text="Cancel"
+        android:fontFamily="sans-serif-condensed"/>
 </LinearLayout>
 

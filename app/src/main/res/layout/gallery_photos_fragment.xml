@@ -13,16 +13,22 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
+
         <Button
             android:id="@+id/choosePhotoButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Choose photos" />
+            android:text="Choose photos"
+            android:fontFamily="sans-serif-condensed"
+            />
+
+
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/camera_button"
-            android:text="Take Picture" />
+            android:text="Take Picture"
+            android:fontFamily="sans-serif-condensed"/>
     </LinearLayout>
     <LinearLayout
         android:layout_width="wrap_content"

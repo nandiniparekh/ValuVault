@@ -15,6 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Title Description"
+        android:fontFamily="sans-serif-condensed"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:gravity="center"
         android:id="@+id/title_text"
@@ -30,6 +31,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Cancel"
+            android:fontFamily="sans-serif-condensed"
             android:id="@+id/cancel_button"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"/>
@@ -38,6 +40,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Ok"
+            android:fontFamily="sans-serif-condensed"
             android:id="@+id/ok_button"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"/>
@@ -46,6 +49,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Remove"
+            android:fontFamily="sans-serif-condensed"
             android:id="@+id/remove_button"
             android:layout_marginTop="8dp"/>
     </LinearLayout>
@@ -56,6 +60,7 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:hint="Item Description"
+        android:fontFamily="sans-serif-condensed"
         android:id="@+id/description_edit_text"
         android:inputType="text" />
 
@@ -64,6 +69,7 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:hint="Item Make"
+        android:fontFamily="sans-serif-condensed"
         android:id="@+id/make_edit_text"
         android:inputType="text" />
 
@@ -72,6 +78,7 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:hint="Item Model"
+        android:fontFamily="sans-serif-condensed"
         android:id="@+id/model_edit_text"
         android:inputType="text" />
 
@@ -80,6 +87,7 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:hint="Item Serial Number"
+        android:fontFamily="sans-serif-condensed"
         android:id="@+id/serial_number_edit_text"
         android:inputType="text" />
 
@@ -88,6 +96,7 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:hint="Item Estimated Value"
+        android:fontFamily="sans-serif-condensed"
         android:id="@+id/estimated_value_edit_text"
         android:inputType="numberDecimal" />
 
@@ -96,6 +105,7 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:hint="Item Comment"
+        android:fontFamily="sans-serif-condensed"
         android:id="@+id/comment_edit_text"
         android:inputType="text"
         tools:ignore="HardcodedText" />
@@ -105,6 +115,7 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:hint="Purchase Date (yyyy/mm/dd)"
+        android:fontFamily="sans-serif-condensed"
         android:id="@+id/purchase_date_edit_text"
         android:inputType="date" />
 
@@ -127,6 +138,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Select Tags"
+        android:fontFamily="sans-serif-condensed"
         android:id="@+id/select_tags_button"
         android:layout_gravity="bottom|center_horizontal"
         android:layout_marginTop="16dp"/>
@@ -139,6 +151,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Scan Barcode"
+        android:fontFamily="sans-serif-condensed"
         android:id="@+id/scan_barcode_button"
         android:layout_gravity="bottom|center_horizontal"/>
 
@@ -147,6 +160,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Load Photo(s)"
+        android:fontFamily="sans-serif-condensed"
         android:layout_gravity="bottom|center_horizontal"/>
 
     <LinearLayout
