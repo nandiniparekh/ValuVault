@@ -50,6 +50,8 @@ public class ScannerFragment extends DialogFragment {
     Preview preview;
     private ImageCapture imageCapture;
     private OnSerialNumberCapturedListener serialNumberListener;
+    protected String serialNoWoutSpaces;
+
     private boolean isBarcode;
 
     /**
@@ -78,6 +80,7 @@ public class ScannerFragment extends DialogFragment {
                 // This should never be reached.
             }
         }, ContextCompat.getMainExecutor(getContext()));
+
     }
 
     /**
@@ -198,7 +201,8 @@ public class ScannerFragment extends DialogFragment {
      *
      * @param bitmap The bitmap image to process.
      */
-    private void performOCR(Bitmap bitmap) {
+    protected void performOCR(Bitmap bitmap) {
+
         // Initialize TextRecognizer
         TextRecognizer recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
 
@@ -253,11 +257,13 @@ public class ScannerFragment extends DialogFragment {
             // Process each block of text as needed
         }
         String serialNoNoSpaces = serialNo.replace(" ", "");
-        if (serialNoNoSpaces != "") {
+        if (serialNumberListener != null && serialNoNoSpaces != "") {
             Toast.makeText(requireContext(), serialNoNoSpaces, Toast.LENGTH_SHORT).show();
+            serialNoWoutSpaces = serialNoNoSpaces;
             serialNumberListener.onSerialNumberCaptured(serialNoNoSpaces, false);
             dismiss();
         }
+        serialNoWoutSpaces = serialNoNoSpaces;
     }
 
     /**
@@ -325,7 +331,7 @@ public class ScannerFragment extends DialogFragment {
     public void setOnSerialNumberCapturedListener(OnSerialNumberCapturedListener listener) {
         this.serialNumberListener = listener;
     }
-
+    
     /**
      * Called when the view is destroyed. Unbinds the camera provider and releases resources.
      */
@@ -338,9 +344,9 @@ public class ScannerFragment extends DialogFragment {
         }
     }
 
-    private void testOCROnSampleImage() {
+    protected void testOCROnSampleImage() {
         // Load a sample image from resources (assuming it's in the res/drawable directory)
-        Bitmap sampleBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.sample_image);
+        Bitmap sampleBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.sample_image_in_db);
 
         // Call performOCR with the sample image
         performOCR(sampleBitmap);
