@@ -8,10 +8,12 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
 
@@ -67,6 +69,24 @@ public class SelectedItemAdapter extends ArrayAdapter<HouseholdItem> {
                 }
             }
         });
+
+        // Find the LinearLayout for tags
+        LinearLayout tagsLayout = view.findViewById(R.id.display_item_tags_layout);
+
+        // Clear existing views in the layout
+        tagsLayout.removeAllViews();
+
+        // Loop through the tags and add TextViews dynamically
+        for (String tag : item.getTags()) {
+            TextView tagTextView = new TextView(context);
+            tagTextView.setText(tag);
+            tagTextView.setBackgroundResource(R.drawable.tag_background);
+            tagTextView.setTextColor(ContextCompat.getColor(context, android.R.color.white));
+            tagTextView.setPadding(8, 4, 8, 4);
+
+            // Add the TextView to the LinearLayout
+            tagsLayout.addView(tagTextView);
+        }
 
         return view;
     }
