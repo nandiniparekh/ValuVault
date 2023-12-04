@@ -76,12 +76,12 @@ public class ListActivityTest {
         // Click the add item button
         onView(withId(R.id.add_item_b)).perform(click());
         // Type in the required fields for the new item
-        onView(withId(R.id.description_edit_text)).perform(ViewActions.typeText("Test description"));
-        onView(withId(R.id.make_edit_text)).perform(ViewActions.typeText("Test make"));
-        onView(withId(R.id.model_edit_text)).perform(ViewActions.typeText("Test model"));
-        onView(withId(R.id.serial_number_edit_text)).perform(ViewActions.typeText("Test serial number"));
-        onView(withId(R.id.estimated_value_edit_text)).perform(ViewActions.typeText("100"));
-        onView(withId(R.id.comment_edit_text)).perform(ViewActions.typeText("Test comment"));
+        onView(withId(R.id.description_edit_text)).perform(ViewActions.typeText("Test description"), ViewActions.closeSoftKeyboard());
+        onView(withId(R.id.make_edit_text)).perform(ViewActions.typeText("Test make"), ViewActions.closeSoftKeyboard());
+        onView(withId(R.id.model_edit_text)).perform(ViewActions.typeText("Test model"), ViewActions.closeSoftKeyboard());
+        onView(withId(R.id.serial_number_edit_text)).perform(ViewActions.typeText("Test serial number"), ViewActions.closeSoftKeyboard());
+        onView(withId(R.id.estimated_value_edit_text)).perform(ViewActions.typeText("100"), ViewActions.closeSoftKeyboard());
+        onView(withId(R.id.comment_edit_text)).perform(ViewActions.typeText("Test comment"), ViewActions.closeSoftKeyboard());
         onView(withId(R.id.purchase_date_edit_text)).perform(ViewActions.typeText("2023/11/09"), ViewActions.closeSoftKeyboard());
         // Click on the OK button for adding the item
         onView(withId(R.id.ok_button)).perform(click());
@@ -89,12 +89,12 @@ public class ListActivityTest {
         // Click the add item button
         onView(withId(R.id.add_item_b)).perform(click());
         // Type in the required fields for the new item
-        onView(withId(R.id.description_edit_text)).perform(ViewActions.typeText("Test description2"));
-        onView(withId(R.id.make_edit_text)).perform(ViewActions.typeText("Test make2"));
-        onView(withId(R.id.model_edit_text)).perform(ViewActions.typeText("Test model2"));
-        onView(withId(R.id.serial_number_edit_text)).perform(ViewActions.typeText("Test serial number2"));
-        onView(withId(R.id.estimated_value_edit_text)).perform(ViewActions.typeText("1000"));
-        onView(withId(R.id.comment_edit_text)).perform(ViewActions.typeText("Test comment2"));
+        onView(withId(R.id.description_edit_text)).perform(ViewActions.typeText("Test description2"), ViewActions.closeSoftKeyboard());
+        onView(withId(R.id.make_edit_text)).perform(ViewActions.typeText("Test make2"), ViewActions.closeSoftKeyboard());
+        onView(withId(R.id.model_edit_text)).perform(ViewActions.typeText("Test model2"), ViewActions.closeSoftKeyboard());
+        onView(withId(R.id.serial_number_edit_text)).perform(ViewActions.typeText("Test serial number2"), ViewActions.closeSoftKeyboard());
+        onView(withId(R.id.estimated_value_edit_text)).perform(ViewActions.typeText("1000"), ViewActions.closeSoftKeyboard());
+        onView(withId(R.id.comment_edit_text)).perform(ViewActions.typeText("Test comment2"), ViewActions.closeSoftKeyboard());
         onView(withId(R.id.purchase_date_edit_text)).perform(ViewActions.typeText("2023/11/08"), ViewActions.closeSoftKeyboard());
 
         // Click on the OK button for adding the item
