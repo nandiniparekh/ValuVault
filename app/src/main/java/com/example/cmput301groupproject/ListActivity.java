@@ -13,6 +13,10 @@ import androidx.fragment.app.FragmentManager;
 
 import java.util.ArrayList;
 
+/**
+ * The ListActivity class represents the activity for displaying a list of household items.
+ * Users can select and apply tags to the selected items in this activity.
+ */
 public class ListActivity extends AppCompatActivity implements TagSelectFragment.OnTagsSelectedListener{
     private Button backSelectButton;
     private Button applyTagsButton;
@@ -23,6 +27,13 @@ public class ListActivity extends AppCompatActivity implements TagSelectFragment
     private ArrayList<HouseholdItem> selectedItems;
     private ArrayList<String> selectedTags;
     private String userCollectionPath;
+
+    /**
+     * Called when the activity is created.
+     * Initializes and sets up the UI components, adapters, and click listeners.
+     *
+     * @param savedInstanceState A Bundle containing the saved state of the activity.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,9 +62,7 @@ public class ListActivity extends AppCompatActivity implements TagSelectFragment
         applyTagsButton = findViewById(R.id.applyTagsButton);
         deleteSelectedItemsButton = findViewById(R.id.deleteSelectedItemsButton);
 
-//        listAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_multiple_choice, passedDataList);
         listAdapter = new SelectedItemAdapter(this, passedDataList);
-//        listAdapter = new CustomItemList(this, passedDataList);
 
         selectItemList.setAdapter(listAdapter);
 
@@ -100,8 +109,10 @@ public class ListActivity extends AppCompatActivity implements TagSelectFragment
         });
     }
 
+    /**
+     * Shows the TagSelectFragment to allow users to choose tags for the selected items.
+     */
     private void showTagSelectFragment() {
-        //new TagSelectFragment().show(getSupportFragmentManager(), "ADD_TAGS");
         TagSelectFragment tagSelectFragment = new TagSelectFragment();
         tagSelectFragment.setOnTagsSelectedListener(this);
 
@@ -110,10 +121,15 @@ public class ListActivity extends AppCompatActivity implements TagSelectFragment
         tagSelectFragment.show(fragmentManager, "TagSelectFragment");
     }
 
+    /**
+     * Called when tags are selected in the TagSelectFragment.
+     * Handles the selected tags and sends an intent to the MainActivity to apply tags to selected items.
+     *
+     * @param chosenTags The list of selected tags.
+     */
     @Override
     public void onTagsSelected(ArrayList<String> chosenTags) {
-        // Handle the selected tags here
-        // This method will be called when tags are selected in TagSelectFragment
+        // Sends selected items to MainActivity to be updated with selected tags
         selectedTags = chosenTags;
 
         Intent intent = new Intent(ListActivity.this, MainActivity.class);
@@ -122,8 +138,5 @@ public class ListActivity extends AppCompatActivity implements TagSelectFragment
         intent.putExtra("command", "applyTags");
         intent.putExtra("userDoc", userCollectionPath);
         startActivity(intent);
-
-        //finish();
     }
-
 }

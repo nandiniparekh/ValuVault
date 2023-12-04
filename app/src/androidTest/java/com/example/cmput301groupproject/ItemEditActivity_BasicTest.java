@@ -43,7 +43,7 @@ public class ItemEditActivity_BasicTest {
 
         // Delay for a short time to allow any asynchronous operations to complete
         try {
-            Thread.sleep(2000);
+            Thread.sleep(5000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

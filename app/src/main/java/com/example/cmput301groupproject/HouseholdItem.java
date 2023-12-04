@@ -215,10 +215,20 @@ public class HouseholdItem implements Serializable {
         this.tags = tags;
     }
 
+    /**
+     * Returns the images of the item
+     *
+     * @return The images of the item
+     */
     public ArrayList<String> getImages() {
         return images;
     }
 
+    /**
+     * Sets the images of the item
+     *
+     * @param images The images to be set
+     */
     public void setImages(ArrayList<String> images) {
         String size = String.valueOf(images.size());
         Log.d("SetImages", size);
