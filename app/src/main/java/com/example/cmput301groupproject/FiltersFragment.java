@@ -161,8 +161,12 @@ public class FiltersFragment extends DialogFragment {
 
         removeFilters.setOnClickListener(v -> {
             //removes the filters on the list of items when this button is called.
-            listener.onRemoveFilters(true);
-            dismiss();
+            if (filteredItems.isEmpty())
+                dismiss();
+            else {
+                listener.onRemoveFilters(true);
+                dismiss();
+            }
         });
 
         return view;
