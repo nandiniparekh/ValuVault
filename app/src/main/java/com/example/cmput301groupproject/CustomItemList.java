@@ -47,7 +47,7 @@ public class CustomItemList extends ArrayAdapter<HouseholdItem> {
         itemPurchaseDate.setText(item.getDateOfPurchase());
         itemDescription.setText(item.getDescription());
         itemMake.setText(item.getMake());
-        itemEstimatedValue.setText(item.getEstimatedValue());
+        itemEstimatedValue.setText("$" + item.getEstimatedValue());
 
         // Find the LinearLayout for tags
         LinearLayout tagsLayout = view.findViewById(R.id.display_item_tags_layout);
