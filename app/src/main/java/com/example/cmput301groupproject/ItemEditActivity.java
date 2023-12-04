@@ -49,7 +49,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
-
+/**
+ * The ItemEditActivity class represents the activity for adding or editing household items.
+ * It allows users to input details such as description, make, model, serial number, estimated value,
+ * comment, and purchase date. Users can also select tags, associate images with the item, or scan a
+ * barcode/serial number to autofill fields.
+ */
 public class ItemEditActivity extends AppCompatActivity implements TagSelectFragment.OnTagsSelectedListener, ScannerFragment.OnSerialNumberCapturedListener {
     private String titleDesc = "Add Item";
     private EditText description;
@@ -73,16 +78,17 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
 
     private RecyclerView imageRecyclerView;
     private PhotoAdapter adapter;
-
-
-    // Setting the configuration for BarcodeScanner as UPC-A format and enabling autozoom features
-
     private HouseholdItem passedHouseholdItem;
     private GmsBarcodeScanner scanner;
     private String userCollectionPath;
     private int CAMERA_PERMISSION_CODE = 1;
 
 
+    /**
+     * Initializes the activity, sets up UI components, and handles user interactions.
+     *
+     * @param savedInstanceState A Bundle containing the activity's previously saved state.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,7 +100,7 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
             userCollectionPath = getIntent().getStringExtra("userDoc");
         }
 
-        // Initialization code
+        // Identify UI elements
         description = findViewById(R.id.description_edit_text);
         make = findViewById(R.id.make_edit_text);
         model = findViewById(R.id.model_edit_text);
@@ -109,7 +115,10 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
 
         scanSerialNoButton = findViewById(R.id.scan_serial_button);
         scanBarcodeButton = findViewById(R.id.scan_barcode_button);
+        selectTagsButton = findViewById(R.id.select_tags_button);
 
+
+        // Set click listeners for buttons
         scanSerialNoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -135,8 +144,6 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
             }
         });
 
-
-        selectTagsButton = findViewById(R.id.select_tags_button);
         selectTagsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -145,7 +152,7 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
             }
         });
 
-
+        // If editing an activity, receive item details
         Bundle args = intent.getExtras();
         if (args.getSerializable("selectedItem") != null) {
             titleDesc = "Edit Item";
@@ -165,6 +172,7 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
             onTagsSelected(passedHouseholdItem.getTags());
         }
 
+        // Load attached items
         if (loadedImages.size() != 0) {
             for (String s : loadedImages) {
                 Uri uri = Uri.parse(s);
@@ -216,12 +224,12 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
             removeButton.setVisibility(View.GONE);
         }
 
+        // Set click listeners for buttons
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                selectedImages = new ArrayList<>();
-
-                // when no images are selected, this code breaks the app!
+                // Get images
+                // when no images are selected, this code would break the app without the catch
                 try {
                     selectedImages = photoPickerFragment.getSelectedImages();
                 } catch (NullPointerException e) {
@@ -252,7 +260,7 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
                     imagesUpload.addAll(loadedImages);
                 }
 
-
+                // After loading images, attempt to submit update/add item
                 Tasks.whenAllSuccess(uploadTasks).addOnSuccessListener(new OnSuccessListener<List<Object>>() {
                     @Override
                     public void onSuccess(List<Object> list) {
@@ -315,6 +323,7 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
                         Intent intent = new Intent(ItemEditActivity.this, MainActivity.class);
                         intent.putExtra("userDoc", userCollectionPath);
 
+                        // Update the passed item
                         if (passedHouseholdItem != null) {
                             passedHouseholdItem.setDescription(desc);
                             passedHouseholdItem.setMake(mk);
@@ -334,8 +343,9 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
 
                             intent.putExtra("command", "editItem");
                             intent.putExtra("editedItem", passedHouseholdItem);
-                        } else {
-                            // Add a new item
+                        }
+                        // Add a new item
+                        else {
                             HouseholdItem newItem = new HouseholdItem(date, desc, mk, mdl, serial, estValue, cmt);
                             newItem.setTags(selectedTags);
                             newItem.setImages(imagesUpload);
@@ -347,10 +357,10 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
                         startActivity(intent);
                     }
                 });
-
             }
         });
 
+        // Send command and item to MainActivity to be removed
         removeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -363,6 +373,7 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
             }
         });
 
+        // Cancel operation and return to MainActivity
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -374,6 +385,10 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
         });
     }
 
+
+    /**
+     * Helper method to handle the permission request for camera access
+     */
     private void requestCameraPermission() {
         if(ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.CAMERA)){
             new AlertDialog.Builder(this)
@@ -399,7 +414,12 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
     }
 
 
-    // Helper method to check if the date is in the format "yyyy/MM/dd"
+    /**
+     * Helper method to check if the date is in the format "yyyy/MM/dd".
+     *
+     * @param dateStr The date string to be validated.
+     * @return True if the date is in the valid format, false otherwise.
+     */
     public static boolean isValidDate(String dateStr) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault());
         sdf.setLenient(false);
@@ -424,6 +444,11 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
         }
     }
 
+    /**
+     * Shows an error dialog with the specified error message.
+     *
+     * @param errorMessage The error message to be displayed.
+     */
     private void showErrorDialog(String errorMessage) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Error")
@@ -439,6 +464,17 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
                 .show();
     }
 
+    /**
+     * Updates the UI fields with the provided values.
+     *
+     * @param desc       The description to be set.
+     * @param itemMake   The make to be set.
+     * @param itemModel  The model to be set.
+     * @param itemSerialNo The serial number to be set.
+     * @param estValue   The estimated value to be set.
+     * @param itemComment The comment to be set.
+     * @param date       The purchase date to be set.
+     */
     public void updateFields(String desc, String itemMake, String itemModel, String itemSerialNo, String estValue, String itemComment, String date) {
         if (description != null) {
             description.setText(desc);
@@ -462,6 +498,12 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
             purchaseDate.setText(date);
         }
     }
+
+    /**
+     * Initiates the barcode scanning process using Google Code Scanner.
+     *
+     * @param isBarcodeScan True if scanning for barcode, false for serial number.
+     */
     private void goToScannerFragment(boolean isBarcodeScan) {
         ScannerFragment scannerFragment = new ScannerFragment();
         Bundle args = new Bundle();
@@ -472,18 +514,10 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
 
         scannerFragment.show(fragmentManager, "ScannerFragment");
     }
-    /**
-     * This method initiates the barcode scanning process using Google Code Scanner. When a barcode
-     * is scanned, the firestore database is queried for returning the associated product description
-     * inside the "description" EditText when adding/editing items. In the future, it will also
-     * include other information about the item.
-     *
-     * This method uses the GmsBarcodeScanning.getClient method to obtain an instance of the GmsBarcode
-     * Scanner while configuring the barcode format to be UPC-A. It then starts the process of scanning
-     * and sets up listeners in events of a successful scan and a cancelled scan. Upon success, it
-     * retrieves information from the firestore collection and updates the "description" EditText.
-     */
 
+    /**
+     * Shows the TagSelectFragment for selecting tags.
+     */
     private void showTagSelectFragment() {
         TagSelectFragment tagSelectFragment = new TagSelectFragment();
         tagSelectFragment.setOnTagsSelectedListener(this);
@@ -493,7 +527,11 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
         tagSelectFragment.show(fragmentManager, "TagSelectFragment");
     }
 
-    // Implement the OnTagsSelectedListener interface
+    /**
+     * Handles the event when tags are selected in the TagSelectFragment.
+     *
+     * @param selectedTags The list of selected tags.
+     */
     @Override
     public void onTagsSelected(ArrayList<String> selectedTags) {
         // Handle the selected tags here
@@ -520,6 +558,12 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
         }
     }
 
+    /**
+     * Handles the event when a serial number is captured by the ScannerFragment.
+     *
+     * @param serialNumber The captured serial number.
+     * @param isBarcodeScan True if the capture is from barcode scanning, false for serial number.
+     */
     @Override
     public void onSerialNumberCaptured(String serialNumber, boolean isBarcodeScan) {
         if (serialNumber != "") {

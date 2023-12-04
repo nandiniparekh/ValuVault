@@ -19,6 +19,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * The `TagsManager` class handles interactions with Firebase Firestore for managing tags.
+ * It provides methods for retrieving, adding, and deleting tags associated with a user.
+ */
 public class TagsManager {
 
     private static final String TAG = "TagsManager";
@@ -31,6 +35,11 @@ public class TagsManager {
     private CollectionReference userRef;
     private DocumentReference tagsRef;
 
+    /**
+     * Constructs a new `TagsManager` instance for the specified user.
+     *
+     * @param userId The unique identifier of the user.
+     */
     public TagsManager(String userId) {
         this.userId = userId;
         db = FirebaseFirestore.getInstance();
@@ -54,11 +63,8 @@ public class TagsManager {
                         // Tags field exists, get the list of tags
                         ArrayList<String> tags = (ArrayList<String>) tagsData.get(TAG_LIST_FIELD);
 
-                        // Now, you can use the 'tags' list as needed
+                        // Log available tags
                         Log.d(TAG, "Current tags: " + tags);
-
-                        // Call a method or update UI with the tags
-                        //updateTags(tags);
                     }
                 } else {
                     // Document does not exist (it might not have been created yet)
@@ -74,10 +80,6 @@ public class TagsManager {
                                 @Override
                                 public void onSuccess(Void aVoid) {
                                     Log.d(TAG, "Tags document created successfully");
-
-                                    // Now you can handle the case where the tags document is created
-                                    // and it has an empty list of tags
-                                    //updateTags(new ArrayList<String>());
                                 }
                             })
                             .addOnFailureListener(new OnFailureListener() {
@@ -91,6 +93,11 @@ public class TagsManager {
         });
     }
 
+    /**
+     * Fetches the list of tags associated with the user from Firestore.
+     *
+     * @param callback The callback to handle the result or failure.
+     */
     public void getTags(final CallbackHandler callback) {
         tagsRef.get()
                 .addOnSuccessListener(documentSnapshot -> {
@@ -112,6 +119,12 @@ public class TagsManager {
                 });
     }
 
+    /**
+     * Adds a new tag to the user's list of tags in Firestore.
+     *
+     * @param tag      The tag to be added.
+     * @param callback The callback to handle the result or failure.
+     */
     public void addTag(String tag, final CallbackHandler callback) {
         tagsRef.update(TAG_LIST_FIELD, FieldValue.arrayUnion(tag))
                 .addOnSuccessListener(aVoid -> callback.onSuccess(tag))
@@ -121,6 +134,12 @@ public class TagsManager {
                 });
     }
 
+    /**
+     * Deletes specified tags from the user's list of tags in Firestore.
+     *
+     * @param tagsToDelete The list of tags to be deleted.
+     * @param callback     The callback to handle the result or failure.
+     */
     public void deleteTags(ArrayList<String> tagsToDelete, final CallbackHandler callback) {
         tagsRef.update(TAG_LIST_FIELD, FieldValue.arrayRemove(tagsToDelete.toArray()))
                 .addOnSuccessListener(aVoid -> callback.onSuccess(tagsToDelete))
@@ -130,9 +149,24 @@ public class TagsManager {
                 });
     }
 
+    /**
+     * Callback interface for handling asynchronous results or failures.
+     *
+     * @param <T> The type of the result.
+     */
     public interface CallbackHandler<T> {
+        /**
+         * Called when the operation is successful.
+         *
+         * @param result The result of the operation.
+         */
         void onSuccess(T result);
 
+        /**
+         * Called when the operation encounters a failure.
+         *
+         * @param e The error message.
+         */
         void onFailure(String e);
     }
 }

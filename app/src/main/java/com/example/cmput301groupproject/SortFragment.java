@@ -25,16 +25,28 @@ public class SortFragment extends Fragment {
     public static final int DESCENDING = 1;
     private int sortCriteria;
     private int sortOrder;
+    private SortListener sortListener;
+
+
+    /**
+     * Interface for notifying listeners about sorted data.
+     */
     public interface SortListener {
         void onSortDataList(ArrayList<HouseholdItem> sortedList);
     }
-    private SortListener sortListener;
 
+    /**
+     * Default constructor for the SortFragment.
+     */
     public SortFragment() {
         // Required empty public constructor
     }
 
-
+    /**
+     * Sets the listener for sorting data.
+     *
+     * @param listener The listener to set.
+     */
     public void setSortListener(SortListener listener) {
         this.sortListener = listener;
     }

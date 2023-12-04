@@ -15,6 +15,9 @@ import androidx.fragment.app.DialogFragment;
 
 import java.util.ArrayList;
 
+/**
+ * A DialogFragment for selecting tags from a list.
+ */
 public class TagSelectFragment extends DialogFragment {
     private ArrayList<String> tagDataList; // The list of available tags
     private ArrayList<String> selectedTags; // The list of selected tags
@@ -23,14 +26,30 @@ public class TagSelectFragment extends DialogFragment {
     private TagsManager tagsManager;
     private OnTagsSelectedListener onTagsSelectedListener;
 
+    /**
+     * Creates a new instance of TagSelectFragment.
+     *
+     * @return A new instance of TagSelectFragment.
+     */
     public static TagSelectFragment newInstance() {
         return new TagSelectFragment();
     }
 
+    /**
+     * Sets the listener for tags selected events.
+     *
+     * @param listener The listener to be set.
+     */
     public void setOnTagsSelectedListener(OnTagsSelectedListener listener) {
         this.onTagsSelectedListener = listener;
     }
 
+    /**
+     * Called when the fragment is attached to an activity. This method ensures that the
+     * attached context implements the {@link OnTagsSelectedListener} interface.
+     *
+     * @param context The context to which the fragment is attached.
+     */
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -39,12 +58,18 @@ public class TagSelectFragment extends DialogFragment {
         } else {
             // Log a warning instead of throwing an exception
             Log.w("TagSelectFragment", "Attached context does not implement OnTagsSelectedListener");
-
-            // Need to see if better to set onTagsSelectedListener to null or have a default implementation here
-            //throw new RuntimeException(context + " must implement OnTagsSelectedListener");
         }
     }
 
+    /**
+     * Called to create and return the view hierarchy associated with the fragment. This method
+     * initializes the UI components, fetches tags from the TagsManager, and handles tag selection.
+     *
+     * @param inflater           The LayoutInflater object that can be used to inflate any views in the fragment.
+     * @param container          If non-null, this is the parent view that the fragment's UI should be attached to.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous saved state as given here.
+     * @return The root view of the fragment's layout.
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.tags_select_fragment, container, false);
@@ -111,7 +136,9 @@ public class TagSelectFragment extends DialogFragment {
         return view;
     }
 
-    // Interface to communicate the selected tags back to the calling fragment/activity
+    /**
+     * Interface to communicate the selected tags back to the calling fragment/activity.
+     */
     public interface OnTagsSelectedListener {
         void onTagsSelected(ArrayList<String> selectedTags);
     }
