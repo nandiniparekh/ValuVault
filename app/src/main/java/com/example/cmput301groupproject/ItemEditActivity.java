@@ -33,15 +33,13 @@ import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.google.mlkit.vision.barcode.common.Barcode;
-
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanner;
 
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -104,14 +102,14 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
         estimatedValue = findViewById(R.id.estimated_value_edit_text);
         comment = findViewById(R.id.comment_edit_text);
         purchaseDate = findViewById(R.id.purchase_date_edit_text);
-        
+
 
         loadButton = findViewById(R.id.load_button);
         loadedImages = new ArrayList<>();
 
         scanSerialNoButton = findViewById(R.id.scan_serial_button);
         scanBarcodeButton = findViewById(R.id.scan_barcode_button);
-      
+
         scanSerialNoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -273,14 +271,28 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
                             return;
                         }
 
+                        // Define the maximum allowed character length
+                        int maxCharacter = 100;
+
+                        // Validate input string lengths
+                        if (desc.length() > maxCharacter || mk.length() > maxCharacter || mdl.length() > maxCharacter ||
+                                serial.length() > maxCharacter || estValue.length() > maxCharacter ||
+                                cmt.length() > maxCharacter || date.length() > maxCharacter) {
+                            // Show an error message or toast for exceeding character limit
+                            showErrorDialog("Input fields must not exceed " + maxCharacter + " characters");
+                            return;
+                        }
+
                         // Validate Estimated Value
                         try {
                             // Try to convert the estimated value to double
                             double estimatedValueDouble = Double.parseDouble(estValue);
+                            long maxValue = 1000000000000L;
                             // Check if the conversion is successful
-                            if (estimatedValueDouble < 0) {
+                            if (estimatedValueDouble < 0 || estimatedValueDouble > maxValue) {
                                 // Show an error message or toast for invalid estimated value
-                                showErrorDialog("Estimated value must be a non-negative number");
+                                String errorMessage = "Estimated value must be a non-negative number less than " + NumberFormat.getNumberInstance(Locale.getDefault()).format(maxValue);
+                                showErrorDialog(errorMessage);
                                 return;
                             }
                             // Round estimated value to 2 decimal places
@@ -499,9 +511,9 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
         for (String tag : selectedTags) {
             TextView tagTextView = new TextView(this);
             tagTextView.setText(tag);
-            tagTextView.setBackgroundResource(R.drawable.tag_background); // Optional: Add a background drawable for styling
-            tagTextView.setTextColor(getResources().getColor(android.R.color.white)); // Optional: Set text color
-            tagTextView.setPadding(8, 4, 8, 4); // Optional: Set padding
+            tagTextView.setBackgroundResource(R.drawable.tag_background);
+            tagTextView.setTextColor(ContextCompat.getColor(this, android.R.color.white));
+            tagTextView.setPadding(8, 4, 8, 4);
 
             // Add the TextView to the LinearLayout
             tagsLayout.addView(tagTextView);
