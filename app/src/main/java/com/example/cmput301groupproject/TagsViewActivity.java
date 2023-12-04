@@ -11,6 +11,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
 
+/**
+ * The `TagsViewActivity` class represents the activity for viewing and managing tags.
+ * It allows users to add new tags, delete selected tags, and view the list of existing tags.
+ */
 public class TagsViewActivity extends AppCompatActivity implements TagDefineFragment.TagsOnFragmentInteractionListener {
 
     private Button backButton;
@@ -22,6 +26,13 @@ public class TagsViewActivity extends AppCompatActivity implements TagDefineFrag
     private ListView viewTagList;
     private TagsAdapter tagsAdapter;
 
+    /**
+     * Called when the activity is first created. Initializes the UI components and sets up event listeners.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after previously being shut down,
+     *                           this Bundle contains the data it most recently supplied in
+     *                           onSaveInstanceState(Bundle).
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,6 +100,9 @@ public class TagsViewActivity extends AppCompatActivity implements TagDefineFrag
         });
     }
 
+    /**
+     * Fetches the list of tags from the database using the TagsManager and updates the UI.
+     */
     private void fetchTags() {
         tagsManager.getTags(new TagsManager.CallbackHandler<ArrayList<String>>() {
             @Override
@@ -105,6 +119,9 @@ public class TagsViewActivity extends AppCompatActivity implements TagDefineFrag
         });
     }
 
+    /**
+     * Deletes the selected tags from the database using the TagsManager and updates the UI.
+     */
     private void deleteSelectedTags() {
         // Delete the selected tags using TagsManager
         tagsManager.deleteTags(selectedTags, new TagsManager.CallbackHandler<ArrayList<String>>() {
@@ -127,7 +144,12 @@ public class TagsViewActivity extends AppCompatActivity implements TagDefineFrag
         });
     }
 
-    // Implement the TagsListener method to handle added tags
+    /**
+     * Implementation of the TagsOnFragmentInteractionListener interface to handle added tags from
+     * the TagDefineFragment.
+     *
+     * @param newTag The tag that has been added.
+     */
     public void onTagAdded(String newTag) {
         // Check if the new tag already exists in the tagDataList
         if (!tagDataList.contains(newTag)) {
@@ -152,4 +174,3 @@ public class TagsViewActivity extends AppCompatActivity implements TagDefineFrag
         }
     }
 }
-

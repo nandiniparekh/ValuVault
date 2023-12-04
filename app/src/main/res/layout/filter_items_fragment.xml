@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/background"
     android:orientation="vertical">
 
     <EditText
@@ -21,6 +22,9 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/makeFilter_text"
         android:text="Filter by make"
+        android:backgroundTint="@color/button_dark"
+        android:textColor="@color/white"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/makeFilter_text" />
@@ -41,6 +45,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Filter by description"
+        android:backgroundTint="@color/button_dark"
+        android:textColor="@color/white"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/description_keyword" />
@@ -71,6 +78,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Filter by date range"
+        android:backgroundTint="@color/button_dark"
+        android:textColor="@color/white"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/endDate_filter_text" />
@@ -81,6 +91,9 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="68dp"
         android:text="Remove filters"
+        android:textColor="@color/white"
+        android:textStyle="bold"
+        android:backgroundTint="@color/button_light"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
@@ -101,6 +114,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Filter by selected tags"
+        android:textColor="@color/white"
+        android:textStyle="bold"
+        android:backgroundTint="@color/button_dark"
         app:layout_constraintBottom_toTopOf="@+id/removeFilter_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"

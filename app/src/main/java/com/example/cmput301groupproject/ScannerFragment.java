@@ -41,24 +41,31 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
+/**
+ * A fragment that allows capturing images using the device camera and performing OCR or barcode scanning on the captured images.
+ */
 public class ScannerFragment extends DialogFragment {
-
     ProcessCameraProvider cameraProvider;
     PreviewView previewView;
     Preview preview;
-
     private ImageCapture imageCapture;
     private OnSerialNumberCapturedListener serialNumberListener;
     protected String serialNoWoutSpaces;
 
-
     private boolean isBarcode;
+
+    /**
+     * Default constructor for the ScannerFragment.
+     */
     public ScannerFragment() {
         // Required empty public constructor
     }
 
-
-
+    /**
+     * Called when the fragment is created. Initializes the camera provider and binds the camera preview.
+     *
+     * @param savedInstanceState A Bundle containing the saved instance state.
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,6 +83,14 @@ public class ScannerFragment extends DialogFragment {
 
     }
 
+    /**
+     * Called to create the view for this fragment. Inflates the layout, retrieves arguments, and sets up UI components.
+     *
+     * @param inflater           The LayoutInflater object that can be used to inflate views.
+     * @param container          The parent view that the fragment's UI should be attached to.
+     * @param savedInstanceState A Bundle containing the saved instance state.
+     * @return The inflated View for this fragment.
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -100,7 +115,7 @@ public class ScannerFragment extends DialogFragment {
         // Set a click listener for the capture button
         captureButton.setOnClickListener(v -> captureImage(isBarcode));
 
-        //FOLLOWING ARE SOME TESTS, COMMENT ONE OR THE OTHER FOR VIEWING INDIVIDUAL
+        // Jaskeer's tests, uncomment individually
         //testOCROnSampleImage();
         //testBarcodeScannerOnSampleBarcode();
         //testOCROnSampleImage2();
@@ -108,6 +123,11 @@ public class ScannerFragment extends DialogFragment {
         return view;
     }
 
+    /**
+     * Binds the camera preview to the fragment.
+     *
+     * @param cameraProvider The camera provider to bind.
+     */
     void bindPreview(@NonNull ProcessCameraProvider cameraProvider) {
         preview = new Preview.Builder()
                 .build();
@@ -126,9 +146,13 @@ public class ScannerFragment extends DialogFragment {
         catch(Exception e){
             e.printStackTrace();
         }
-        //Camera camera = cameraProvider.bindToLifecycle((LifecycleOwner)this, cameraSelector, preview);
     }
 
+    /**
+     * Captures an image using the device camera and processes it based on the specified mode (OCR or barcode scanning).
+     *
+     * @param isBarcode A boolean indicating whether to perform barcode scanning.
+     */
     private void captureImage(boolean isBarcode) {
         File photoFile = createTempFile();
         ImageCapture.OutputFileOptions outputFileOptions = new ImageCapture.OutputFileOptions.Builder(photoFile).build();
@@ -153,6 +177,11 @@ public class ScannerFragment extends DialogFragment {
         });
     }
 
+    /**
+     * Creates a temporary file for saving captured images.
+     *
+     * @return The created temporary file.
+     */
     private File createTempFile() {
         // Create a temporary file for saving captured images
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
@@ -167,12 +196,13 @@ public class ScannerFragment extends DialogFragment {
         }
     }
 
-    public void setOnSerialNumberCapturedListener(OnSerialNumberCapturedListener listener) {
-        this.serialNumberListener = listener;
-        //dismiss();
-    }
-
+    /**
+     * Performs OCR (Optical Character Recognition) on the provided bitmap image.
+     *
+     * @param bitmap The bitmap image to process.
+     */
     protected void performOCR(Bitmap bitmap) {
+
         // Initialize TextRecognizer
         TextRecognizer recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
 
@@ -203,6 +233,11 @@ public class ScannerFragment extends DialogFragment {
                 });
     }
 
+    /**
+     * Processes the recognized text extracted by OCR.
+     *
+     * @param text The recognized text.
+     */
     private void processRecognizedText(Text text) {
         // Process the recognized text (extract serial number, etc.)
         // You can access individual text blocks, lines, and elements using text.getTextBlocks(), text.getLines(), text.getElements()
@@ -231,6 +266,12 @@ public class ScannerFragment extends DialogFragment {
         serialNoWoutSpaces = serialNoNoSpaces;
     }
 
+    /**
+     * Performs barcode scanning on the provided bitmap image.
+     *
+     * @param bitmap The bitmap image to process.
+     * @return A Task containing the result of barcode scanning.
+     */
     public Task<String> performBarcodeScanning(Bitmap bitmap) {
         // Create an InputImage from the bitmap
         InputImage image = InputImage.fromBitmap(bitmap, 0);
@@ -275,11 +316,25 @@ public class ScannerFragment extends DialogFragment {
                 });
     }
 
-
+    /**
+     * Interface for capturing serial numbers.
+     */
     public interface OnSerialNumberCapturedListener {
         void onSerialNumberCaptured(String serialNumber, boolean isBarcodeScan);
     }
 
+    /**
+     * Sets the listener for capturing serial numbers.
+     *
+     * @param listener The listener to set.
+     */
+    public void setOnSerialNumberCapturedListener(OnSerialNumberCapturedListener listener) {
+        this.serialNumberListener = listener;
+    }
+    
+    /**
+     * Called when the view is destroyed. Unbinds the camera provider and releases resources.
+     */
     @Override
     public void onDestroyView() {
         super.onDestroyView();

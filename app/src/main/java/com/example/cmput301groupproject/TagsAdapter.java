@@ -15,6 +15,9 @@ import androidx.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Custom ArrayAdapter for managing and displaying tags with checkboxes.
+ */
 public class TagsAdapter extends ArrayAdapter<String> {
     private final Context context;
     private final ArrayList<String> tags;
@@ -22,20 +25,44 @@ public class TagsAdapter extends ArrayAdapter<String> {
     private onTagCheckedChangeListener onTagCheckedChangeListener;
     private OnCheckboxCheckedChangeListener onCheckboxCheckedChangeListener;
 
+    /**
+     * Interface for handling tag checked change events.
+     */
     public interface onTagCheckedChangeListener {
         void onTagCheckedChange(int position, boolean isChecked);
     }
+
+    /**
+     * Sets the listener for tag checked change events.
+     *
+     * @param listener The listener to be set.
+     */
     public void onTagCheckedChangeListener(onTagCheckedChangeListener listener) {
         this.onTagCheckedChangeListener = listener;
     }
 
+    /**
+     * Interface for handling checkbox change events.
+     */
     public interface OnCheckboxCheckedChangeListener {
         void onCheckboxChange(int position, boolean isChecked);
     }
+
+    /**
+     * Sets the listener for checkbox change events.
+     *
+     * @param listener The listener to be set.
+     */
     public void setOnCheckboxCheckedChangeListener(OnCheckboxCheckedChangeListener listener) {
         this.onCheckboxCheckedChangeListener = listener;
     }
 
+    /**
+     * Constructs a TagsAdapter.
+     *
+     * @param context The context in which the adapter is created.
+     * @param tags    The list of tags to be displayed.
+     */
     public TagsAdapter(Context context, ArrayList<String> tags) {
         super(context, 0, tags);
         this.context = context;
@@ -48,6 +75,14 @@ public class TagsAdapter extends ArrayAdapter<String> {
         }
     }
 
+    /**
+     * Gets the view for each item in the adapter.
+     *
+     * @param position    The position of the item within the adapter.
+     * @param convertView The recycled view to populate.
+     * @param parent      The parent view that the returned view will be attached to.
+     * @return The view for the specified position.
+     */
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
@@ -90,7 +125,9 @@ public class TagsAdapter extends ArrayAdapter<String> {
         return view;
     }
 
-    // Method to clear all checked items
+    /**
+     * Clears the checked state for all items in the adapter.
+     */
     public void clearAllCheckedItems() {
         // Adjust the size of checkedStates if there are more items than tags
         while (checkedStates.size() > tags.size()) {

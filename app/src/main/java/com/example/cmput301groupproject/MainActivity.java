@@ -6,7 +6,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -80,30 +79,10 @@ public class MainActivity extends AppCompatActivity implements SortFragment.Sort
 
         dataList = new ArrayList<>();
 
-        itemAdapter = new CustomItemList(this, dataList);
+        itemAdapter = new CustomItemList(this, dataList, userCollectionPath);
 
         itemList = findViewById(R.id.item_list);
         itemList.setAdapter(itemAdapter);
-
-        // Allows editing or removal of clicked expenses
-        itemList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                HouseholdItem selectedItem = dataList.get(i);
-
-                Intent intent = new Intent(MainActivity.this, ItemEditActivity.class);
-                intent.putExtra("userDoc", userCollectionPath);
-                intent.putExtra("selectedItem", selectedItem);
-                startActivity(intent);
-            }
-        });
-
-        itemList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                return false;
-            }
-        });
 
         addItemButton = findViewById(R.id.add_item_b);
         addItemButton.setOnClickListener(new View.OnClickListener() {

@@ -19,16 +19,10 @@ import java.util.ArrayList;
 
 
 /**
- * This class represents the Filters fragment that pops up when the Filter button is clicked on Main Screen
+ * A DialogFragment class representing the Filters fragment that pops up when the Filter button is clicked on the Main Screen.
+ * This fragment allows the user to filter items based on make, description, date range, or tags.
  */
 public class FiltersFragment extends DialogFragment {
-
-
-    public interface FiltersFragmentListener {
-        void onFilterList(ArrayList<HouseholdItem> filteredDataList);
-        void onRemoveFilters(boolean isUnfiltered);
-    }
-
     private FiltersFragmentListener listener;
     private EditText makeFilterText;
     private EditText descriptionKeyword;
@@ -47,6 +41,20 @@ public class FiltersFragment extends DialogFragment {
     private ArrayList<String> tagsList = new ArrayList<String>();
     private ArrayList<String> selectedTags = new ArrayList<String>();
 
+    /**
+     * Interface for communicating filter actions to the hosting activity.
+     */
+    public interface FiltersFragmentListener {
+        void onFilterList(ArrayList<HouseholdItem> filteredDataList);
+        void onRemoveFilters(boolean isUnfiltered);
+    }
+
+    /**
+     * Called when the fragment is associated with an activity. This method is called once the fragment is attached to its hosting activity.
+     *
+     * @param context The context to which the fragment is attached.
+     * @throws ClassCastException Thrown when the hosting activity does not implement the required interface.
+     */
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -57,6 +65,15 @@ public class FiltersFragment extends DialogFragment {
         }
     }
 
+    /**
+     * Called to create the view hierarchy associated with the fragment. This method is responsible for inflating the fragment's layout,
+     * initializing UI elements, and setting up event listeners.
+     *
+     * @param inflater           The LayoutInflater object that can be used to inflate any views in the fragment.
+     * @param container          If non-null, this is the parent view that the fragment's UI should be attached to. The fragment should not add the view itself, but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous saved state as given here.
+     * @return The root View for the fragment's UI, or null.
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -161,8 +178,12 @@ public class FiltersFragment extends DialogFragment {
 
         removeFilters.setOnClickListener(v -> {
             //removes the filters on the list of items when this button is called.
-            listener.onRemoveFilters(true);
-            dismiss();
+            if (filteredItems.isEmpty())
+                dismiss();
+            else {
+                listener.onRemoveFilters(true);
+                dismiss();
+            }
         });
 
         return view;

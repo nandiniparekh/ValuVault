@@ -18,11 +18,25 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * LoginActivity class represents the activity for user login.
+ * It allows users to enter a username and checks whether the username
+ * exists in the Firestore database. If the username exists, it starts
+ * the MainActivity; otherwise, it adds the username to the database
+ * and then starts the MainActivity.
+ */
 public class LoginActivity extends AppCompatActivity {
     private EditText usernameEditText;
     private Button loginButton;
     private FirebaseFirestore db;
 
+    /**
+     * Overrides the onCreate method to initialize the activity.
+     * Sets the layout, retrieves views, and sets up the click
+     * listener for the login button.
+     *
+     * @param savedInstanceState The saved instance state of the activity.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,6 +64,11 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Displays a centered custom Toast message.
+     *
+     * @param message The message to be displayed in the Toast.
+     */
     private void showCenteredToast(String message) {
         // Inflate the custom layout
         View toastView = getLayoutInflater().inflate(R.layout.custom_toast_layout, null);
@@ -65,6 +84,13 @@ public class LoginActivity extends AppCompatActivity {
         toast.show();
     }
 
+    /**
+     * Checks if the entered username exists in the Firestore database.
+     * If the username exists, it starts the MainActivity; otherwise,
+     * it adds the username to the database and then starts MainActivity.
+     *
+     * @param username The entered username to be checked.
+     */
     private void checkUsernameInDatabase(final String username) {
         db.collection("users")
                 .document(username)
@@ -86,6 +112,12 @@ public class LoginActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Adds the username to the Firestore database and starts the
+     * MainActivity upon successful addition.
+     *
+     * @param username The username to be added to the database.
+     */
     private void addUsernameToDatabase(final String username) {
         Map<String, Object> user = new HashMap<>();
         // You can add additional user information here if needed
@@ -109,6 +141,13 @@ public class LoginActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Starts the MainActivity with the provided username as the
+     * collectionPath. Also, finishes the LoginActivity to prevent
+     * going back to it when pressing back in MainActivity.
+     *
+     * @param username The username used as the collectionPath.
+     */
     private void startMainActivity(String username) {
         // Start MainActivity with the username as the collectionPath
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
