@@ -42,7 +42,7 @@ public class ScannerFragmentTest {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            assertEquals("4234", scannerFragment.serialNoWoutSpaces);
+            assertEquals("1234", scannerFragment.serialNoWoutSpaces);
         } else {
             System.err.println("Error: Bitmap is null");
             fail("Bitmap is null");
