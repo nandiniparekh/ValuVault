@@ -315,7 +315,7 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
                         barcode -> {
                             // Get the raw value of barcode scanned
                             String scannedBarcode = barcode.getRawValue();
-                            accessFirebase(scannedBarcode);
+                            accessFirebase(scannedBarcode, true);
                             scanner = null;
 
                         })
@@ -364,12 +364,12 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
     @Override
     public void onSerialNumberCaptured(String serialNumber) {
         if (serialNumber != "") {
-            accessFirebase(serialNumber);
+            accessFirebase(serialNumber, false);
         }
         //getSupportFragmentManager().popBackStack();
     }
 
-    private void accessFirebase(String serialNo) {
+    private void accessFirebase(String serialNo, boolean isBarcode) {
         // Query firestore for information regarding associated product
         DocumentReference docRef = db.collection("Items_Barcode_info").document(serialNo);
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -378,17 +378,23 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
-
-                        // Logging and updating description
-                        Log.d(TAG, "DocumentSnapshot data: " + document.getData());
-                        description.setText((String) document.get("Product Description"));
-                        comment.setText((String) document.get("Comment"));
-                        //estimatedValue.setText((int) document.get("Estimated Value")); FIX THIS
-                        serialNumber.setText(serialNo);
-                        make.setText((String) document.get("Make"));
-                        model.setText((String) document.get("Model"));
-                        //purchaseDate.setText((String) document.get("Purchase Date")); FIX THIS
-
+                        if (isBarcode == true) {
+                            // Logging and updating description
+                            Log.d(TAG, "DocumentSnapshot data: " + document.getData());
+                            description.setText((String) document.get("Product Description"));
+                            comment.setText((String) document.get("Comment"));
+                            String val = (String) document.get("Estimated Value");
+                            estimatedValue.setText(val); //FIX THIS
+                            serialNumber.setText(serialNo);
+                            make.setText((String) document.get("Make"));
+                            model.setText((String) document.get("Model"));
+                            String pDate = (String) document.get("Purchase Date");
+                            purchaseDate.setText(pDate);
+                        }
+                        else{
+                            Log.d(TAG, "DocumentSnapshot data: " + document.getData());
+                            serialNumber.setText(serialNo);
+                        }
                     } else {
                         // Show an error message or toast indicating that all fields are required
                         Toast.makeText(ItemEditActivity.this, "The scanned barcode/serial number does not exist in the database.", Toast.LENGTH_SHORT).show();

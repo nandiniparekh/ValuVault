@@ -152,6 +152,7 @@ public class ScannerFragment extends DialogFragment {
 
     public void setOnSerialNumberCapturedListener(OnSerialNumberCapturedListener listener) {
         this.serialNumberListener = listener;
+        //dismiss();
     }
 
     private String performOCR(Bitmap bitmap) {
@@ -168,7 +169,8 @@ public class ScannerFragment extends DialogFragment {
                         // Extract recognized text
                         Text text = task.getResult();
                         //processRecognizedText(text);
-                        serialNumberListener.onSerialNumberCaptured(processRecognizedText(text));
+                        processRecognizedText(text);
+                        dismiss();
 
                     } else {
                         // Handle OCR failure
@@ -188,7 +190,7 @@ public class ScannerFragment extends DialogFragment {
          return "";// Placeholder, actual result will be processed in the onCompleteListener
     }
 
-    private String processRecognizedText(Text text) {
+    private void processRecognizedText(Text text) {
         // Process the recognized text (extract serial number, etc.)
         // You can access individual text blocks, lines, and elements using text.getTextBlocks(), text.getLines(), text.getElements()
         List<Text.TextBlock> textBlocks = text.getTextBlocks();
@@ -209,7 +211,6 @@ public class ScannerFragment extends DialogFragment {
         String serialNoNoSpaces = serialNo.replace(" ", "");
         Toast.makeText(requireContext(), serialNoNoSpaces, Toast.LENGTH_SHORT).show();
         serialNumberListener.onSerialNumberCaptured(serialNoNoSpaces);
-        return serialNoNoSpaces;
     }
     public interface OnSerialNumberCapturedListener {
         void onSerialNumberCaptured(String serialNumber);
