@@ -2,6 +2,7 @@ package com.example.cmput301groupproject;
 
 import static android.content.ContentValues.TAG;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -17,6 +18,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 
@@ -25,10 +27,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.mlkit.vision.barcode.common.Barcode;
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanner;
-import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions;
-import com.google.mlkit.vision.codescanner.GmsBarcodeScanning;
 
 import java.text.DecimalFormat;
 import java.text.ParseException;
@@ -55,11 +54,7 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
     private FirebaseFirestore db;
 
     // Setting the configuration for BarcodeScanner as UPC-A format and enabling autozoom features
-    private GmsBarcodeScannerOptions options = new GmsBarcodeScannerOptions.Builder()
-            .setBarcodeFormats(
-                    Barcode.FORMAT_UPC_A)
-            .enableAutoZoom()
-            .build();
+
     private HouseholdItem passedHouseholdItem;
     private GmsBarcodeScanner scanner;
     private String userCollectionPath;
@@ -91,19 +86,25 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
         scanSerialNoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (ContextCompat.checkSelfPermission(this,
+                if (ContextCompat.checkSelfPermission(ItemEditActivity.this,
                         Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
                     goToScannerFragment(false);
                 }
-                //HERE IS THE ISSUE
+                else{
+                    requestCameraPermission();
+                }
             }
         });
         scanBarcodeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                goToScannerFragment(true);
-                Log.e("Argument Passed to ScannerFragment", "");
-
+                if (ContextCompat.checkSelfPermission(ItemEditActivity.this,
+                        Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                    goToScannerFragment(true);
+                }
+                else{
+                    requestCameraPermission();
+                }
             }
         });
 
@@ -245,6 +246,31 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
         });
     }
 
+    private void requestCameraPermission() {
+        if(ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.CAMERA)){
+            new AlertDialog.Builder(this)
+                    .setTitle("Permission Needed")
+                    .setMessage("to access camera for scanning")
+                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            ActivityCompat.requestPermissions(ItemEditActivity.this, new String[] {Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE);
+                        }
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    })
+                    .create().show();
+        }
+        else{
+            ActivityCompat.requestPermissions(this,new String[] {Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE);
+        }
+    }
+
+
     // Helper method to check if the date is in the format "yyyy/MM/dd"
     public static boolean isValidDate(String dateStr) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault());
@@ -329,25 +355,6 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
      * and sets up listeners in events of a successful scan and a cancelled scan. Upon success, it
      * retrieves information from the firestore collection and updates the "description" EditText.
      */
-    protected void startBarcodeScanner(){
-        // Initialize barcode scanner
-        scanner = GmsBarcodeScanning.getClient(ItemEditActivity.this,options);
-        // Start scanning
-        scanner
-                .startScan()
-                .addOnSuccessListener(
-                        barcode -> {
-                            // Get the raw value of barcode scanned
-                            String scannedBarcode = barcode.getRawValue();
-                            accessFirebase(scannedBarcode, true);
-                            scanner = null;
-
-                        })
-                .addOnCanceledListener(
-                        () -> {
-                            scanner = null;
-                        });
-    }
 
     private void showTagSelectFragment() {
         TagSelectFragment tagSelectFragment = new TagSelectFragment();
