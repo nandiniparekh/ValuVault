@@ -49,6 +49,8 @@ public class ScannerFragment extends DialogFragment {
 
     private ImageCapture imageCapture;
     private OnSerialNumberCapturedListener serialNumberListener;
+    protected String serialNoWoutSpaces;
+
 
     private boolean isBarcode;
     public ScannerFragment() {
@@ -71,6 +73,7 @@ public class ScannerFragment extends DialogFragment {
                 // This should never be reached.
             }
         }, ContextCompat.getMainExecutor(getContext()));
+
     }
 
     @Override
@@ -169,7 +172,7 @@ public class ScannerFragment extends DialogFragment {
         //dismiss();
     }
 
-    private void performOCR(Bitmap bitmap) {
+    protected void performOCR(Bitmap bitmap) {
         // Initialize TextRecognizer
         TextRecognizer recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
 
@@ -224,6 +227,7 @@ public class ScannerFragment extends DialogFragment {
             serialNumberListener.onSerialNumberCaptured(serialNoNoSpaces, false);
             dismiss();
         }
+        serialNoWoutSpaces = serialNoNoSpaces;
     }
     public Task<String> performBarcodeScanning(Bitmap bitmap) {
         // Create an InputImage from the bitmap
@@ -283,9 +287,9 @@ public class ScannerFragment extends DialogFragment {
         }
     }
 
-    private void testOCROnSampleImage() {
+    protected void testOCROnSampleImage() {
         // Load a sample image from resources (assuming it's in the res/drawable directory)
-        Bitmap sampleBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.sample_image);
+        Bitmap sampleBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.sample_image_in_db);
 
         // Call performOCR with the sample image
         performOCR(sampleBitmap);
