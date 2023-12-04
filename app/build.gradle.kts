@@ -61,6 +61,3 @@ dependencies {
 
     compileOnly(files("${android.sdkDirectory}/platforms/${android.compileSdkVersion}/android.jar"))
 }
-configurations.all {
-    resolutionStrategy.force("com.android.support:support-annotations:28.0.0")
-}

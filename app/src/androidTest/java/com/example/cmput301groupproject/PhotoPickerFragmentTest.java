@@ -7,26 +7,55 @@ import static androidx.test.espresso.intent.matcher.IntentMatchers.hasAction;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasExtra;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasType;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+
 import static org.hamcrest.CoreMatchers.allOf;
 
 import android.content.Intent;
 import android.provider.MediaStore;
 
+import androidx.test.espresso.action.ViewActions;
+import androidx.test.espresso.intent.Intents;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import junit.framework.TestCase;
-
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-
-@RunWith(AndroidJUnit4.class)
-public class PhotoPickerFragmentTest extends TestCase {
+public class PhotoPickerFragmentTest {
 
     @Rule
-    public ActivityScenarioRule<PhotoPickerFragment> activityRule =
-            new ActivityScenarioRule<>(PhotoPickerFragment.class);
+    public ActivityScenarioRule<LoginActivity> activityScenarioRule = new ActivityScenarioRule<>(LoginActivity.class);
+
+    @Before
+    public void setup() {
+        // Initialize Intents before each test
+        Intents.init();
+
+        // Type the username "TestUser" in the EditText
+        onView(ViewMatchers.withId(R.id.usernameEditText))
+                .perform(ViewActions.typeText("TestUser"), ViewActions.closeSoftKeyboard());
+
+        // Click the login button
+        onView(ViewMatchers.withId(R.id.loginButton))
+                .perform(ViewActions.click());
+
+        // Delay for a short time to allow any asynchronous operations to complete
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // Click the add item button
+        onView(withId(R.id.add_item_b)).perform(click());
+    }
+
+    @After
+    public void tearDown() {
+        // Release Intents after each test
+        Intents.release();
+    }
 
     @Test
     public void testTakePhoto() {
