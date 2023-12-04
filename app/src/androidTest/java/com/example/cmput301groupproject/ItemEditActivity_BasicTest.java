@@ -60,12 +60,12 @@ public class ItemEditActivity_BasicTest {
         // Click the add item button
         onView(withId(R.id.add_item_b)).perform(click());
         // Type in the required fields for the new item
-        onView(withId(R.id.description_edit_text)).perform(ViewActions.typeText("Test description"));
-        onView(withId(R.id.make_edit_text)).perform(ViewActions.typeText("Test make"));
-        onView(withId(R.id.model_edit_text)).perform(ViewActions.typeText("Test model"));
-        onView(withId(R.id.serial_number_edit_text)).perform(ViewActions.typeText("Test serial number"));
-        onView(withId(R.id.estimated_value_edit_text)).perform(ViewActions.typeText("100"));
-        onView(withId(R.id.comment_edit_text)).perform(ViewActions.typeText("Test comment"));
+        onView(withId(R.id.description_edit_text)).perform(ViewActions.typeText("Test description"), ViewActions.closeSoftKeyboard());
+        onView(withId(R.id.make_edit_text)).perform(ViewActions.typeText("Test make"), ViewActions.closeSoftKeyboard());
+        onView(withId(R.id.model_edit_text)).perform(ViewActions.typeText("Test model"), ViewActions.closeSoftKeyboard());
+        onView(withId(R.id.serial_number_edit_text)).perform(ViewActions.typeText("Test serial number"), ViewActions.closeSoftKeyboard());
+        onView(withId(R.id.estimated_value_edit_text)).perform(ViewActions.typeText("100"), ViewActions.closeSoftKeyboard());
+        onView(withId(R.id.comment_edit_text)).perform(ViewActions.typeText("Test comment"), ViewActions.closeSoftKeyboard());
         onView(withId(R.id.purchase_date_edit_text)).perform(ViewActions.typeText("2023/11/09"), ViewActions.closeSoftKeyboard());
         // Click on the OK button for adding the item
         onView(withId(R.id.ok_button)).perform(click());
@@ -97,7 +97,7 @@ public class ItemEditActivity_BasicTest {
                 .atPosition(0)
                 .perform(click());
         // Make changes to the item details
-        onView(withId(R.id.description_edit_text)).perform(ViewActions.replaceText("Test description - Edited"));
+        onView(withId(R.id.description_edit_text)).perform(ViewActions.replaceText("Test description - Edited"), ViewActions.closeSoftKeyboard());
         // Click on the OK button for the edit
         onView(withId(R.id.ok_button)).perform(click());
         // Check if the edited item is displayed in the list
@@ -112,7 +112,7 @@ public class ItemEditActivity_BasicTest {
                 .atPosition(0)
                 .perform(click());
         // Make changes to the item details
-        onView(withId(R.id.description_edit_text)).perform(ViewActions.replaceText("Test description - More edits"));
+        onView(withId(R.id.description_edit_text)).perform(ViewActions.replaceText("Test description - More edits"), ViewActions.closeSoftKeyboard());
         // Click on the OK button for the edit
         onView(withId(R.id.cancel_button)).perform(click());
         // Check if the edited item is displayed in the list

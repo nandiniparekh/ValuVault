@@ -61,12 +61,12 @@ public class ItemEditActivity_ErrorTest {
         // Click the add item button
         onView(withId(R.id.add_item_b)).perform(click());
         // Type in the required fields for the new item
-        onView(withId(R.id.description_edit_text)).perform(ViewActions.typeText("Test invalid date"));
-        onView(withId(R.id.make_edit_text)).perform(ViewActions.typeText("Test make"));
-        onView(withId(R.id.model_edit_text)).perform(ViewActions.typeText("Test model"));
-        onView(withId(R.id.serial_number_edit_text)).perform(ViewActions.typeText("Test serial number"));
-        onView(withId(R.id.estimated_value_edit_text)).perform(ViewActions.typeText("100"));
-        onView(withId(R.id.comment_edit_text)).perform(ViewActions.typeText("Test comment"));
+        onView(withId(R.id.description_edit_text)).perform(ViewActions.typeText("Test invalid date"), ViewActions.closeSoftKeyboard());
+        onView(withId(R.id.make_edit_text)).perform(ViewActions.typeText("Test make"), ViewActions.closeSoftKeyboard());
+        onView(withId(R.id.model_edit_text)).perform(ViewActions.typeText("Test model"), ViewActions.closeSoftKeyboard());
+        onView(withId(R.id.serial_number_edit_text)).perform(ViewActions.typeText("Test serial number"), ViewActions.closeSoftKeyboard());
+        onView(withId(R.id.estimated_value_edit_text)).perform(ViewActions.typeText("100"), ViewActions.closeSoftKeyboard());
+        onView(withId(R.id.comment_edit_text)).perform(ViewActions.typeText("Test comment"), ViewActions.closeSoftKeyboard());
         onView(withId(R.id.purchase_date_edit_text)).perform(ViewActions.typeText("2024/1/40"), ViewActions.closeSoftKeyboard());
         // Click on the OK button for adding the item
         onView(withId(R.id.ok_button)).perform(click());
