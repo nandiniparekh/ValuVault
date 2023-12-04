@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity implements SortFragment.Sort
 
         dataList = new ArrayList<>();
 
-        itemAdapter = new CustomItemList(this, dataList);
+        itemAdapter = new CustomItemList(this, dataList, userCollectionPath);
 
         itemList = findViewById(R.id.item_list);
         itemList.setAdapter(itemAdapter);

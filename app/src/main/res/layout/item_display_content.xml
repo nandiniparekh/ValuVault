@@ -1,61 +1,78 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/linearLayout"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/item_date"
-        android:layout_width="125dp"
-        android:layout_height="100dp"
-        android:padding="20dp"
-        android:text="Date"
-        android:textSize="20sp"
-        app:layout_constraintEnd_toStartOf="@+id/item_description"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <!-- Horizontal RelativeLayout for Date, Make, and Estimated Value -->
+    <RelativeLayout
+        android:id="@+id/horizontalLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="20dp">
 
+        <!-- Date TextView -->
+        <TextView
+            android:id="@+id/item_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="5dp"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:text="2000/01/01"
+            android:textSize="20sp" />
+
+        <!-- Make TextView -->
+
+        <!-- Estimated Value TextView -->
+        <TextView
+            android:id="@+id/item_make"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="35dp"
+            android:layout_marginEnd="35dp"
+            android:layout_toStartOf="@+id/item_value"
+            android:layout_toEndOf="@+id/item_date"
+            android:singleLine="true"
+            android:text="Make"
+            android:ellipsize="end"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/item_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:text="100.00"
+            android:textSize="20sp" />
+    </RelativeLayout>
+
+    <!-- Description TextView -->
     <TextView
         android:id="@+id/item_description"
-        android:layout_width="275dp"
-        android:layout_height="100dp"
-        android:layout_marginStart="5dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:padding="20dp"
         android:text="Description"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toTopOf="@+id/item_value"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/item_date"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:ellipsize="end"
+        android:textSize="14sp" />
 
-    <TextView
-        android:id="@+id/item_make"
-        android:layout_width="125dp"
-        android:layout_height="100dp"
-        android:padding="20dp"
-        android:text="Make"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/item_value"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/item_date" />
+    <!-- Tags HorizontalScrollView -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp">
 
-    <TextView
-        android:id="@+id/item_value"
-        android:layout_width="275dp"
-        android:layout_height="100dp"
-        android:layout_marginStart="5dp"
-        android:padding="20dp"
-        android:text="Estimated Value"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/item_make"
-        app:layout_constraintTop_toBottomOf="@+id/item_description" />
-
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <!-- Horizontal LinearLayout for Tags -->
+        <LinearLayout
+            android:id="@+id/display_item_tags_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+        </LinearLayout>
+    </HorizontalScrollView>
+</LinearLayout>
