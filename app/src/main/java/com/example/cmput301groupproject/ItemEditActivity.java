@@ -7,6 +7,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -21,12 +22,23 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.google.mlkit.vision.barcode.common.Barcode;
+
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanner;
 
 import java.text.DecimalFormat;
@@ -35,7 +47,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 
 public class ItemEditActivity extends AppCompatActivity implements TagSelectFragment.OnTagsSelectedListener, ScannerFragment.OnSerialNumberCapturedListener {
@@ -48,10 +62,20 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
     private EditText comment;
     private EditText purchaseDate;
     private ArrayList<String> selectedTags = new ArrayList<>();
+    private ArrayList<Uri> images = new ArrayList<>();
     private Button selectTagsButton;
     private Button scanBarcodeButton;
     private Button scanSerialNoButton;
     private FirebaseFirestore db;
+    private Button loadButton;
+    private PhotoPickerFragment photoPickerFragment;
+    private ArrayList<String> loadedImages;
+    private List<Uri> selectedImages = new ArrayList<>();
+    private ArrayList<String> imagesUpload = new ArrayList<>();
+
+    private RecyclerView imageRecyclerView;
+    private PhotoAdapter adapter;
+
 
     // Setting the configuration for BarcodeScanner as UPC-A format and enabling autozoom features
 
@@ -80,9 +104,14 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
         estimatedValue = findViewById(R.id.estimated_value_edit_text);
         comment = findViewById(R.id.comment_edit_text);
         purchaseDate = findViewById(R.id.purchase_date_edit_text);
+        
+
+        loadButton = findViewById(R.id.load_button);
+        loadedImages = new ArrayList<>();
 
         scanSerialNoButton = findViewById(R.id.scan_serial_button);
         scanBarcodeButton = findViewById(R.id.scan_barcode_button);
+      
         scanSerialNoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -118,6 +147,7 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
             }
         });
 
+
         Bundle args = intent.getExtras();
         if (args.getSerializable("selectedItem") != null) {
             titleDesc = "Edit Item";
@@ -129,9 +159,49 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
             serialNumber.setText(passedHouseholdItem.getSerialNumber());
             estimatedValue.setText(passedHouseholdItem.getEstimatedValue());
             comment.setText(passedHouseholdItem.getComment());
+            if (passedHouseholdItem.getImages() != null) {
+                Log.d("item fragment already loaded", String.valueOf(passedHouseholdItem.getImages().size()));
+                loadedImages = passedHouseholdItem.getImages();
+            }
 
             onTagsSelected(passedHouseholdItem.getTags());
         }
+
+        if (loadedImages.size() != 0) {
+            for (String s : loadedImages) {
+                Uri uri = Uri.parse(s);
+                images.add(uri);
+            }
+
+            //initialize recycler view
+            imageRecyclerView = findViewById(R.id.imageRecyclerView);
+            imageRecyclerView.setLayoutManager(new GridLayoutManager(this, 3));
+            adapter = new PhotoAdapter(images, 2);
+            imageRecyclerView.setAdapter(adapter);
+
+            adapter.setOnDeleteClickListener(position -> {
+                // Remove the photo from your list
+                images.remove(position);
+                loadedImages.remove(position);
+                // Notify adapter of item removal
+                adapter.notifyItemRemoved(position);
+            });
+
+        }
+
+        loadButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+               // Create an instance of the fragment to load
+                photoPickerFragment = new PhotoPickerFragment();
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+                // Replace the fragment_container with the fragment
+                fragmentTransaction.replace(R.id.galleryFragmentContainer, photoPickerFragment);
+                fragmentTransaction.commit();
+            }
+        });
 
         TextView activityTitle = findViewById(R.id.title_text);
         activityTitle.setText(titleDesc);
@@ -151,75 +221,121 @@ public class ItemEditActivity extends AppCompatActivity implements TagSelectFrag
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Get input values and update the item object
-                String desc = description.getText().toString();
-                String mk = make.getText().toString();
-                String mdl = model.getText().toString();
-                String serial = serialNumber.getText().toString();
-                String estValue = estimatedValue.getText().toString();
-                String cmt = comment.getText().toString();
-                String date = purchaseDate.getText().toString();
+//                selectedImages = new ArrayList<>();
 
-                if (desc.isEmpty() || mk.isEmpty() || mdl.isEmpty() || estValue.isEmpty() || cmt.isEmpty() || date.isEmpty()) {
-                    // Show an error message or toast indicating that all fields are required
-                    showErrorDialog("All fields are required");
-                    return;
-                }
-
-                // Validate Estimated Value
+                // when no images are selected, this code breaks the app!
                 try {
-                    // Try to convert the estimated value to double
-                    double estimatedValueDouble = Double.parseDouble(estValue);
-                    // Check if the conversion is successful
-                    if (estimatedValueDouble < 0) {
-                        // Show an error message or toast for invalid estimated value
-                        showErrorDialog("Estimated value must be a non-negative number");
-                        return;
+                    selectedImages = photoPickerFragment.getSelectedImages();
+                } catch (NullPointerException e) {
+                    selectedImages.clear();
+                }
+                List<Task<Uri>> uploadTasks = new ArrayList<>();
+                for (Uri imageUri : selectedImages) {
+                    StorageReference storageRef = FirebaseStorage.getInstance().getReference();
+                    StorageReference imageRef = storageRef.child("images/" + UUID.randomUUID().toString());
+                    UploadTask uploadTask = imageRef.putFile(imageUri);
+                    Task<Uri> urlTask = uploadTask.continueWithTask(task -> {
+                        if (!task.isSuccessful()) {
+                            throw task.getException();
+                        }
+                        return imageRef.getDownloadUrl();
+                    }).addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            Uri downloadUri = task.getResult();
+                            imagesUpload.add(downloadUri.toString());
+                        } else {
+                            // Handle failure
+                        }
+                    });
+                    uploadTasks.add(urlTask);
+                }
+
+                if (loadedImages != null) {
+                    imagesUpload.addAll(loadedImages);
+                }
+
+
+                Tasks.whenAllSuccess(uploadTasks).addOnSuccessListener(new OnSuccessListener<List<Object>>() {
+                    @Override
+                    public void onSuccess(List<Object> list) {
+                        // Get input values and update the item object
+                        String desc = description.getText().toString();
+                        String mk = make.getText().toString();
+                        String mdl = model.getText().toString();
+                        String serial = serialNumber.getText().toString();
+                        String estValue = estimatedValue.getText().toString();
+                        String cmt = comment.getText().toString();
+                        String date = purchaseDate.getText().toString();
+
+                        if (desc.isEmpty() || mk.isEmpty() || mdl.isEmpty() || estValue.isEmpty() || cmt.isEmpty() || date.isEmpty()) {
+                            // Show an error message or toast indicating that all fields are required
+                            showErrorDialog("All fields are required");
+                            return;
+                        }
+
+                        // Validate Estimated Value
+                        try {
+                            // Try to convert the estimated value to double
+                            double estimatedValueDouble = Double.parseDouble(estValue);
+                            // Check if the conversion is successful
+                            if (estimatedValueDouble < 0) {
+                                // Show an error message or toast for invalid estimated value
+                                showErrorDialog("Estimated value must be a non-negative number");
+                                return;
+                            }
+                            // Round estimated value to 2 decimal places
+                            DecimalFormat df = new DecimalFormat("#.##");
+                            estValue = df.format(estimatedValueDouble);
+
+                        } catch (NumberFormatException e) {
+                            // Show an error message or toast for invalid estimated value
+                            showErrorDialog("Invalid estimated value format");
+                            return;
+                        }
+
+                        // Validate Date Format
+                        if (!isValidDate(date)) {
+                            // Show an error message or toast for invalid date format
+                            showErrorDialog("Invalid date entry (yyyy/MM/dd), year between 1000-2100");
+                            return;
+                        }
+
+                        Intent intent = new Intent(ItemEditActivity.this, MainActivity.class);
+                        intent.putExtra("userDoc", userCollectionPath);
+
+                        if (passedHouseholdItem != null) {
+                            passedHouseholdItem.setDescription(desc);
+                            passedHouseholdItem.setMake(mk);
+                            passedHouseholdItem.setModel(mdl);
+                            passedHouseholdItem.setSerialNumber(serial);
+                            passedHouseholdItem.setEstimatedValue(estValue);
+                            passedHouseholdItem.setComment(cmt);
+                            passedHouseholdItem.setDateOfPurchase(date);
+
+                            passedHouseholdItem.setTags(selectedTags);
+
+                            if (imagesUpload != null) {
+                                int size = imagesUpload.size();
+                                Log.d("ImagesUploadBottom", String.valueOf(size));
+                            }
+                            passedHouseholdItem.setImages(imagesUpload);
+
+                            intent.putExtra("command", "editItem");
+                            intent.putExtra("editedItem", passedHouseholdItem);
+                        } else {
+                            // Add a new item
+                            HouseholdItem newItem = new HouseholdItem(date, desc, mk, mdl, serial, estValue, cmt);
+                            newItem.setTags(selectedTags);
+                            newItem.setImages(imagesUpload);
+
+                            intent.putExtra("command", "addItem");
+                            intent.putExtra("addedItem", newItem);
+                        }
+
+                        startActivity(intent);
                     }
-                    // Round estimated value to 2 decimal places
-                    DecimalFormat df = new DecimalFormat("#.##");
-                    estValue = df.format(estimatedValueDouble);
+                });
 
-                } catch (NumberFormatException e) {
-                    // Show an error message or toast for invalid estimated value
-                    showErrorDialog("Invalid estimated value format");
-                    return;
-                }
-
-                // Validate Date Format
-                if (!isValidDate(date)) {
-                    // Show an error message or toast for invalid date format
-                    showErrorDialog("Invalid date entry (yyyy/MM/dd), year between 1000-2100");
-                    return;
-                }
-
-                Intent intent = new Intent(ItemEditActivity.this, MainActivity.class);
-                intent.putExtra("userDoc", userCollectionPath);
-
-                if (passedHouseholdItem != null) {
-                    passedHouseholdItem.setDescription(desc);
-                    passedHouseholdItem.setMake(mk);
-                    passedHouseholdItem.setModel(mdl);
-                    passedHouseholdItem.setSerialNumber(serial);
-                    passedHouseholdItem.setEstimatedValue(estValue);
-                    passedHouseholdItem.setComment(cmt);
-                    passedHouseholdItem.setDateOfPurchase(date);
-
-                    passedHouseholdItem.setTags(selectedTags);
-
-                    intent.putExtra("command", "editItem");
-                    intent.putExtra("editedItem", passedHouseholdItem);
-                }
-                else {
-                    // Add a new item
-                    HouseholdItem newItem = new HouseholdItem(date, desc, mk, mdl, serial, estValue, cmt);
-                    newItem.setTags(selectedTags);
-
-                    intent.putExtra("command", "addItem");
-                    intent.putExtra("addedItem", newItem);
-                }
-
-                startActivity(intent);
             }
         });
 
