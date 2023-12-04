@@ -55,7 +55,7 @@ public class SelectedItemAdapter extends ArrayAdapter<HouseholdItem> {
         itemPurchaseDate.setText(item.getDateOfPurchase());
         itemDescription.setText(item.getDescription());
         itemMake.setText(item.getMake());
-        itemEstimatedValue.setText(item.getEstimatedValue());
+        itemEstimatedValue.setText("$" + item.getEstimatedValue());
 
 
         CheckBox checkBox = view.findViewById(R.id.checkbox);
