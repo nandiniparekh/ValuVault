@@ -1,5 +1,7 @@
 package com.example.cmput301groupproject;
 
+import static java.nio.file.Files.createTempFile;
+
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -167,7 +169,8 @@ public class ScannerFragment extends DialogFragment {
                     performOCR(bitmap);
                 }
                 if (isBarcode == true){
-                    performBarcodeScanning(bitmap);
+                    Bitmap bitmap1 = BitmapFactory.decodeResource(getResources(), R.drawable.sample_barcode);
+                    performBarcodeScanning(bitmap1);
                 }
             }
 
@@ -182,7 +185,7 @@ public class ScannerFragment extends DialogFragment {
      * Creates a temporary file for saving captured images.
      *
      * @return The created temporary file.
-     */
+     *y
     private File createTempFile() {
         // Create a temporary file for saving captured images
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());

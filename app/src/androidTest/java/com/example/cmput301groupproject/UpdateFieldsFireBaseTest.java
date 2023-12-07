@@ -12,6 +12,7 @@ import androidx.test.espresso.action.ViewActions;
 import androidx.test.espresso.intent.Intents;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -44,11 +45,11 @@ public class UpdateFieldsFireBaseTest {
         }
     }
 
-    /*@After
+    @After
     public void tearDown() {
         // Release Intents after each test
         Intents.release();
-    }*/
+    }
     @Test
     public void test_UpdateFromSerialNumberImage() {
         // Launch the ItemEditActivity
