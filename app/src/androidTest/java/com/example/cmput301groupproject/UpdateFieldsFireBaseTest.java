@@ -12,7 +12,6 @@ import androidx.test.espresso.action.ViewActions;
 import androidx.test.espresso.intent.Intents;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -45,11 +44,11 @@ public class UpdateFieldsFireBaseTest {
         }
     }
 
-    @After
+    /*@After
     public void tearDown() {
         // Release Intents after each test
         Intents.release();
-    }
+    }*/
     @Test
     public void test_UpdateFromSerialNumberImage() {
         // Launch the ItemEditActivity
@@ -75,44 +74,43 @@ public class UpdateFieldsFireBaseTest {
 
     @Test
     public void test_UpdateFromBarcodeScanner() {
-        // Launch the ItemEditActivity
+        // launching activity
         onView(withId(R.id.add_item_b)).perform(click());
 
         ActivityScenario<ItemEditActivity> scenario = ActivityScenario.launch(ItemEditActivity.class);
 
-        // Use onActivity to get a reference to the launched activity
+        // get reference to launched activity
         scenario.onActivity(activity -> {
             itemEditActivity = activity;
         });
-
-        // Perform the action that triggers the accessFirebase method
-        itemEditActivity.accessFirebase("4234", true);
+        // calling accessFirebase
+        itemEditActivity.accessFirebase("123456789104", true);
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        onView(withText("4234")).check(matches(isDisplayed()));
-        onView(withText("I hope it is working.")).check(matches(isDisplayed()));
-        onView(withText("100")).check(matches(isDisplayed()));
-        onView(withText("Iron")).check(matches(isDisplayed()));
-        onView(withText("A101")).check(matches(isDisplayed()));
-        onView(withText("2002/09/10")).check(matches(isDisplayed()));
+        onView(withText("123456789104")).check(matches(isDisplayed()));
+        onView(withText("This is the demo description from barcode scanning demo")).check(matches(isDisplayed()));
+        onView(withText("Demo Comment")).check(matches(isDisplayed()));
+        onView(withText("555")).check(matches(isDisplayed()));
+        onView(withText("DemoMake")).check(matches(isDisplayed()));
+        onView(withText("DemoModel")).check(matches(isDisplayed()));
+        onView(withText("2002/01/01")).check(matches(isDisplayed()));
     }
 
     @Test
     public void test_UpdateWhenNotInDB() {
-        // Launch the ItemEditActivity
         onView(withId(R.id.add_item_b)).perform(click());
 
         ActivityScenario<ItemEditActivity> scenario = ActivityScenario.launch(ItemEditActivity.class);
 
-        // Use onActivity to get a reference to the launched activity
+        // get reference to launched activity
         scenario.onActivity(activity -> {
             itemEditActivity = activity;
         });
 
-        // Perform the action that triggers the accessFirebase method
+        // call accessFirebase
         itemEditActivity.accessFirebase("123123123", true);
         try {
             Thread.sleep(2000);

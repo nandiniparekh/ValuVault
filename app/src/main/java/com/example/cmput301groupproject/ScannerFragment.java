@@ -53,6 +53,7 @@ public class ScannerFragment extends DialogFragment {
     protected String serialNoWoutSpaces;
 
     private boolean isBarcode;
+    protected String barcode;
 
     /**
      * Default constructor for the ScannerFragment.
@@ -263,6 +264,7 @@ public class ScannerFragment extends DialogFragment {
             serialNumberListener.onSerialNumberCaptured(serialNoNoSpaces, false);
             dismiss();
         }
+        Toast.makeText(requireContext(), serialNoNoSpaces, Toast.LENGTH_SHORT).show();
         serialNoWoutSpaces = serialNoNoSpaces;
     }
 
@@ -298,8 +300,12 @@ public class ScannerFragment extends DialogFragment {
                             Barcode firstBarcode = barcodes.get(0);
                             Log.e("BarcodeScanner", "Barcode scan successful with: " + firstBarcode.getRawValue());
                             Toast.makeText(requireContext(), firstBarcode.getRawValue(), Toast.LENGTH_SHORT).show();
-                            serialNumberListener.onSerialNumberCaptured(firstBarcode.getRawValue(), true);
-                            dismiss();
+                            if (serialNumberListener != null) {
+                                serialNumberListener.onSerialNumberCaptured(firstBarcode.getRawValue(), true);
+                                dismiss();
+                                return firstBarcode.getRawValue();
+                            }
+                            barcode = firstBarcode.getRawValue();
                             return firstBarcode.getRawValue();
                         } else {
                             // No UPC-A barcode found
