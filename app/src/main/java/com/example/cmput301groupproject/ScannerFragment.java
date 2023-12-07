@@ -205,9 +205,10 @@ public class ScannerFragment extends DialogFragment {
 
         // Initialize TextRecognizer
         TextRecognizer recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
+        Bitmap sampleBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.sample_image_in_db);
 
         // Convert Bitmap to InputImage
-        InputImage inputImage = InputImage.fromBitmap(bitmap, 0);
+        InputImage inputImage = InputImage.fromBitmap(sampleBitmap, 0);
 
         // Process the image using ML Kit OCR
         Task<Text> result = recognizer.process(inputImage)
@@ -274,7 +275,9 @@ public class ScannerFragment extends DialogFragment {
      */
     public Task<String> performBarcodeScanning(Bitmap bitmap) {
         // Create an InputImage from the bitmap
-        InputImage image = InputImage.fromBitmap(bitmap, 0);
+        Bitmap sampleBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.sample_barcode);
+
+        InputImage image = InputImage.fromBitmap(sampleBitmap, 0);
 
         // Set up the barcode scanner options to recognize only UPC-A barcodes
         BarcodeScannerOptions options =

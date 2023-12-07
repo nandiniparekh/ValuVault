@@ -131,6 +131,7 @@ public class MainActivity extends AppCompatActivity implements SortFragment.Sort
                         HouseholdItem savedItem = new HouseholdItem(dateOfPurchaseString, description, make, model, serialNumber, estimatedValue, comment);
                         savedItem.setFirestoreId(firestoreId);
 
+
                         // Set tags to the savedItem
                         if (tags != null) {
                             savedItem.setTags(tags);
