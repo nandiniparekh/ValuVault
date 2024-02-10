@@ -7,7 +7,7 @@ ValuVault is an item-tracking application. Users can comfortably store their ite
 
 ## Tech Stack
 * Java
-* Firestore - Back-End
+* Firebase - Back-End
 * Built using Android Studio
 
 ## Collaboration
