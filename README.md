@@ -10,3 +10,5 @@ ValuVault is an item-tracking application. Users can comfortably store their ite
 * Java
 * Built using Android Studio
 
+## Collaboration
+Collaborated with a team of six developers to create the application.
