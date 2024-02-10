@@ -12,7 +12,7 @@ ValuVault is a household item-tracking application. Users can comfortably store 
 
 ## Tech Stack
 * Java
-* Firebase - Back-End
+* Cloud Firestore - a NoSQL Cloud Database by Google
 * Built using Android Studio
 
 ## Collaboration
