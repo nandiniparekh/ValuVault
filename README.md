@@ -4,6 +4,7 @@ ValuVault is an item-tracking application. Users can comfortably store their ite
 * Delete items
 * Add pictures to items
 * Add tags to sort items
+* Identify items using barcode scanner
 
 ## Tech Stack
 * Java
