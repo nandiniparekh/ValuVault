@@ -1,9 +1,14 @@
 ## Overview of the application
-ValuVault is an item-tracking application. Users can comfortably store their items on application with the ability to 
+ValuVault is a household item-tracking application. Users can comfortably store their items on application with the ability to 
 * Adding, deleting, updating items
 * Attach pictures to items
 * Add tags to sort items
 * Identify items using barcode scanner
+
+## Benefits
+* Efficiently manage household inventory.
+* Quickly retrieve critical data when needed.
+* Simplify insurance claims and warranty tracking.
 
 ## Tech Stack
 * Java
